@@ -18,7 +18,7 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Unzip package and choose morphing substrate index
+      - name: Unzip package into repository root
         shell: bash
         run: |
           set -euo pipefail
@@ -26,7 +26,6 @@ jobs:
           echo "Repo before:"
           find . -maxdepth 4 -type f | sort
 
-          rm -f index.html
           rm -rf extracted
 
           ZIP_FILE=$(find . -maxdepth 4 -type f -name '*.zip' | head -n 1 || true)
@@ -40,38 +39,59 @@ jobs:
           mkdir -p extracted
           unzip -o "$ZIP_FILE" -d extracted
 
-          echo "HTML files found after unzip:"
-          find extracted -type f \( -iname '*.html' -o -iname '*.htm' \) | sort
+          PACKAGE_ROOT=$(find extracted -mindepth 1 -maxdepth 2 -type f -name 'package.json' -printf '%h\n' | head -n 1 || true)
 
-          HTML_FILE=$(find extracted -type f -path '*/public/index.html' | head -n 1 || true)
-
-          if [ -z "$HTML_FILE" ]; then
-            HTML_FILE=$(find extracted -type f -iname 'resonance-beef-morphos.html' | head -n 1 || true)
+          if [ -z "$PACKAGE_ROOT" ]; then
+            PACKAGE_ROOT=$(find extracted -mindepth 1 -maxdepth 1 -type d | head -n 1 || true)
           fi
 
-          if [ -z "$HTML_FILE" ]; then
-            HTML_FILE=$(find extracted -type f -iname '*beef*morphos*.html' | head -n 1 || true)
-          fi
-
-          if [ -z "$HTML_FILE" ]; then
-            HTML_FILE=$(find extracted -type f \( -iname '*.html' -o -iname '*.htm' \) | head -n 1 || true)
-          fi
-
-          if [ -z "$HTML_FILE" ]; then
-            echo "ERROR: No HTML file found after unzip."
+          if [ -z "$PACKAGE_ROOT" ]; then
+            echo "ERROR: Could not identify extracted package root."
             exit 1
           fi
 
-          echo "Chosen HTML file: $HTML_FILE"
-          cp "$HTML_FILE" index.html
+          echo "Package root: $PACKAGE_ROOT"
+          echo "HTML files found after unzip:"
+          find "$PACKAGE_ROOT" -type f \( -iname '*.html' -o -iname '*.htm' \) | sort
+
+          rsync -av \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude 'extracted/' \
+            --exclude '*.zip' \
+            "$PACKAGE_ROOT"/ ./
+
+          if [ -f public/index.html ]; then
+            cp public/index.html index.html
+            if [ -d public/apps ]; then
+              rm -rf apps
+              cp -R public/apps ./apps
+            fi
+            if [ -d public/assets ]; then
+              rm -rf assets
+              cp -R public/assets ./assets
+            fi
+          elif [ ! -f index.html ]; then
+            HTML_FILE=$(find . -type f \( -iname '*.html' -o -iname '*.htm' \) | grep -v '^./extracted/' | head -n 1 || true)
+            if [ -z "$HTML_FILE" ]; then
+              echo "ERROR: No HTML file found after unzip."
+              exit 1
+            fi
+            cp "$HTML_FILE" index.html
+          fi
+
+          rm -rf extracted
+
+          echo "Repo after scaffold:"
+          find . -maxdepth 4 -type f | sort
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
+          git add .
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "Scaffold index from uploaded SYNTHIA package"
+            git commit -m "Unpack SYNTHIA package into deployable Stellar Proximology site"
             git push
           fi
