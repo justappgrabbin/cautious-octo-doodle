@@ -41,12 +41,37 @@ jobs:
           unzip -o "$ZIP_FILE" -d extracted
 
           echo "HTML files found after unzip:"
-          find extracted -type f -iname '*.html' -o -iname '*.htm' | sort
+          find extracted -type f \( -iname '*.html' -o -iname '*.htm' \) | sort
 
-          HTML_FILE=$(find extracted -type f -iname 'resonance-beef-morphos.html' | head -n 1 || true)
+          HTML_FILE=$(find extracted -type f -path '*/public/index.html' | head -n 1 || true)
+
+          if [ -z "$HTML_FILE" ]; then
+            HTML_FILE=$(find extracted -type f -iname 'resonance-beef-morphos.html' | head -n 1 || true)
+          fi
 
           if [ -z "$HTML_FILE" ]; then
             HTML_FILE=$(find extracted -type f -iname '*beef*morphos*.html' | head -n 1 || true)
           fi
 
-          then
+          if [ -z "$HTML_FILE" ]; then
+            HTML_FILE=$(find extracted -type f \( -iname '*.html' -o -iname '*.htm' \) | head -n 1 || true)
+          fi
+
+          if [ -z "$HTML_FILE" ]; then
+            echo "ERROR: No HTML file found after unzip."
+            exit 1
+          fi
+
+          echo "Chosen HTML file: $HTML_FILE"
+          cp "$HTML_FILE" index.html
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Scaffold index from uploaded SYNTHIA package"
+            git push
+          fi
