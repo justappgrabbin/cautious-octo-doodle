@@ -1,0 +1,16 @@
+{
+  "name": "synthia-canonical-build",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "preview": "vite preview --host 0.0.0.0",
+    "serve": "python3 -m http.server 8080 -d public"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vite": "latest",
+    "typescript": "latest"
+  }
+}

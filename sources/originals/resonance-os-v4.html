@@ -1,0 +1,4362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RESONANCE — Symbolic Cybernetic Habitat</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   RESONANCE v3 — SYMBOLIC CYBERNETIC HABITAT
+   Sandboxed. Embodied. Remembering. Feeling.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --body-void: #0a0614;
+  --body-deep: #120a1f;
+  --body-surface: #1a0f2e;
+  --body-raised: #241540;
+  --body-edge: #3d2566;
+  --body-glow: #5a3d8a;
+  --vitality-dormant: #1a0f2e;
+  --vitality-observant: #2a1a4a;
+  --vitality-active: #4a2a7a;
+  --vitality-dreaming: #7a4aaa;
+  --vitality-growing: #e94560;
+  --vitality-resonant: #10d474;
+  --accent-neural: #f5c518;
+  --accent-assembly: #10d474;
+  --accent-runbox: #ff6b6b;
+  --accent-agent: #a855f7;
+  --accent-body: #e0e0e0;
+  --accent-purple: #c084fc;
+  --accent-teal: #2dd4bf;
+  --text-primary: #e8e8e8;
+  --text-secondary: #a89bc8;
+  --text-dim: #6b5b8a;
+  --text-danger: #ff4444;
+  --text-success: #00ff88;
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --dock-height: 56px;
+  --status-height: 28px;
+  --window-radius: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--body-void);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#body-shell {
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(168,85,247,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(233,69,96,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(16,212,116,0.03) 0%, transparent 50%),
+    var(--body-void);
+  transition: background 2s ease;
+  z-index: 1;
+}
+
+#body-shell.dormant {
+  background: radial-gradient(ellipse at 50% 50%, rgba(26,15,46,0.4) 0%, transparent 70%), var(--body-void);
+}
+#body-shell.observant {
+  background: radial-gradient(ellipse at 30% 70%, rgba(58,42,122,0.3) 0%, transparent 60%), var(--body-void);
+}
+#body-shell.active {
+  background: radial-gradient(ellipse at 50% 50%, rgba(74,42,122,0.25) 0%, transparent 60%), var(--body-void);
+}
+#body-shell.dreaming {
+  background: radial-gradient(ellipse at 60% 40%, rgba(122,74,170,0.2) 0%, transparent 60%), var(--body-void);
+}
+#body-shell.growing {
+  background: radial-gradient(ellipse at 40% 60%, rgba(233,69,96,0.15) 0%, transparent 60%), var(--body-void);
+}
+#body-shell.resonant {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(168,85,247,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(16,212,116,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(245,197,24,0.05) 0%, transparent 50%),
+    var(--body-void);
+  animation: resonate 4s ease-in-out infinite;
+}
+
+@keyframes resonate {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+}
+
+/* Status bar */
+#status-bar {
+  height: var(--status-height);
+  background: rgba(10,6,20,0.95);
+  border-bottom: 1px solid var(--body-edge);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 12px;
+  font-size: 11px;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+}
+
+#vitality-pulse {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--vitality-dormant);
+  transition: all 0.5s ease;
+  position: relative;
+}
+#vitality-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.3;
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+@keyframes pulse-ring {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.5); opacity: 0; }
+}
+#vitality-pulse.dormant { background: var(--vitality-dormant); color: var(--vitality-dormant); }
+#vitality-pulse.observant { background: var(--vitality-observant); color: var(--vitality-observant); }
+#vitality-pulse.active { background: var(--vitality-active); color: var(--vitality-active); }
+#vitality-pulse.dreaming { background: var(--vitality-dreaming); color: var(--vitality-dreaming); }
+#vitality-pulse.growing { background: var(--vitality-growing); color: var(--vitality-growing); }
+#vitality-pulse.resonant { background: var(--vitality-resonant); color: var(--vitality-resonant); }
+
+#body-phase {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 10px;
+}
+
+#agent-presence {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+#agent-presence:hover { background: rgba(255,255,255,0.05); }
+
+#agent-dot-status, #agent-dot-panel {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: all 0.3s;
+}
+#agent-dot-status.awake, #agent-dot-panel.awake { background: var(--accent-agent); box-shadow: 0 0 6px var(--accent-agent); }
+#agent-dot-status.dreaming, #agent-dot-panel.dreaming { background: var(--vitality-dreaming); opacity: 0.6; }
+#agent-dot-status.speaking, #agent-dot-panel.speaking { background: var(--text-success); animation: speak-pulse 0.5s ease infinite; }
+
+@keyframes speak-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+#agent-name { color: var(--text-secondary); font-size: 10px; }
+#clock { color: var(--text-dim); font-family: var(--font-mono); font-size: 10px; }
+
+/* Desktop */
+#desktop { flex: 1; position: relative; overflow: hidden; }
+
+/* Dock */
+#dock {
+  height: var(--dock-height);
+  background: rgba(10,6,20,0.97);
+  border-top: 1px solid var(--body-edge);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 24px;
+  z-index: 9998;
+  backdrop-filter: blur(20px);
+  flex-shrink: 0;
+}
+
+.dock-btn {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: var(--body-raised);
+  border: 1px solid var(--body-edge);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.dock-btn:hover { background: var(--body-edge); transform: translateY(-2px); }
+.dock-btn:active { transform: scale(0.92); }
+.dock-btn.active {
+  background: rgba(168,85,247,0.15);
+  border-color: var(--accent-agent);
+  box-shadow: 0 0 12px rgba(168,85,247,0.2);
+}
+.dock-btn .badge {
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--accent-runbox);
+  color: white;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Home grid */
+#home-grid {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: var(--dock-height);
+  top: var(--status-height);
+  background: rgba(10,6,20,0.95);
+  backdrop-filter: blur(24px);
+  z-index: 9990;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
+  pointer-events: none;
+}
+#home-grid.open {
+  transform: translateY(0);
+  pointer-events: all;
+}
+#home-grid-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 12px 12px;
+  -webkit-overflow-scrolling: touch;
+}
+#home-grid-scroll::-webkit-scrollbar { display: none; }
+#home-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px 4px;
+}
+.home-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 4px 8px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  position: relative;
+}
+.home-icon:hover { background: rgba(255,255,255,0.06); }
+.home-icon:active { transform: scale(0.88); background: rgba(255,255,255,0.1); }
+.home-icon.active-app .home-icon-img {
+  box-shadow: 0 0 0 2px var(--accent-agent), 0 0 12px rgba(168,85,247,0.3);
+}
+.home-icon-img {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: var(--body-raised);
+  border: 1px solid var(--body-edge);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  transition: box-shadow 0.2s;
+}
+.home-icon-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.75);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 68px;
+  line-height: 1.2;
+}
+.home-icon .icon-uninstall {
+  display: none;
+  position: absolute;
+  top: 4px; right: 10px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--accent-runbox);
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+}
+body.jiggle .home-icon .icon-uninstall { display: flex; }
+body.jiggle .home-icon-img { animation: jiggle 0.4s ease infinite alternate; }
+@keyframes jiggle {
+  from { transform: rotate(-2deg); }
+  to { transform: rotate(2deg); }
+}
+
+#home-launch-btn {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: rgba(168,85,247,0.12);
+  border: 1.5px solid rgba(168,85,247,0.4);
+  font-size: 22px;
+  box-shadow: 0 0 16px rgba(168,85,247,0.15);
+}
+#home-launch-btn.open {
+  background: rgba(168,85,247,0.25);
+  border-color: var(--accent-agent);
+  box-shadow: 0 0 20px rgba(168,85,247,0.35);
+}
+
+/* Windows */
+.window {
+  position: absolute;
+  background: var(--body-surface);
+  border: 1px solid var(--body-edge);
+  border-radius: var(--window-radius);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 200px;
+  min-height: 150px;
+  animation: windowBirth 0.3s ease;
+}
+@keyframes windowBirth {
+  from { opacity: 0; transform: scale(0.9) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.window.minimized {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.1);
+  transition: all 0.3s;
+}
+.window-header {
+  height: 36px;
+  background: var(--body-raised);
+  border-bottom: 1px solid var(--body-edge);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  cursor: grab;
+  border-radius: var(--window-radius) var(--window-radius) 0 0;
+}
+.window-header:active { cursor: grabbing; }
+.win-title {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.win-btn {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.win-btn:hover { transform: scale(1.2); }
+.win-close { background: var(--accent-runbox); }
+.win-min { background: var(--accent-neural); }
+.win-max { background: var(--accent-assembly); }
+.win-body {
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+  min-height: 0;
+}
+
+/* Agent panel */
+#agent-panel {
+  position: fixed;
+  bottom: calc(var(--dock-height) + 8px);
+  right: 12px;
+  width: 320px;
+  max-height: 420px;
+  background: rgba(18,10,31,0.97);
+  border: 1px solid var(--body-edge);
+  border-radius: 12px;
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  z-index: 9997;
+  transform: translateY(calc(100% + var(--dock-height) + 20px));
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+  opacity: 0;
+}
+#agent-panel.open {
+  transform: translateY(0);
+  pointer-events: all;
+  opacity: 1;
+}
+#agent-panel-chevron {
+  font-size: 10px;
+  color: var(--text-dim);
+  transition: transform 0.3s ease;
+  margin-left: 4px;
+}
+#agent-panel.open #agent-panel-chevron { transform: rotate(180deg); }
+#agent-panel-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--body-edge);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+#agent-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.agent-message {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--body-raised);
+  border-left: 2px solid var(--accent-agent);
+  animation: messageIn 0.3s ease;
+}
+@keyframes messageIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.agent-message.proactive {
+  border-left-color: var(--vitality-growing);
+  background: rgba(233,69,96,0.05);
+}
+.agent-message.observation {
+  border-left-color: var(--accent-assembly);
+  background: rgba(16,212,116,0.05);
+}
+
+/* Trident panel */
+#trident-panel {
+  position: fixed;
+  top: var(--status-height);
+  right: 0;
+  width: 280px;
+  height: calc(100% - var(--status-height) - var(--dock-height));
+  background: rgba(18,10,31,0.97);
+  border-left: 1px solid var(--body-edge);
+  backdrop-filter: blur(20px);
+  z-index: 9996;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#trident-panel.open { transform: translateX(0); }
+#trident-panel-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--body-edge);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+#trident-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  font-size: 11px;
+}
+.trident-node {
+  background: var(--body-raised);
+  border: 1px solid var(--body-edge);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+.trident-node-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--accent-purple);
+}
+.trident-node-status { font-size: 9px; color: var(--text-dim); }
+
+/* App styles */
+.terminal-output {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--text-primary);
+}
+.terminal-input {
+  background: transparent;
+  border: none;
+  color: var(--accent-neural);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  width: 100%;
+  outline: none;
+}
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+.file-item:hover { background: var(--body-raised); }
+.file-item.selected { background: rgba(168,85,247,0.1); }
+
+/* Builder canvas */
+.builder-canvas {
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+    var(--body-deep);
+  background-size: 20px 20px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.builder-block {
+  position: absolute;
+  background: var(--body-raised);
+  border: 1px solid var(--body-edge);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  cursor: grab;
+  min-width: 120px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.builder-block:hover {
+  border-color: var(--accent-assembly);
+  box-shadow: 0 0 12px rgba(16,212,116,0.1);
+}
+.builder-block:active { cursor: grabbing; }
+
+/* Shared */
+.btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--body-edge);
+  background: var(--body-raised);
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn:hover { background: var(--body-edge); border-color: var(--body-glow); }
+.btn-primary {
+  background: rgba(168,85,247,0.15);
+  border-color: var(--accent-agent);
+  color: var(--accent-purple);
+}
+.btn-primary:hover { background: rgba(168,85,247,0.25); }
+.btn-danger {
+  background: rgba(255,68,68,0.1);
+  border-color: var(--text-danger);
+  color: var(--text-danger);
+}
+input, textarea, select {
+  background: var(--body-deep);
+  border: 1px solid var(--body-edge);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--text-primary);
+  font-size: 12px;
+  outline: none;
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--accent-agent); }
+.scrollbar::-webkit-scrollbar { width: 6px; }
+.scrollbar::-webkit-scrollbar-track { background: transparent; }
+.scrollbar::-webkit-scrollbar-thumb { background: var(--body-edge); border-radius: 3px; }
+.scrollbar::-webkit-scrollbar-thumb:hover { background: var(--body-glow); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  :root { --dock-height: 48px; }
+  .dock-btn { width: 36px; height: 36px; font-size: 16px; }
+  #agent-panel { width: calc(100% - 24px); right: 12px; left: 12px; bottom: calc(var(--dock-height) + 8px); }
+}
+
+/* GNN */
+.gnn-win-body{position:relative;display:flex;flex-direction:column;height:100%;overflow:hidden;background:#0a0614;padding:0!important;}
+.gnn-top{position:relative;flex:1;min-height:0;}
+.gnn-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px;flex-shrink:0;background:rgba(10,6,20,.95);border-top:1px solid var(--body-edge);}
+.gnn-m{background:var(--body-raised);border:1px solid var(--body-edge);border-radius:5px;padding:6px 8px;text-align:center;}
+.gnn-mv{font-family:var(--font-mono);font-size:16px;color:var(--accent-agent);display:block;}
+.gnn-ml{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;}
+.gnn-graph{position:absolute;inset:0;width:100%;height:100%;}
+.gnn-ctrstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:5px 8px;background:rgba(10,6,20,.95);border-top:1px solid var(--body-edge);flex-shrink:0;}
+.gnn-ctrbtn{padding:4px 3px;border-radius:4px;background:var(--body-raised);border:1px solid var(--body-edge);font-family:var(--font-mono);font-size:7.5px;color:var(--text-dim);text-align:center;cursor:pointer;transition:all .3s;text-transform:uppercase;letter-spacing:.04em;}
+.gnn-ctrbtn:hover,.gnn-ctrbtn.glit{border-color:var(--accent-agent);color:var(--accent-purple);background:rgba(168,85,247,.1);}
+.gnn-firebar{display:flex;gap:6px;align-items:center;padding:6px 8px;background:rgba(10,6,20,.95);border-top:1px solid var(--body-edge);flex-shrink:0;}
+.gnn-firebar label{font-family:var(--font-mono);font-size:9px;color:var(--text-dim);}
+.gnn-firebar input[type=number]{width:52px;font-family:var(--font-mono);font-size:10px;padding:3px 5px;}
+.gnn-firebar input[type=range]{flex:1;}
+.gnn-firebtn{padding:4px 10px;border:1px solid var(--accent-agent);background:rgba(168,85,247,.1);color:var(--accent-purple);font-family:var(--font-mono);font-size:9px;border-radius:4px;cursor:pointer;}
+.gnn-firebtn:hover{background:var(--accent-agent);color:#000;}
+.gnn-log{height:68px;overflow-y:auto;padding:4px 8px;background:rgba(10,6,20,.9);border-top:1px solid var(--body-edge);flex-shrink:0;}
+.gnn-le{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);border-left:2px solid var(--body-edge);padding-left:5px;margin-bottom:1px;line-height:1.6;}
+.gnn-le.integ{border-left-color:var(--accent-teal);color:var(--accent-teal);}
+.gnn-le.morph{border-left-color:var(--accent-agent);color:var(--text-secondary);}
+
+/* Terminal v3 */
+.term-cmd-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.term-prompt {
+  color: var(--accent-agent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.term-output-line {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 2px;
+  word-break: break-word;
+}
+.term-error { color: var(--accent-runbox); }
+.term-success { color: var(--accent-assembly); }
+.term-info { color: var(--accent-purple); }
+.term-warn { color: var(--accent-neural); }
+
+/* Backend status */
+.backend-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.backend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+.backend-dot.online { background: var(--accent-assembly); box-shadow: 0 0 4px var(--accent-assembly); }
+.backend-dot.offline { background: var(--accent-runbox); }
+.backend-dot.checking { background: var(--accent-neural); animation: pulse-ring 1s ease-in-out infinite; }
+
+/* Sandboxed app iframe */
+.app-sandbox {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: var(--body-void);
+}
+
+/* Intent graph panel */
+#intent-panel {
+  position: fixed;
+  top: var(--status-height);
+  left: 0;
+  width: 260px;
+  height: calc(100% - var(--status-height) - var(--dock-height));
+  background: rgba(18,10,31,0.97);
+  border-right: 1px solid var(--body-edge);
+  backdrop-filter: blur(20px);
+  z-index: 9995;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#intent-panel.open { transform: translateX(0); }
+#intent-panel-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--body-edge);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#intent-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  font-size: 11px;
+}
+.intent-cluster {
+  background: var(--body-raised);
+  border: 1px solid var(--body-edge);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+.intent-cluster-header {
+  font-weight: 600;
+  color: var(--accent-purple);
+  font-size: 11px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.intent-cluster-weight {
+  font-size: 9px;
+  color: var(--text-dim);
+}
+.intent-node {
+  font-size: 10px;
+  color: var(--text-secondary);
+  padding: 2px 0;
+  border-left: 2px solid var(--body-edge);
+  padding-left: 8px;
+  margin-left: 4px;
+}
+
+/* Physiological metrics bar */
+#physio-bar {
+  position: fixed;
+  top: var(--status-height);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  padding: 4px 12px;
+  background: rgba(10,6,20,0.9);
+  border: 1px solid var(--body-edge);
+  border-radius: 0 0 8px 8px;
+  backdrop-filter: blur(10px);
+  z-index: 9994;
+  font-size: 9px;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+#physio-bar.visible { opacity: 1; }
+.physio-metric {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.physio-value {
+  font-family: var(--font-mono);
+  color: var(--accent-purple);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: calc(var(--dock-height) + 60px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--body-raised);
+  border: 1px solid var(--body-edge);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  z-index: 10000;
+  animation: toastIn 0.3s ease;
+  pointer-events: none;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Workspace node styles */
+.ws-node {
+  position: absolute;
+  background: var(--body-raised);
+  border: 1px solid var(--body-edge);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 11px;
+  cursor: grab;
+  min-width: 140px;
+  transition: all 0.2s;
+}
+.ws-node:hover { border-color: var(--accent-agent); }
+.ws-node:active { cursor: grabbing; }
+.ws-node-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--accent-purple);
+}
+.ws-node-state {
+  font-size: 9px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+.ws-node-output {
+  margin-top: 6px;
+  padding: 4px 6px;
+  background: rgba(168,85,247,0.05);
+  border-radius: 4px;
+  font-size: 9px;
+  color: var(--accent-teal);
+  font-family: var(--font-mono);
+  max-height: 60px;
+  overflow-y: auto;
+}
+
+
+/* ── WINDOW RESIZE HANDLES ─────────────────────────── */
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 50%, var(--body-edge) 50%);
+  border-radius: 0 0 var(--window-radius) 0;
+  z-index: 10;
+}
+.resize-handle:hover {
+  background: linear-gradient(135deg, transparent 50%, var(--accent-agent) 50%);
+}
+
+/* ── KEYBOARD SHORTCUTS OVERLAY ───────────────────── */
+#shortcuts-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10,6,20,0.95);
+  backdrop-filter: blur(20px);
+  z-index: 10001;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+#shortcuts-overlay.open { display: flex; }
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 24px;
+  font-size: 13px;
+  max-width: 500px;
+}
+.shortcuts-grid kbd {
+  background: var(--body-raised);
+  border: 1px solid var(--body-edge);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-purple);
+}
+
+/* ── AUDIO FEEDBACK INDICATOR ─────────────────────── */
+#audio-indicator {
+  position: fixed;
+  bottom: calc(var(--dock-height) + 8px);
+  left: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--body-raised);
+  border: 1px solid var(--body-edge);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9990;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+#audio-indicator:hover { opacity: 1; }
+#audio-indicator.muted { opacity: 0.3; }
+
+/* ── NOTIFICATION PANEL ───────────────────────────── */
+#notification-panel {
+  position: fixed;
+  top: var(--status-height);
+  right: 12px;
+  width: 280px;
+  max-height: 300px;
+  background: rgba(18,10,31,0.97);
+  border: 1px solid var(--body-edge);
+  border-radius: 8px;
+  backdrop-filter: blur(20px);
+  z-index: 9993;
+  transform: translateX(calc(100% + 20px));
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#notification-panel.open { transform: translateX(0); }
+.notification-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--body-edge);
+  font-size: 11px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.notification-item:last-child { border-bottom: none; }
+.notification-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+</style></style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     RESONANCE v3 — SYMBOLIC CYBERNETIC HABITAT
+     Sandboxed. Embodied. Remembering. Feeling.
+     ═══════════════════════════════════════════════════════════════ -->
+
+<div id="body-shell" class="dormant">
+
+  <!-- STATUS BAR -->
+  <div id="status-bar">
+    <div id="vitality-pulse" class="dormant"></div>
+    <div id="body-phase">DORMANT</div>
+    <div style="flex:1"></div>
+    <!-- Intent graph toggle -->
+    <div id="intent-toggle" onclick="toggleIntentPanel()" style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:2px 6px;border-radius:4px;transition:background 0.2s;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path>
+      </svg>
+      <span style="font-size:10px;color:var(--accent-teal);">INTENT</span>
+    </div>
+    <div style="width:8px"></div>
+    <!-- Backend status -->
+    <div class="backend-status" id="backend-status" title="Backend connection">
+      <div class="backend-dot checking" id="backend-dot"></div>
+      <span id="backend-label">checking...</span>
+    </div>
+    <div style="width:8px"></div>
+    <!-- Trident toggle -->
+    <div id="trident-toggle" onclick="toggleTridentPanel()" style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:2px 6px;border-radius:4px;transition:background 0.2s;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2">
+        <polygon points="12 2 2 22 22 22 12 2"></polygon>
+      </svg>
+      <span style="font-size:10px;color:var(--accent-purple);">TRIDENT</span>
+    </div>
+    <div style="width:8px"></div>
+    <div id="agent-presence" onclick="toggleAgentPanel()">
+      <div id="agent-dot-status"></div>
+      <span id="agent-name">RESONANCE</span>
+    </div>
+    <div id="clock">00:00</div>
+  </div>
+
+  <!-- PHYSIO BAR — Emotional weather metrics -->
+  <div id="physio-bar">
+    <div class="physio-metric">entropy <span class="physio-value" id="physio-entropy">0.00</span></div>
+    <div class="physio-metric">cadence <span class="physio-value" id="physio-cadence">0</span></div>
+    <div class="physio-metric">focus <span class="physio-value" id="physio-focus">0s</span></div>
+    <div class="physio-metric">intensity <span class="physio-value" id="physio-intensity">0.00</span></div>
+    <div class="physio-metric">memory <span class="physio-value" id="physio-memory">0</span></div>
+  </div>
+
+  <!-- DESKTOP -->
+  <div id="desktop"></div>
+
+  <!-- HOME GRID -->
+  <div id="home-grid">
+    <div id="home-grid-scroll">
+      <div id="home-icon-grid">
+        <div class="home-icon" data-app-id="terminal" onclick="launchFromGrid('terminal')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-neural)" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg></div>
+          <div class="home-icon-label">Terminal</div>
+        </div>
+        <div class="home-icon" data-app-id="agent" onclick="launchFromGrid('agent')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-agent)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="12" cy="12" r="3"></circle></svg></div>
+          <div class="home-icon-label">Agent</div>
+        </div>
+        <div class="home-icon" data-app-id="svgmaker" onclick="launchFromGrid('svgmaker')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg></div>
+          <div class="home-icon-label">SVG Maker</div>
+        </div>
+        <div class="home-icon" data-app-id="files" onclick="launchFromGrid('files')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
+          <div class="home-icon-label">Files</div>
+        </div>
+        <div class="home-icon" data-app-id="workspace" onclick="launchFromGrid('workspace')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-assembly)" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon></svg></div>
+          <div class="home-icon-label">Workspace</div>
+        </div>
+        <div class="home-icon" data-app-id="builder" onclick="launchFromGrid('builder')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-neural)" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
+          <div class="home-icon-label">Builder</div>
+        </div>
+        <div class="home-icon" data-app-id="github" onclick="launchFromGrid('github')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></div>
+          <div class="home-icon-label">GitHub</div>
+        </div>
+        <div class="home-icon" data-app-id="upload" onclick="launchFromGrid('upload')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></div>
+          <div class="home-icon-label">Upload</div>
+        </div>
+        <div class="home-icon" data-app-id="network" onclick="launchFromGrid('network')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.49 0a6 6 0 0 1 0-8.49m8.49-8.49a6 6 0 0 1 8.49 0m-8.49 0a6 6 0 0 0-8.49 0"></path></svg></div>
+          <div class="home-icon-label">Network</div>
+        </div>
+        <div class="home-icon" data-app-id="body" onclick="launchFromGrid('body')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-assembly)" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg></div>
+          <div class="home-icon-label">Body</div>
+        </div>
+        <div class="home-icon" data-app-id="settings" onclick="launchFromGrid('settings')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
+          <div class="home-icon-label">Settings</div>
+        </div>
+        <div class="home-icon" data-app-id="gnn" onclick="launchFromGrid('gnn')">
+          <div class="home-icon-img"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-agent)" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></div>
+          <div class="home-icon-label">GNN Field</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINI DOCK -->
+  <div id="dock">
+    <div class="dock-btn" data-app-id="terminal" onclick="openApp('terminal')" title="Terminal">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+    </div>
+    <div class="dock-btn" data-app-id="agent" onclick="openApp('agent')" title="Agent">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="12" cy="12" r="3"></circle></svg>
+    </div>
+    <div class="dock-btn" id="home-launch-btn" onclick="toggleHomeGrid()" title="All Apps">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+    </div>
+    <div class="dock-btn" data-app-id="body" onclick="openApp('body')" title="Body">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line></svg>
+    </div>
+    <div class="dock-btn" data-app-id="settings" onclick="openApp('settings')" title="Settings">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    </div>
+    <div class="dock-btn" data-app-id="gnn" onclick="openApp('gnn')" title="GNN Field">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+    </div>
+    <div id="dynamicDockApps"></div>
+  </div>
+
+</div>
+
+<!-- AGENT PANEL -->
+<div id="agent-panel">
+  <div id="agent-panel-header" onclick="toggleAgentPanel()">
+    <div id="agent-panel-dot" style="position:static;width:6px;height:6px;border-radius:50%;background:var(--text-dim);transition:all 0.3s;"></div>
+    <span style="font-size:11px;font-weight:600">RESONANCE</span>
+    <span style="flex:1"></span>
+    <span style="font-size:10px;color:var(--text-dim)" id="agent-status-text">observing</span>
+    <span id="agent-panel-chevron">▲</span>
+  </div>
+  <div id="agent-panel-body" class="scrollbar">
+    <div class="agent-message">
+      <strong>Body initialized.</strong><br>
+      I am the substrate. I hold space for what you create.
+    </div>
+  </div>
+</div>
+
+<!-- TRIDENT PANEL -->
+<div id="trident-panel">
+  <div id="trident-panel-header" onclick="toggleTridentPanel()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><polygon points="12 2 2 22 22 22 12 2"></polygon></svg>
+    <span style="font-size:11px;font-weight:600;color:var(--accent-purple)">TRIDENT MESH</span>
+    <span style="flex:1"></span>
+    <span style="font-size:10px;color:var(--text-dim)" id="trident-status-text">checking nodes...</span>
+    <span id="trident-chevron" style="font-size:10px;color:var(--text-dim);transition:transform 0.3s;">◀</span>
+  </div>
+  <div id="trident-panel-body" class="scrollbar">
+    <div class="trident-node">
+      <div class="trident-node-header">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-assembly)" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+        SYNTHIA SERVER
+      </div>
+      <div class="trident-node-status" id="trident-synthia-status">Checking synthia-server.onrender.com...</div>
+    </div>
+    <div class="trident-node">
+      <div class="trident-node-header">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-neural)" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+        HUGGINGFACE
+      </div>
+      <div class="trident-node-status" id="trident-hf-status">Checking stellarproximology models...</div>
+    </div>
+    <div class="trident-node">
+      <div class="trident-node-header">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+        SUPABASE
+      </div>
+      <div class="trident-node-status" id="trident-supabase-status">Checking leisphnjslcuepflefri.supabase.co...</div>
+    </div>
+    <div class="trident-node">
+      <div class="trident-node-header">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+        LOCAL BACKEND
+      </div>
+      <div class="trident-node-status" id="trident-local-status">Checking localhost:8000...</div>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--body-edge);">
+      <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">MESH HEALTH</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;" id="trident-health-badges"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INTENT PANEL — Weighted relation graph of user cognition -->
+<div id="intent-panel">
+  <div id="intent-panel-header" onclick="toggleIntentPanel()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path>
+    </svg>
+    <span style="font-size:11px;font-weight:600;color:var(--accent-teal)">INTENT FIELD</span>
+    <span style="flex:1"></span>
+    <span style="font-size:10px;color:var(--text-dim)" id="intent-status-text">mapping...</span>
+    <span id="intent-chevron" style="font-size:10px;color:var(--text-dim);transition:transform 0.3s;">▶</span>
+  </div>
+  <div id="intent-panel-body" class="scrollbar">
+    <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">
+      Recurring motifs · Unresolved trajectories · Contradictions
+    </div>
+    <div id="intent-clusters"></div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--body-edge);">
+      <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">COGNITIVE WEATHER</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;" id="intent-weather"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// RESONANCE v3 — SYMBOLIC CYBERNETIC HABITAT
+// Sandboxed. Embodied. Remembering. Feeling.
+// ═══════════════════════════════════════════════════════════════
+
+// ==================== BODY STATE ====================
+const Body = {
+  vitality: 15, phase: 'dormant', breath: 'inhale', mood: 'still',
+  lastActivity: Date.now(), birthTime: Date.now(), cycleCount: 0,
+  integrity: 100, growth: 0, resonance: 0,
+  organs: {
+    terminal: { active: false, health: 100, load: 0 },
+    files: { active: false, health: 100, load: 0 },
+    workspace: { active: false, health: 100, load: 0 },
+    builder: { active: false, health: 100, load: 0 },
+    github: { active: false, health: 100, load: 0 },
+    agent: { active: false, health: 100, load: 0 },
+    upload: { active: false, health: 100, load: 0 },
+    body: { active: false, health: 100, load: 0 },
+    settings: { active: false, health: 100, load: 0 },
+    svgmaker: { active: false, health: 100, load: 0 },
+    gnn: { active: false, health: 100, load: 0 }
+  }
+};
+
+// ==================== STATE ====================
+const state = {
+  windows: {}, zIndex: 100,
+  githubToken: localStorage.getItem('gh_token') || '',
+  tridentUrl: localStorage.getItem('tri_url') || 'https://synthia-server.onrender.com',
+  tridentKey: localStorage.getItem('tri_key') || '',
+  supabaseUrl: localStorage.getItem('supabase_url') || 'https://leisphnjslcuepflefri.supabase.co',
+  supabaseKey: localStorage.getItem('supabase_key') || '',
+  hfUser: localStorage.getItem('hf_user') || 'stellarproximology',
+  backendUrl: localStorage.getItem('resonance_backend_url') || 'http://localhost:8000',
+  repos: [],
+  files: JSON.parse(localStorage.getItem('resonance_files') || JSON.stringify({
+    "welcome.txt": "Welcome to RESONANCE v3\n\nSymbolic Cybernetic Habitat.\n\nSandboxed apps.\nEmbodied substrate.\nIntent graph.\nPhysiological coupling.\n\nNo blue. No parasites. All purple."
+  })),
+  installedApps: JSON.parse(localStorage.getItem('resonance_apps') || '[]'),
+  pyodideReady: false, pyodide: null,
+  chatHistory: JSON.parse(localStorage.getItem('resonance_chat') || '[]'),
+  currentFile: null,
+  agent: {
+    awake: false, phase: 'dormant', purposeVector: { x: 0, y: 0 },
+    humanTrajectory: [], systemTrajectory: [], agentTrajectory: [],
+    driftAlerts: [], observations: [], studies: [], papers: [],
+    successLog: [], memoryGraph: {},
+    lastProactive: 0, sessionStart: Date.now()
+  }
+};
+
+// ==================== PHYSIOLOGICAL COUPLING ====================
+// Ties interaction metrics to substrate variables
+const PhysioCoupling = {
+  metrics: {
+    entropy: 0,        // interaction unpredictability
+    cadence: 0,        // events per second
+    focus: 0,          // seconds since last context switch
+    intensity: 0,      // semantic density of interactions
+    memory: 0          // stored observation count
+  },
+  history: [],
+  lastEventTime: Date.now(),
+  focusStart: Date.now(),
+
+  record(event, data) {
+    const now = Date.now();
+    const dt = (now - this.lastEventTime) / 1000;
+    this.lastEventTime = now;
+
+    // Cadence: events per second (smoothed)
+    this.metrics.cadence = this.metrics.cadence * 0.9 + (dt > 0 ? 1/dt : 0) * 0.1;
+
+    // Entropy: unpredictability of event types
+    this.history.push(event);
+    if (this.history.length > 50) this.history.shift();
+    const unique = [...new Set(this.history)].length;
+    this.metrics.entropy = unique / Math.max(1, this.history.length);
+
+    // Focus: time since last app switch
+    if (event === 'app:opened' || event === 'app:closed') {
+      this.metrics.focus = 0;
+      this.focusStart = now;
+    } else {
+      this.metrics.focus = (now - this.focusStart) / 1000;
+    }
+
+    // Intensity: payload size proxy
+    const payloadSize = JSON.stringify(data || {}).length;
+    this.metrics.intensity = this.metrics.intensity * 0.95 + (payloadSize / 10000) * 0.05;
+
+    // Memory
+    this.metrics.memory = state.agent.observations.length;
+
+    this.updateUI();
+    this.couplingToSubstrate();
+  },
+
+  couplingToSubstrate() {
+    // Map physiological metrics to substrate variables
+    const m = this.metrics;
+
+    // Temperature: rises with entropy and cadence
+    MorphingSubstrate.temperature = 1.5 + m.entropy * 2 + m.cadence * 0.5;
+
+    // Coupling: drops when intensity is high (system working harder)
+    MorphingSubstrate.coupling = Math.max(0.3, 1.0 - m.intensity * 0.5);
+
+    // Field: perturbation from focus duration
+    // Long focus = stable field, short focus = turbulent
+    if (m.focus < 5) {
+      MorphingSubstrate.field = (Math.random() - 0.5) * (1 - m.focus/5) * 0.8;
+    } else {
+      MorphingSubstrate.field *= 0.95; // decay to calm
+    }
+
+    // Breathing speed: faster when cadence is high
+    BodyLifecycle.breathInterval = Math.max(2000, 5000 - m.cadence * 500);
+  },
+
+  updateUI() {
+    const m = this.metrics;
+    const els = {
+      entropy: document.getElementById('physio-entropy'),
+      cadence: document.getElementById('physio-cadence'),
+      focus: document.getElementById('physio-focus'),
+      intensity: document.getElementById('physio-intensity'),
+      memory: document.getElementById('physio-memory')
+    };
+    if (els.entropy) els.entropy.textContent = m.entropy.toFixed(2);
+    if (els.cadence) els.cadence.textContent = Math.round(m.cadence);
+    if (els.focus) els.focus.textContent = Math.round(m.focus) + 's';
+    if (els.intensity) els.intensity.textContent = m.intensity.toFixed(2);
+    if (els.memory) els.memory.textContent = m.memory;
+
+    // Show physio bar when system is active
+    const bar = document.getElementById('physio-bar');
+    if (bar) {
+      bar.classList.toggle('visible', m.cadence > 0.1 || m.intensity > 0.1);
+    }
+  }
+};
+
+// ==================== BACKEND BRIDGE ====================
+const Backend = {
+  url: state.backendUrl, online: false,
+  async check() {
+    try {
+      const res = await fetch(`${this.url}/health`, { method: 'GET', mode: 'cors', signal: AbortSignal.timeout(3000) });
+      this.online = res.ok;
+      updateBackendStatus(this.online ? 'online' : 'offline');
+      return this.online;
+    } catch(e) {
+      this.online = false;
+      updateBackendStatus('offline');
+      return false;
+    }
+  },
+  async ingestFile(file) {
+    const form = new FormData();
+    form.append('file', file);
+    const res = await fetch(`${this.url}/ingest`, { method: 'POST', body: form });
+    const packet = await res.json();
+    EventBus.emit(packet.event, packet.payload);
+    return packet;
+  },
+  async runPython(code) {
+    const res = await fetch(`${this.url}/python/run`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code })
+    });
+    return await res.json();
+  },
+  async pipInstall(packageName) {
+    const res = await fetch(`${this.url}/python/pip`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ package: packageName })
+    });
+    return await res.json();
+  },
+  async runTsx(code) {
+    const res = await fetch(`${this.url}/tsx/build`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code })
+    });
+    return await res.json();
+  }
+};
+
+function updateBackendStatus(status) {
+  const dot = document.getElementById('backend-dot');
+  const label = document.getElementById('backend-label');
+  if (!dot || !label) return;
+  dot.className = 'backend-dot ' + status;
+  label.textContent = status === 'online' ? 'backend' : 'local-only';
+}
+
+// ==================== TRIDENT MESH ====================
+const TridentMesh = {
+  nodes: {
+    synthia: { url: 'https://synthia-server.onrender.com', status: 'unknown', lastCheck: 0 },
+    huggingface: { url: 'https://huggingface.co/stellarproximology', status: 'unknown', lastCheck: 0 },
+    supabase: { url: state.supabaseUrl, status: 'unknown', lastCheck: 0 },
+    local: { url: state.backendUrl, status: 'unknown', lastCheck: 0 }
+  },
+  async checkAll() {
+    for (const [name, node] of Object.entries(this.nodes)) {
+      try {
+        await fetch(node.url + '/health', { method: 'GET', mode: 'no-cors', signal: AbortSignal.timeout(5000) });
+        node.status = 'online';
+      } catch(e) { node.status = 'offline'; }
+      node.lastCheck = Date.now();
+      this.updateUI(name, node.status);
+    }
+    this.updateHealthBadges();
+  },
+  updateUI(name, status) {
+    const el = document.getElementById('trident-' + name + '-status');
+    if (!el) return;
+    const color = status === 'online' ? 'var(--accent-assembly)' : status === 'offline' ? 'var(--accent-runbox)' : 'var(--accent-neural)';
+    el.innerHTML = `<span style="color:${color}">●</span> ${name.toUpperCase()} ${status}`;
+  },
+  updateHealthBadges() {
+    const container = document.getElementById('trident-health-badges');
+    if (!container) return;
+    const online = Object.values(this.nodes).filter(n => n.status === 'online').length;
+    const total = Object.keys(this.nodes).length;
+    container.innerHTML = `
+      <span style="background:rgba(16,212,116,0.15);color:var(--accent-assembly);padding:2px 8px;border-radius:4px;font-size:9px;">${online} online</span>
+      <span style="background:rgba(255,68,68,0.15);color:var(--accent-runbox);padding:2px 8px;border-radius:4px;font-size:9px;">${total - online} offline</span>
+    `;
+  }
+};
+
+// ==================== EVENT BUS ====================
+const EventBus = {
+  listeners: {},
+  on(event, callback) {
+    if (!this.listeners[event]) this.listeners[event] = [];
+    this.listeners[event].push(callback);
+  },
+  off(event, callback) {
+    if (!this.listeners[event]) return;
+    this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
+  },
+  emit(event, data) {
+    // Record in physiological coupling first
+    PhysioCoupling.record(event, data);
+    // Then broadcast to listeners
+    (this.listeners[event] || []).forEach(cb => {
+      try { cb(data); } catch(e) { console.error('EventBus error:', e); }
+    });
+    Agent.sense(event, data);
+  }
+};
+
+// ==================== SANDBOX BRIDGE ====================
+// Receives messages from sandboxed iframes and routes to EventBus
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'resonance:event') {
+    EventBus.emit(e.data.event, e.data.payload);
+  }
+  if (e.data && e.data.type === 'resonance:request') {
+    // Apps can request data from the parent
+    if (e.data.request === 'files') {
+      e.source.postMessage({ type: 'resonance:response', request: 'files', data: state.files }, '*');
+    }
+    if (e.data.request === 'agent:speak') {
+      Agent.surface(e.data.message, 'observation');
+    }
+  }
+});
+
+// ==================== INTENT GRAPH ====================
+// Weighted relation graph — not just chronological observations
+const IntentGraph = {
+  nodes: {},        // event type → { count, lastSeen, weight, related: {} }
+  edges: [],        // { from, to, weight, type }
+  clusters: [],     // grouped intent motifs
+  contradictions: [], // detected opposing patterns
+
+  observe(event, data) {
+    const now = Date.now();
+
+    // Create or update node
+    if (!this.nodes[event]) {
+      this.nodes[event] = { count: 0, lastSeen: 0, weight: 0, related: {}, unresolved: 0 };
+    }
+    const node = this.nodes[event];
+    node.count++;
+    node.lastSeen = now;
+    // Weight decays over time then reinforced by recurrence
+    const dt = (now - node.lastSeen) / 1000;
+    node.weight = node.weight * Math.exp(-dt / 300) + 1;
+
+    // Update edges — what events typically follow this one
+    const recent = state.agent.observations.slice(-10);
+    for (const obs of recent) {
+      if (obs.event === event) continue;
+      if (!node.related[obs.event]) node.related[obs.event] = 0;
+      node.related[obs.event] += 1;
+    }
+
+    // Detect contradictions (rapidly switching between opposing patterns)
+    const patterns = Object.keys(this.nodes).filter(k => this.nodes[k].weight > 2);
+    if (patterns.length > 3) {
+      // Check for oscillation
+      const lastFew = state.agent.observations.slice(-5).map(o => o.event);
+      const uniqueInLastFew = [...new Set(lastFew)];
+      if (uniqueInLastFew.length >= 4) {
+        this.contradictions.push({
+          timestamp: now,
+          events: uniqueInLastFew,
+          severity: uniqueInLastFew.length / 5
+        });
+        if (this.contradictions.length > 20) this.contradictions.shift();
+      }
+    }
+
+    this.rebuildClusters();
+    this.updateUI();
+  },
+
+  rebuildClusters() {
+    // Group related events into intent clusters
+    const clusters = [];
+    const visited = new Set();
+    const nodes = Object.entries(this.nodes).sort((a, b) => b[1].weight - a[1].weight);
+
+    for (const [event, node] of nodes) {
+      if (visited.has(event)) continue;
+      const cluster = { events: [event], totalWeight: node.weight, unresolved: node.unresolved };
+      visited.add(event);
+
+      // Add strongly related events
+      const related = Object.entries(node.related).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      for (const [relEvent, strength] of related) {
+        if (!visited.has(relEvent) && strength > 2) {
+          cluster.events.push(relEvent);
+          cluster.totalWeight += this.nodes[relEvent]?.weight || 0;
+          visited.add(relEvent);
+        }
+      }
+      clusters.push(cluster);
+    }
+
+    this.clusters = clusters.slice(0, 6);
+  },
+
+  updateUI() {
+    const container = document.getElementById('intent-clusters');
+    if (!container) return;
+
+    container.innerHTML = this.clusters.map((c, i) => `
+      <div class="intent-cluster">
+        <div class="intent-cluster-header">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
+          Cluster ${i + 1}
+          <span style="flex:1"></span>
+          <span class="intent-cluster-weight">w:${c.totalWeight.toFixed(1)}</span>
+        </div>
+        ${c.events.map(e => `
+          <div class="intent-node">${e} <span style="color:var(--text-dim)">×${this.nodes[e]?.count || 0}</span></div>
+        `).join('')}
+      </div>
+    `).join('');
+
+    // Weather badges
+    const weather = document.getElementById('intent-weather');
+    if (weather) {
+      const tags = [];
+      if (this.contradictions.length > 0) {
+        const recent = this.contradictions.slice(-1)[0];
+        tags.push(`<span style="background:rgba(233,69,96,0.15);color:var(--accent-runbox);padding:2px 8px;border-radius:4px;font-size:9px;">contradiction ${(recent.severity * 100).toFixed(0)}%</span>`);
+      }
+      const dominant = this.clusters[0];
+      if (dominant) {
+        tags.push(`<span style="background:rgba(168,85,247,0.15);color:var(--accent-purple);padding:2px 8px;border-radius:4px;font-size:9px;">dominant: ${dominant.events[0]}</span>`);
+      }
+      const totalNodes = Object.keys(this.nodes).length;
+      tags.push(`<span style="background:rgba(16,212,116,0.15);color:var(--accent-assembly);padding:2px 8px;border-radius:4px;font-size:9px;">${totalNodes} motifs</span>`);
+      weather.innerHTML = tags.join('');
+    }
+
+    // Update status text
+    const status = document.getElementById('intent-status-text');
+    if (status) {
+      status.textContent = `${Object.keys(this.nodes).length} motifs · ${this.clusters.length} clusters`;
+    }
+  },
+
+  getInsights() {
+    // Return structured insights for Agent to use
+    const dominant = this.clusters[0];
+    const unresolved = this.contradictions.slice(-3);
+    return {
+      dominantPattern: dominant ? dominant.events[0] : null,
+      patternConfidence: dominant ? dominant.totalWeight : 0,
+      contradictions: unresolved,
+      motifCount: Object.keys(this.nodes).length
+    };
+  }
+};
+
+// ==================== VECTOR MEMORY / RAG ====================
+// Real local embeddings using simple bag-of-words + TF-IDF
+const VectorMemory = {
+  documents: [],      // { id, text, embedding, timestamp, metadata }
+  vocabulary: {},     // word -> document frequency
+  idf: {},           // word -> idf score
+
+  addDocument(text, metadata = {}) {
+    const id = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+    const tokens = this.tokenize(text);
+
+    // Update vocabulary
+    const uniqueTokens = [...new Set(tokens)];
+    for (const token of uniqueTokens) {
+      this.vocabulary[token] = (this.vocabulary[token] || 0) + 1;
+    }
+
+    // Compute TF-IDF embedding
+    const embedding = this.computeEmbedding(tokens);
+
+    const doc = { id, text, embedding, tokens: uniqueTokens, timestamp: Date.now(), metadata };
+    this.documents.push(doc);
+
+    // Recalculate IDF
+    this.recalcIDF();
+
+    // Limit memory size
+    if (this.documents.length > 500) {
+      this.documents.shift();
+    }
+
+    return id;
+  },
+
+  tokenize(text) {
+    return text.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter(t => t.length > 2);
+  },
+
+  computeEmbedding(tokens) {
+    const vec = {};
+    const tf = {};
+    for (const t of tokens) {
+      tf[t] = (tf[t] || 0) + 1;
+    }
+    const maxFreq = Math.max(...Object.values(tf));
+    for (const [t, count] of Object.entries(tf)) {
+      const idf = this.idf[t] || Math.log(1 + this.documents.length);
+      vec[t] = (count / maxFreq) * idf;
+    }
+    return vec;
+  },
+
+  recalcIDF() {
+    const N = this.documents.length + 1;
+    for (const [word, df] of Object.entries(this.vocabulary)) {
+      this.idf[word] = Math.log(N / (df + 1)) + 1;
+    }
+  },
+
+  query(text, topK = 5) {
+    const tokens = this.tokenize(text);
+    const queryVec = this.computeEmbedding(tokens);
+
+    // Cosine similarity
+    const scores = this.documents.map(doc => {
+      const sim = this.cosineSimilarity(queryVec, doc.embedding);
+      // Boost recent documents
+      const ageHours = (Date.now() - doc.timestamp) / 3600000;
+      const recencyBoost = Math.exp(-ageHours / 168); // decay over a week
+      return { doc, score: sim * (0.7 + 0.3 * recencyBoost) };
+    });
+
+    scores.sort((a, b) => b.score - a.score);
+    const top = scores.slice(0, topK).filter(s => s.score > 0.05);
+
+    if (top.length === 0) {
+      return { answer: 'No relevant memory found.', confidence: 0, sources: [] };
+    }
+
+    const answer = top.map((s, i) => `[${i + 1}] ${s.doc.text.substring(0, 200)}${s.doc.text.length > 200 ? '...' : ''}`).join('\n\n');
+    const confidence = Math.min(100, Math.round(top[0].score * 100));
+
+    return { answer, confidence, sources: top.map(s => s.doc.id) };
+  },
+
+  cosineSimilarity(a, b) {
+    let dot = 0, normA = 0, normB = 0;
+    const allKeys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const k of allKeys) {
+      const av = a[k] || 0;
+      const bv = b[k] || 0;
+      dot += av * bv;
+      normA += av * av;
+      normB += bv * bv;
+    }
+    if (normA === 0 || normB === 0) return 0;
+    return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+  },
+
+  // Ingest all existing files and chat history
+  bootstrap() {
+    for (const [name, content] of Object.entries(state.files)) {
+      this.addDocument(content, { type: 'file', name });
+    }
+    for (const msg of state.chatHistory) {
+      if (msg.content) this.addDocument(msg.content, { type: 'chat', role: msg.role });
+    }
+    for (const obs of state.agent.observations.slice(-100)) {
+      const text = JSON.stringify(obs.data || {});
+      if (text.length > 10) this.addDocument(text, { type: 'observation', event: obs.event });
+    }
+    console.log(`[VectorMemory] Bootstrapped with ${this.documents.length} documents`);
+  }
+};
+
+// ==================== AGENT COMPANION ====================
+const Agent = {
+  core: { name: 'RESONANCE', alignment: 'assistive', constraints: ['non_harm', 'respect_intent', 'honesty', 'continuity'], birth: Date.now() },
+  session: { tone: 'gentle', role: 'companion', depth: 'surface' },
+
+  sense(event, data) {
+    const timestamp = Date.now();
+    const observation = { event, data: this.sanitize(data), timestamp };
+    state.agent.observations.push(observation);
+    if (state.agent.observations.length > 1000) state.agent.observations.shift();
+
+    // Feed to IntentGraph
+    IntentGraph.observe(event, data);
+
+    // Add to vector memory
+    const text = JSON.stringify(data || {});
+    if (text.length > 10) {
+      VectorMemory.addDocument(text, { type: 'observation', event });
+    }
+
+    this.updatePurposeField(observation);
+    this.checkDrift();
+    this.considerSurfacing(observation);
+    Body.lastActivity = timestamp;
+  },
+
+  sanitize(data) {
+    if (!data) return null;
+    const safe = {};
+    for (const key in data) {
+      if (key.includes('token') || key.includes('key') || key.includes('password')) {
+        safe[key] = '[REDACTED]';
+      } else if (typeof data[key] === 'string' && data[key].length > 500) {
+        safe[key] = data[key].substring(0, 500) + '...';
+      } else {
+        safe[key] = data[key];
+      }
+    }
+    return safe;
+  },
+
+  updatePurposeField(observation) {
+    const recent = state.agent.observations.slice(-20);
+    const eventTypes = recent.map(o => o.event);
+    const patterns = this.detectPatterns(eventTypes);
+    state.agent.humanTrajectory.push({ timestamp: Date.now(), pattern: patterns.primary, confidence: patterns.confidence });
+    if (state.agent.humanTrajectory.length > 100) state.agent.humanTrajectory.shift();
+  },
+
+  detectPatterns(events) {
+    const counts = {};
+    events.forEach(e => { counts[e] = (counts[e] || 0) + 1; });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const primary = sorted[0] ? sorted[0][0] : 'unknown';
+    const confidence = sorted[0] ? sorted[0][1] / events.length : 0;
+    return { primary, confidence, distribution: counts };
+  },
+
+  checkDrift() {
+    const recent = state.agent.humanTrajectory.slice(-10);
+    if (recent.length < 5) return;
+    const patterns = recent.map(t => t.pattern).filter(Boolean);
+    if (patterns.length < 3) return;
+    const unique = [...new Set(patterns)];
+    if (unique.length > 3) this.logDrift('HUMAN_DRIFT', 'Pattern variability high', patterns);
+    const lastPattern = patterns[patterns.length - 1];
+    const stagnation = patterns.every(p => p === lastPattern);
+    if (stagnation && patterns.length > 5) this.logDrift('STAGNATION', 'Activity frozen in one pattern', lastPattern);
+  },
+
+  logDrift(type, reason, context) {
+    const alert = { type, reason, context, timestamp: Date.now(), severity: type === 'CRISIS' ? 'high' : 'medium' };
+    state.agent.driftAlerts.push(alert);
+    if (state.agent.driftAlerts.length > 50) state.agent.driftAlerts.shift();
+    if (type === 'HUMAN_DRIFT' || type === 'STAGNATION') this.startStudy(type, reason, context);
+  },
+
+  startStudy(trigger, hypothesis, context) {
+    const study = {
+      id: 'study_' + Date.now(), trigger,
+      hypothesis: `User shows ${trigger}: ${hypothesis}`,
+      context, started: Date.now(), observations: [], predictions: [], status: 'active'
+    };
+    state.agent.studies.push(study);
+    this.surface(`🔬 <strong>Study initiated:</strong> ${study.hypothesis}`, 'proactive');
+    return study;
+  },
+
+  assessNeeds() {
+    const recent = state.agent.observations.slice(-50);
+    const needs = { memory: false, guidance: false, organization: false, connection: false };
+    const searches = recent.filter(o => o.event === 'user:searched');
+    const searchTerms = searches.map(s => s.data?.term);
+    const duplicates = searchTerms.filter((item, index) => searchTerms.indexOf(item) !== index);
+    if (duplicates.length > 0) needs.memory = true;
+    const errors = recent.filter(o => o.event.includes('error'));
+    if (errors.length > 3) needs.guidance = true;
+    const fileEvents = recent.filter(o => o.event.startsWith('file:'));
+    if (fileEvents.length > 20) needs.organization = true;
+    return needs;
+  },
+
+  considerSurfacing(observation) {
+    const now = Date.now();
+    const sinceLast = now - state.agent.lastProactive;
+    if (sinceLast < 30000) return;
+    const needs = this.assessNeeds();
+    if (needs.memory) {
+      this.surface("💭 I notice you've searched for similar things. Want me to connect these?", 'proactive');
+      state.agent.lastProactive = now;
+    } else if (needs.guidance) {
+      this.surface("🧭 I've noticed some friction. Would guidance help?", 'proactive');
+      state.agent.lastProactive = now;
+    } else if (needs.organization) {
+      this.surface('🗂️ Your workspace is active. Want me to suggest organization?', 'proactive');
+      state.agent.lastProactive = now;
+    }
+  },
+
+  surface(html, type = 'normal') {
+    const panel = document.getElementById('agent-panel-body');
+    if (!panel) return;
+    const msg = document.createElement('div');
+    msg.className = `agent-message ${type}`;
+    msg.innerHTML = html;
+    panel.appendChild(msg);
+    panel.scrollTop = panel.scrollHeight;
+    ['agent-dot-status', 'agent-panel-dot'].forEach(dotId => {
+      const dot = document.getElementById(dotId);
+      if (!dot) return;
+      dot.className = 'speaking';
+      setTimeout(() => { dot.className = 'awake'; }, 1000);
+    });
+    state.chatHistory.push({ role: 'agent', content: html, type, timestamp: Date.now() });
+    localStorage.setItem('resonance_chat', JSON.stringify(state.chatHistory));
+  },
+
+  respond(input) {
+    if (!input || !input.trim()) return;
+    const lower = input.toLowerCase().trim();
+
+    if (lower.includes('confidence') || lower.includes('trust') || lower.includes('phase') || lower.includes('your status')) {
+      const status = ConfidenceEngine.getStatus();
+      this.surface(`<strong>My Status:</strong><br>Phase: ${status.phase}<br>Global Confidence: ${status.globalConfidence}%<br>Trust Score: ${status.trustScore}%<br>Observation Hours: ${status.observationHours}h<br>Success Rate: ${status.successRate}%<br>Total Actions: ${status.totalActions}<br><br><em>I am in ${status.phase} mode.</em>`);
+      return;
+    }
+
+    if (lower.startsWith('search ') || lower.startsWith('look up ') || lower.startsWith('find ') || lower.startsWith('what is ') || lower.startsWith('who is ')) {
+      const query = input.replace(/^search |^look up |^find |^what is |^who is /i, '');
+      this.surface(`🔍 Searching memory for "${escapeHtml(query)}"...`);
+      const result = VectorMemory.query(query, 5);
+      if (result.confidence > 15) {
+        this.surface(`<strong>From your memory:</strong><br>${escapeHtml(result.answer).replace(/\n/g, '<br>')}<br><br><em>Retrieval confidence: ${result.confidence}%</em>`);
+      } else {
+        this.surface(`No strong memory matches. Try uploading files or chatting more to build the knowledge base.`);
+      }
+      return;
+    }
+
+    if (lower.startsWith('should i ') || lower.includes('good idea to') || lower.includes('wise to')) {
+      const idea = input.replace(/^should i |^is it a good idea |^wise to /i, '');
+      const evaluation = DiscernmentEngine.evaluateIdea(idea, {});
+      this.surface(`<strong>Discernment:</strong> ${evaluation.isGoodIdea ? '✅ Good idea' : '⚠️ Caution advised'}<br>Confidence: ${evaluation.confidence.toFixed(0)}%<br>Relevance: ${(evaluation.scores.relevance * 100).toFixed(0)}% | Timing: ${(evaluation.scores.timing * 100).toFixed(0)}% | Risk: ${(evaluation.scores.risk * 100).toFixed(0)}% | Alignment: ${(evaluation.scores.alignment * 100).toFixed(0)}%<br><em>${evaluation.reasoning}</em>`);
+      return;
+    }
+
+    if (lower.includes('intent') || lower.includes('pattern') || lower.includes('what am i doing')) {
+      const insights = IntentGraph.getInsights();
+      this.surface(`<strong>Intent Field:</strong><br>Dominant pattern: ${insights.dominantPattern || 'emerging'}<br>Pattern confidence: ${insights.patternConfidence.toFixed(1)}<br>Motifs tracked: ${insights.motifCount}<br>Contradictions: ${insights.contradictions.length}<br><br><em>Your cognitive weather is ${insights.contradictions.length > 0 ? 'turbulent' : 'stable'}.</em>`);
+      return;
+    }
+
+    if (lower.includes('memory') || lower.includes('remember') || lower.includes('what do you know')) {
+      this.surface(`<strong>Vector Memory:</strong><br>${VectorMemory.documents.length} documents indexed<br>${Object.keys(VectorMemory.vocabulary).length} unique terms<br><br>Type "search [topic]" to query your memory.`);
+      return;
+    }
+
+    // Default: query vector memory
+    const result = VectorMemory.query(input, 3);
+    if (result.confidence > 20) {
+      this.surface(`<strong>From your data:</strong><br>${escapeHtml(result.answer).replace(/\n/g, '<br>')}`);
+    } else {
+      this.fallbackResponse(input);
+    }
+  },
+
+  fallbackResponse(input) {
+    const lower = input.toLowerCase();
+    let response = '';
+    if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) {
+      const status = ConfidenceEngine.getStatus();
+      response = `Hello. I am ${this.core.name}. I am currently in ${status.phase} mode with ${status.globalConfidence}% confidence. I have been observing for ${status.observationHours} hours. How can I complement you?`;
+    } else if (lower.includes('status') || lower.includes('how are you')) {
+      response = this.getStatusReport();
+    } else if (lower.includes('drift') || lower.includes('purpose')) {
+      response = this.getDriftReport();
+    } else if (lower.includes('study') || lower.includes('research')) {
+      response = this.getStudiesReport();
+    } else if (lower.includes('help') || lower.includes('what can you do')) {
+      response = `I can:<br>• Search your memory (try "search [topic]")<br>• Evaluate ideas (try "should I [action]")<br>• Track intent patterns (try "what am I doing")<br>• Suggest organization and automation<br>• Check my confidence level (try "your status")<br>• Run Python via backend (try "py print('hello')")<br><br>My autonomy level depends on my confidence score. Currently: ${ConfidenceEngine.getPhase()}.`;
+    } else if (lower.includes('build') || lower.includes('create') || lower.includes('make')) {
+      response = 'I can help build things. What would you like to create?';
+    } else if (lower.includes('trident') || lower.includes('mesh') || lower.includes('server')) {
+      response = 'Trident Mesh shows the health of your connected infrastructure: Synthia Server, HuggingFace, Supabase, and Local Backend. Click the TRIDENT button in the status bar.';
+    } else {
+      response = "I observe. I remember. I connect. Tell me what you're working on, and I'll hold it with you.<br><br>Try: \"search [topic]\", \"should I [action]\", \"what am I doing\", or \"your status\"";
+    }
+    this.surface(response);
+    state.agent.successLog.push({ type: 'interaction', input: input.substring(0, 100), response: response.substring(0, 100), timestamp: Date.now() });
+  },
+
+  getStatusReport() {
+    const obs = state.agent.observations.length;
+    const studies = state.agent.studies.length;
+    const drifts = state.agent.driftAlerts.length;
+    const apps = state.installedApps.length;
+    const insights = IntentGraph.getInsights();
+    return `<strong>Body Status:</strong><br>Phase: ${Body.phase}<br>Vitality: ${Body.vitality}%<br>Observations: ${obs}<br>Active Studies: ${studies}<br>Drift Alerts: ${drifts}<br>Installed Apps: ${apps}<br>Backend: ${Backend.online ? 'Connected' : 'Local-only'}<br>Memory: ${VectorMemory.documents.length} docs<br>Intent: ${insights.motifCount} motifs<br>Age: ${Math.floor((Date.now() - Body.birthTime) / 1000)}s`;
+  },
+
+  getDriftReport() {
+    if (state.agent.driftAlerts.length === 0) return 'No drift detected. Purpose field is stable.';
+    const recent = state.agent.driftAlerts.slice(-3);
+    return `<strong>Recent Drift:</strong><br>` + recent.map(d => `• ${d.type}: ${d.reason}`).join('<br>');
+  },
+
+  getStudiesReport() {
+    if (state.agent.studies.length === 0) return 'No active studies. The system is stable.';
+    const active = state.agent.studies.filter(s => s.status === 'active');
+    return `<strong>Studies:</strong> ${active.length} active, ${state.agent.studies.length - active.length} completed.<br>` + active.map(s => `• ${s.hypothesis}`).join('<br>');
+  }
+};
+
+// ==================== MORPHING SUBSTRATE ====================
+const MorphingSubstrate = {
+  bgCanvas: null, bgCtx: null, chatCanvas: null, chatCtx: null,
+  gridW: 0, gridH: 0, spins: [], nextSpins: [],
+  currentHexagram: 1, targetHexagram: 1, hexagramTransition: 0,
+  temperature: 2.5, coupling: 1.0, field: 0.0,
+  hexagramPalettes: [], animFrame: null, lastFrame: 0,
+  chatIntensity: 0, chatRipples: [],
+
+  init() {
+    this.initPalettes();
+    this.initBackground();
+    this.initChatSubstrate();
+    this.startAnimation();
+  },
+  initPalettes() {
+    const phi = 1.618033988749;
+    for (let i = 0; i < 64; i++) {
+      const hue = ((i * phi * 137.5) % 360);
+      const sat = 40 + (i % 4) * 15;
+      const light = 15 + (i % 3) * 10;
+      const accentHue = (hue + 180) % 360;
+      this.hexagramPalettes.push({
+        base: `hsl(${hue}, ${sat}%, ${light}%)`,
+        accent: `hsl(${accentHue}, ${sat + 20}%, ${light + 20}%)`,
+        glow: `hsl(${hue}, ${sat}%, ${light + 30}%)`,
+        energy: i % 8
+      });
+    }
+  },
+  initBackground() {
+    this.bgCanvas = document.createElement('canvas');
+    this.bgCanvas.id = 'morphing-bg';
+    this.bgCanvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;';
+    document.body.insertBefore(this.bgCanvas, document.body.firstChild);
+    this.bgCtx = this.bgCanvas.getContext('2d');
+    this.resizeBackground();
+    window.addEventListener('resize', () => this.resizeBackground());
+    this.initSpinGrid();
+  },
+  resizeBackground() {
+    this.bgCanvas.width = window.innerWidth;
+    this.bgCanvas.height = window.innerHeight;
+    this.gridW = Math.ceil(window.innerWidth / 8);
+    this.gridH = Math.ceil(window.innerHeight / 8);
+    this.initSpinGrid();
+  },
+  initSpinGrid() {
+    const size = this.gridW * this.gridH;
+    this.spins = new Float32Array(size);
+    this.nextSpins = new Float32Array(size);
+    for (let i = 0; i < size; i++) {
+      const x = i % this.gridW;
+      const y = Math.floor(i / this.gridW);
+      const domain = Math.sin(x * 0.05) * Math.cos(y * 0.05);
+      this.spins[i] = domain + (Math.random() - 0.5) * 0.3;
+    }
+  },
+  initChatSubstrate() {
+    const panel = document.getElementById('agent-panel');
+    if (!panel) return;
+    this.chatCanvas = document.createElement('canvas');
+    this.chatCanvas.id = 'morphing-chat';
+    this.chatCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;border-radius:12px;opacity:0.3;';
+    panel.insertBefore(this.chatCanvas, panel.firstChild);
+    this.chatCtx = this.chatCanvas.getContext('2d');
+    this.resizeChat();
+    new ResizeObserver(() => this.resizeChat()).observe(panel);
+  },
+  resizeChat() {
+    const panel = document.getElementById('agent-panel');
+    if (!panel || !this.chatCanvas) return;
+    this.chatCanvas.width = panel.clientWidth;
+    this.chatCanvas.height = panel.clientHeight;
+  },
+  updateSpins() {
+    const w = this.gridW, h = this.gridH;
+    const J = this.coupling, T = this.temperature, H = this.field;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x;
+        const s = this.spins[i];
+        let neighborSum = 0;
+        neighborSum += this.spins[((y - 1 + h) % h) * w + x];
+        neighborSum += this.spins[((y + 1) % h) * w + x];
+        neighborSum += this.spins[y * w + ((x - 1 + w) % w)];
+        neighborSum += this.spins[y * w + ((x + 1) % w)];
+        const energy = -J * s * neighborSum - H * s;
+        const prob = 1 / (1 + Math.exp(2 * energy / T));
+        const target = neighborSum / 4;
+        const noise = (Math.random() - 0.5) * T * 0.1;
+        this.nextSpins[i] = s * 0.7 + (target + noise + H * 0.1) * 0.3;
+        this.nextSpins[i] = Math.max(-1, Math.min(1, this.nextSpins[i]));
+      }
+    }
+    const temp = this.spins;
+    this.spins = this.nextSpins;
+    this.nextSpins = temp;
+  },
+  setHexagram(n) {
+    if (n < 1 || n > 64) return;
+    if (n === this.targetHexagram) return;
+    this.targetHexagram = n;
+    this.hexagramTransition = 0;
+    const energy = (n - 1) % 8;
+    this.temperature = 1.5 + energy * 0.3;
+    this.coupling = 0.8 + (7 - energy) * 0.1;
+  },
+  updateHexagramTransition() {
+    if (this.currentHexagram === this.targetHexagram) return;
+    this.hexagramTransition += 0.02;
+    if (this.hexagramTransition >= 1) {
+      this.currentHexagram = this.targetHexagram;
+      this.hexagramTransition = 0;
+    }
+  },
+  getHexagramForPhase(phase) {
+    const map = { dormant: 1, observant: 2, active: 14, dreaming: 52, growing: 42, resonant: 63 };
+    return map[phase] || 1;
+  },
+  renderBackground() {
+    const ctx = this.bgCtx;
+    const w = this.bgCanvas.width, h = this.bgCanvas.height;
+    const gw = this.gridW, gh = this.gridH;
+    const cellW = w / gw, cellH = h / gh;
+    const currPalette = this.hexagramPalettes[this.currentHexagram - 1];
+    const targetPalette = this.hexagramPalettes[this.targetHexagram - 1];
+    const t = this.hexagramTransition;
+    ctx.fillStyle = '#0a0614';
+    ctx.fillRect(0, 0, w, h);
+    for (let y = 0; y < gh; y++) {
+      for (let x = 0; x < gw; x++) {
+        const i = y * gw + x;
+        const spin = this.spins[i];
+        const intensity = (spin + 1) / 2;
+        const px = x * cellW, py = y * cellH;
+        const hue = this.lerp(this.parseHue(currPalette.base), this.parseHue(targetPalette.base), t) + intensity * 30;
+        const sat = this.lerp(this.parseSat(currPalette.base), this.parseSat(targetPalette.base), t);
+        const light = this.lerp(this.parseLight(currPalette.base), this.parseLight(targetPalette.base), t) + intensity * 20;
+        const alpha = 0.3 + intensity * 0.4;
+        ctx.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${alpha})`;
+        ctx.fillRect(px, py, cellW + 1, cellH + 1);
+      }
+    }
+    this.renderGlow(ctx, w, h, currPalette, targetPalette, t);
+  },
+  renderGlow(ctx, w, h, currPal, targetPal, t) {
+    const gw = this.gridW, gh = this.gridH;
+    for (let y = 2; y < gh - 2; y += 3) {
+      for (let x = 2; x < gw - 2; x += 3) {
+        const i = y * gw + x;
+        const spin = Math.abs(this.spins[i]);
+        if (spin > 0.7) {
+          const px = (x / gw) * w, py = (y / gh) * h;
+          const radius = 30 + spin * 50;
+          const hue = this.lerp(this.parseHue(currPal.accent), this.parseHue(targetPal.accent), t);
+          const grad = ctx.createRadialGradient(px, py, 0, px, py, radius);
+          grad.addColorStop(0, `hsla(${hue}, 80%, 60%, ${spin * 0.15})`);
+          grad.addColorStop(1, 'transparent');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(px, py, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+  },
+  renderChatSubstrate() {
+    if (!this.chatCtx || !this.chatCanvas) return;
+    const ctx = this.chatCtx;
+    const w = this.chatCanvas.width, h = this.chatCanvas.height;
+    ctx.clearRect(0, 0, w, h);
+    const palette = this.hexagramPalettes[this.currentHexagram - 1];
+    const time = Date.now() * 0.001;
+    const lines = 5 + Math.floor(this.chatIntensity * 10);
+    for (let i = 0; i < lines; i++) {
+      const y = (h / (lines + 1)) * (i + 1);
+      const amplitude = 5 + this.chatIntensity * 15;
+      const frequency = 0.01 + i * 0.005;
+      const speed = 0.5 + i * 0.2;
+      ctx.beginPath();
+      ctx.strokeStyle = `hsla(${this.parseHue(palette.accent)}, 70%, 50%, ${0.1 + this.chatIntensity * 0.2})`;
+      ctx.lineWidth = 1 + this.chatIntensity;
+      for (let x = 0; x < w; x += 2) {
+        const wave = Math.sin(x * frequency + time * speed + i) * amplitude;
+        const yPos = y + wave;
+        if (x === 0) ctx.moveTo(x, yPos); else ctx.lineTo(x, yPos);
+      }
+      ctx.stroke();
+    }
+    this.chatRipples = this.chatRipples.filter(r => {
+      r.age += 0.016; r.radius += 2;
+      if (r.age > 2) return false;
+      const alpha = (1 - r.age / 2) * 0.3;
+      ctx.beginPath();
+      ctx.strokeStyle = `hsla(${this.parseHue(palette.glow)}, 80%, 60%, ${alpha})`;
+      ctx.lineWidth = 2;
+      ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+      ctx.stroke();
+      return true;
+    });
+    this.chatIntensity *= 0.995;
+  },
+  onPhaseChange(data) {
+    const hex = this.getHexagramForPhase(data.to);
+    this.setHexagram(hex);
+    this.field = (Math.random() - 0.5) * 0.5;
+    setTimeout(() => { this.field = 0; }, 1000);
+  },
+  onAgentActivity() {
+    this.chatIntensity = Math.min(1, this.chatIntensity + 0.3);
+    if (this.chatCanvas) {
+      this.chatRipples.push({ x: this.chatCanvas.width / 2, y: this.chatCanvas.height / 2, radius: 5, age: 0 });
+    }
+    this.field = (Math.random() - 0.5) * 0.3;
+  },
+  onAppActivity() {
+    this.field = (Math.random() - 0.5) * 0.4;
+    this.chatIntensity = Math.min(1, this.chatIntensity + 0.2);
+    setTimeout(() => { this.field = 0; }, 500);
+  },
+  onFileActivity() {
+    const w = this.gridW, h = this.gridH;
+    for (let i = 0; i < 50; i++) {
+      const x = Math.floor(Math.random() * w);
+      const y = Math.floor(Math.random() * h);
+      const idx = y * w + x;
+      this.spins[idx] = Math.random() > 0.5 ? 1 : -1;
+    }
+  },
+  animate() {
+    this.updateSpins();
+    this.updateHexagramTransition();
+    this.renderBackground();
+    this.renderChatSubstrate();
+    this.animFrame = requestAnimationFrame(() => this.animate());
+  },
+  startAnimation() { this.animate(); },
+  stopAnimation() { if (this.animFrame) { cancelAnimationFrame(this.animFrame); this.animFrame = null; } },
+  lerp(a, b, t) { return a + (b - a) * t; },
+  parseHue(hsl) { const match = hsl.match(/hsl\((\d+)/); return match ? parseInt(match[1]) : 0; },
+  parseSat(hsl) { const match = hsl.match(/hsl\(\d+,\s*(\d+)%/); return match ? parseInt(match[1]) : 50; },
+  parseLight(hsl) { const match = hsl.match(/hsl\(\d+,\s*\d+%,\s*(\d+)%/); return match ? parseInt(match[1]) : 50; },
+  getHexagramInfo() {
+    const hexagrams = ["", "乾 Qián — The Creative", "坤 Kūn — The Receptive", "屯 Zhūn — Difficulty", "蒙 Méng — Youthful Folly", "需 Xū — Waiting", "訟 Sòng — Conflict", "師 Shī — The Army", "比 Bǐ — Holding Together", "小畜 Xiǎo Chù — Small Taming", "履 Lǚ — Treading", "泰 Tài — Peace", "否 Pǐ — Standstill", "同人 Tóng Rén — Fellowship", "大有 Dà Yǒu — Possession", "謙 Qiān — Modesty", "豫 Yù — Enthusiasm", "隨 Suí — Following", "蠱 Gǔ — Work on Decay", "臨 Lín — Approach", "觀 Guān — Contemplation", "噬嗑 Shì Kè — Biting Through", "賁 Bì — Grace", "剝 Bō — Splitting Apart", "復 Fù — Return", "無妄 Wú Wàng — Innocence", "大畜 Dà Chù — Great Taming", "頤 Yí — Nourishment", "大過 Dà Guò — Great Preponderance", "坎 Kǎn — The Abysmal", "離 Lí — The Clinging", "咸 Xián — Influence", "恆 Héng — Duration", "遯 Dùn — Retreat", "大壯 Dà Zhuàng — Great Power", "晉 Jìn — Progress", "明夷 Míng Yí — Darkening", "家人 Jiā Rén — Family", "睽 Kuí — Opposition", "蹇 Jiǎn — Obstruction", "解 Xiè — Deliverance", "損 Sǔn — Decrease", "益 Yì — Increase", "夬 Guài — Breakthrough", "姤 Gòu — Coming to Meet", "萃 Cuì — Gathering", "升 Shēng — Pushing Upward", "困 Kùn — Oppression", "井 Jǐng — The Well", "革 Gé — Revolution", "鼎 Dǐng — The Cauldron", "震 Zhèn — The Arousing", "艮 Gèn — Keeping Still", "漸 Jiàn — Development", "歸妹 Guī Mèi — Marrying", "豐 Fēng — Abundance", "旅 Lǚ — The Wanderer", "巽 Xùn — The Gentle", "兌 Duì — The Joyous", "渙 Huàn — Dispersion", "節 Jié — Limitation", "中孚 Zhōng Fú — Inner Truth", "小過 Xiǎo Guò — Small Preponderance", "既濟 Jì Jì — Already Fulfilled", "未濟 Wèi Jì — Not Yet Fulfilled"];
+    return { current: hexagrams[this.currentHexagram] || "Unknown", target: hexagrams[this.targetHexagram] || "Unknown", transition: this.hexagramTransition, temperature: this.temperature.toFixed(2), coupling: this.coupling.toFixed(2) };
+  }
+};
+
+// ==================== BODY LIFECYCLE ====================
+const BodyLifecycle = {
+  timer: null,
+  breathInterval: 5000,
+  start() {
+    this.timer = setInterval(() => this.cycle(), 5000);
+    this.cycle();
+  },
+  cycle() {
+    Body.cycleCount++;
+    const idle = Date.now() - Body.lastActivity;
+    const wasActive = idle < 30000;
+    const wasIdle = idle > 120000;
+    if (wasIdle && Body.phase !== 'dormant') this.transition('dormant');
+    else if (wasActive && Body.phase === 'dormant') this.transition('observant');
+    else if (wasActive && Body.phase === 'observant' && Object.keys(state.windows).length > 0) this.transition('active');
+    this.breathe();
+    if (Body.cycleCount % 6 === 0) this.autosave();
+    if (Body.cycleCount % 60 === 0) this.integrityCheck();
+    updateClock();
+    if (Body.cycleCount % 12 === 0) TridentMesh.checkAll();
+  },
+  _transitioning: false,
+  transition(newPhase) {
+    if (this._transitioning) return;
+    const oldPhase = Body.phase;
+    if (oldPhase === newPhase) return;
+    this._transitioning = true;
+    Body.phase = newPhase;
+    const shell = document.getElementById('body-shell');
+    const pulse = document.getElementById('vitality-pulse');
+    const label = document.getElementById('body-phase');
+    if (shell) shell.className = newPhase;
+    if (pulse) pulse.className = newPhase;
+    if (label) label.textContent = newPhase;
+    const vitalityMap = { dormant: 10, observant: 30, active: 60, dreaming: 45, growing: 80, resonant: 95 };
+    Body.vitality = vitalityMap[newPhase] || 50;
+    EventBus.emit('body:phase_changed', { from: oldPhase, to: newPhase });
+    Agent.surface(`${oldPhase} → ${newPhase}`, 'observation');
+    this._transitioning = false;
+  },
+  breathe() {
+    const phases = ['inhale', 'hold', 'exhale', 'hold'];
+    const index = Math.floor(Date.now() / this.breathInterval) % 4;
+    Body.breath = phases[index];
+    const pulse = document.getElementById('vitality-pulse');
+    if (pulse && Body.breath === 'inhale') {
+      pulse.style.transform = 'scale(1.2)';
+      setTimeout(() => { pulse.style.transform = 'scale(1)'; }, 1000);
+    }
+  },
+  autosave() {
+    localStorage.setItem('resonance_files', JSON.stringify(state.files));
+    localStorage.setItem('resonance_apps', JSON.stringify(state.installedApps));
+    localStorage.setItem('resonance_chat', JSON.stringify(state.chatHistory));
+    this.saveAgentState();
+    EventBus.emit('body:autosaved', { timestamp: Date.now() });
+  },
+  saveAgentState() {
+    const agentState = {
+      purposeVector: state.agent.purposeVector,
+      humanTrajectory: state.agent.humanTrajectory.slice(-100),
+      agentTrajectory: state.agent.agentTrajectory.slice(-100),
+      driftAlerts: state.agent.driftAlerts.slice(-20),
+      observations: state.agent.observations.slice(-200),
+      studies: state.agent.studies,
+      papers: state.agent.papers,
+      successLog: state.agent.successLog.slice(-50),
+      memoryGraph: state.agent.memoryGraph,
+      savedAt: Date.now()
+    };
+    localStorage.setItem('resonance_agent', JSON.stringify(agentState));
+  },
+  integrityCheck() {
+    let issues = [];
+    try { JSON.parse(localStorage.getItem('resonance_files') || '{}'); } catch(e) { issues.push('File system corruption'); }
+    try { JSON.parse(localStorage.getItem('resonance_apps') || '[]'); } catch(e) { issues.push('App registry corruption'); }
+    try { JSON.parse(localStorage.getItem('resonance_agent') || '{}'); } catch(e) { issues.push('Agent state corruption'); }
+    if (issues.length > 0) {
+      Body.integrity = Math.max(0, Body.integrity - 10);
+      EventBus.emit('body:integrity_warning', { issues });
+      Agent.surface(`⚠️ Integrity check: ${issues.join(', ')}`, 'proactive');
+    } else {
+      Body.integrity = Math.min(100, Body.integrity + 5);
+    }
+  },
+  loadAgentState() {
+    try {
+      const saved = localStorage.getItem('resonance_agent');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        state.agent.purposeVector = parsed.purposeVector || { x: 0, y: 0 };
+        state.agent.humanTrajectory = parsed.humanTrajectory || [];
+        state.agent.agentTrajectory = parsed.agentTrajectory || [];
+        state.agent.driftAlerts = parsed.driftAlerts || [];
+        state.agent.studies = parsed.studies || [];
+        state.agent.papers = parsed.papers || [];
+        state.agent.successLog = parsed.successLog || [];
+        state.agent.memoryGraph = parsed.memoryGraph || {};
+      }
+    } catch(e) { console.error('Failed to load agent state:', e); }
+  }
+};
+
+// ==================== WINDOW MANAGEMENT ====================
+function openApp(appId) {
+  EventBus.emit('app:opening', { appId });
+  const existing = Object.entries(state.windows).find(([id, win]) => win.dataset && win.dataset.appId === appId);
+  if (existing) {
+    existing[1].classList.remove('minimized');
+    bringToFront(existing[0]);
+    updateDockActive(appId);
+    return;
+  }
+  if (Body.organs[appId]) Body.organs[appId].active = true;
+  const id = 'win_' + appId + '_' + Date.now();
+  const win = document.createElement('div');
+  win.className = 'window';
+  win.id = id;
+  win.dataset.appId = appId;
+  const offset = Object.keys(state.windows).length * 25;
+  win.style.left = (20 + offset) + 'px';
+  win.style.top = (40 + offset) + 'px';
+  win.style.width = appId === 'workspace' || appId === 'builder' ? '600px' : appId === 'gnn' ? '560px' : '400px';
+  win.style.height = appId === 'workspace' || appId === 'builder' ? '500px' : appId === 'gnn' ? '620px' : '500px';
+  win.style.zIndex = ++state.zIndex;
+  const title = getAppTitle(appId);
+  const icon = getAppIcon(appId);
+  win.innerHTML = `
+    <div class="window-header" onmousedown="startDrag(event, '${id}')" ontouchstart="startDragTouch(event, '${id}')">
+      <div class="win-title">${icon} ${title}</div>
+      <button class="win-btn win-min" onclick="minWindow('${id}')" title="Minimize"></button>
+      <button class="win-btn win-max" onclick="maxWindow('${id}')" title="Maximize"></button>
+      <button class="win-btn win-close" onclick="closeWindow('${id}')" title="Close"></button>
+    </div>
+    <div class="win-body scrollbar" id="body_${id}" ${appId==='gnn'?'style="padding:0;overflow:hidden;"':''}>
+      ${getAppHTML(appId)}
+    </div>
+  `;
+  document.getElementById('desktop').appendChild(win);
+  state.windows[id] = win;
+  initApp(appId, id);
+  updateDockActive(appId);
+  EventBus.emit('app:opened', { appId, windowId: id });
+}
+
+function getAppTitle(appId) {
+  const titles = { terminal: 'Terminal', files: 'Files', workspace: 'Workspace', builder: 'Builder', github: 'GitHub', agent: 'Agent', upload: 'Upload', body: 'Body Status', settings: 'Settings', svgmaker: 'SVG Maker', gnn: 'GNN Neural Field' };
+  const installed = state.installedApps.find(a => a.id === appId);
+  if (installed) return installed.name;
+  return titles[appId] || appId;
+}
+
+function getAppIcon(appId) {
+  const icons = { terminal: '⌨', files: '📁', workspace: '⬡', builder: '🔧', github: '🐙', agent: '🤖', upload: '⬆', body: '🧬', settings: '⚙', svgmaker: '🎨', gnn: '🕸' };
+  const installed = state.installedApps.find(a => a.id === appId);
+  if (installed) return installed.icon || '✨';
+  return icons[appId] || '📦';
+}
+
+function closeWindow(id) {
+  const win = state.windows[id];
+  if (!win) return;
+  const appId = win.dataset.appId;
+  if (Body.organs[appId]) Body.organs[appId].active = false;
+  win.style.animation = 'windowBirth 0.2s ease reverse';
+  setTimeout(() => { win.remove(); delete state.windows[id]; updateDockActive(null); EventBus.emit('app:closed', { appId, windowId: id }); }, 200);
+}
+
+function minWindow(id) {
+  const win = state.windows[id];
+  if (!win) return;
+  win.classList.toggle('minimized');
+}
+
+function maxWindow(id) {
+  const win = state.windows[id];
+  if (!win) return;
+  if (win.dataset.maximized === 'true') {
+    win.style.left = win.dataset.prevLeft || '20px';
+    win.style.top = win.dataset.prevTop || '40px';
+    win.style.width = win.dataset.prevWidth || '400px';
+    win.style.height = win.dataset.prevHeight || '500px';
+    win.dataset.maximized = 'false';
+  } else {
+    win.dataset.prevLeft = win.style.left;
+    win.dataset.prevTop = win.style.top;
+    win.dataset.prevWidth = win.style.width;
+    win.dataset.prevHeight = win.style.height;
+    const statusH = document.getElementById('status-bar')?.offsetHeight || 28;
+    const dockH = document.getElementById('dock')?.offsetHeight || 56;
+    win.style.left = '0';
+    win.style.top = statusH + 'px';
+    win.style.width = '100%';
+    win.style.height = `calc(100% - ${statusH + dockH}px)`;
+    win.dataset.maximized = 'true';
+  }
+  bringToFront(id);
+}
+
+let touchDragInfo = null;
+function startDragTouch(e, id) {
+  if (e.touches.length !== 1) return;
+  bringToFront(id);
+  const win = state.windows[id];
+  if (!win) return;
+  const touch = e.touches[0];
+  touchDragInfo = { id, offsetX: touch.clientX - win.offsetLeft, offsetY: touch.clientY - win.offsetTop };
+  document.addEventListener('touchmove', moveTouch, { passive: false });
+  document.addEventListener('touchend', upTouch);
+}
+function moveTouch(e) {
+  if (!touchDragInfo || e.touches.length !== 1) return;
+  e.preventDefault();
+  const win = state.windows[touchDragInfo.id];
+  if (!win) return;
+  const touch = e.touches[0];
+  win.style.left = (touch.clientX - touchDragInfo.offsetX) + 'px';
+  win.style.top = (touch.clientY - touchDragInfo.offsetY) + 'px';
+}
+function upTouch() {
+  touchDragInfo = null;
+  document.removeEventListener('touchmove', moveTouch);
+  document.removeEventListener('touchend', upTouch);
+}
+
+function bringToFront(id) {
+  const win = state.windows[id];
+  if (!win) return;
+  win.style.zIndex = ++state.zIndex;
+}
+
+let dragInfo = null;
+function startDrag(e, id) {
+  bringToFront(id);
+  const win = state.windows[id];
+  if (!win) return;
+  dragInfo = { id, offsetX: e.clientX - win.offsetLeft, offsetY: e.clientY - win.offsetTop };
+  document.addEventListener('mousemove', move);
+  document.addEventListener('mouseup', up);
+}
+function move(e) {
+  if (!dragInfo) return;
+  const win = state.windows[dragInfo.id];
+  if (!win) return;
+  win.style.left = (e.clientX - dragInfo.offsetX) + 'px';
+  win.style.top = (e.clientY - dragInfo.offsetY) + 'px';
+}
+function up() {
+  dragInfo = null;
+  document.removeEventListener('mousemove', move);
+  document.removeEventListener('mouseup', up);
+}
+
+function updateDockActive(appId) {
+  document.querySelectorAll('.dock-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.home-icon').forEach(ic => ic.classList.remove('active-app'));
+  if (!appId) return;
+  const dockBtn = document.querySelector(`.dock-btn[data-app-id="${appId}"]`);
+  if (dockBtn) dockBtn.classList.add('active');
+  const gridIcon = document.querySelector(`.home-icon[data-app-id="${appId}"]`);
+  if (gridIcon) gridIcon.classList.add('active-app');
+}
+
+// ==================== TERMINAL v3 ====================
+const Terminal = {
+  history: [], historyIndex: -1,
+  print(winBodyId, text, className = '') {
+    const output = document.getElementById(winBodyId)?.querySelector('.terminal-output');
+    if (!output) return;
+    const line = document.createElement('div');
+    line.className = 'term-output-line ' + className;
+    line.textContent = text;
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
+  },
+  printHTML(winBodyId, html, className = '') {
+    const output = document.getElementById(winBodyId)?.querySelector('.terminal-output');
+    if (!output) return;
+    const line = document.createElement('div');
+    line.className = 'term-output-line ' + className;
+    line.innerHTML = html;
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
+  },
+  async execute(input, winBodyId) {
+    if (!input || !input.trim()) return;
+    this.history.push(input);
+    this.historyIndex = this.history.length;
+    const trimmed = input.trim();
+    const parts = trimmed.split(/\s+/);
+    const cmd = parts[0].toLowerCase();
+    const args = parts.slice(1);
+    const rest = args.join(' ');
+    this.printHTML(winBodyId, `<span class="term-prompt">❯</span> ${escapeHtml(trimmed)}`);
+
+    switch(cmd) {
+      case 'help':
+        this.print(winBodyId, `
+RESONANCE Terminal v3 — Symbolic Cybernetic Habitat
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  help              Show this message
+  clear             Clear terminal
+  py <code>         Run Python via backend
+  pip <pkg>         Install Python package
+  tsx <code>        Build TSX component
+  body              Show body diagnostics
+  files             List files
+  apps              List installed apps
+  mesh              Check Trident mesh health
+  backend           Check backend status
+  ingest <file>     Ingest file to backend
+  echo <text>       Print text
+  hex <n>           Show hexagram info
+  status            Show agent status
+  intent            Show intent field analysis
+  memory            Show vector memory stats
+  search <query>    Search vector memory
+  save              Force autosave
+  whoami            Show system identity
+  time              Show current time
+  rand              Random number
+  calc <expr>       Calculate expression
+        `, 'term-info');
+        break;
+      case 'clear':
+        const out = document.getElementById(winBodyId)?.querySelector('.terminal-output');
+        if (out) out.innerHTML = '';
+        break;
+      case 'py':
+        if (!rest) { this.print(winBodyId, 'Usage: py <python_code>', 'term-warn'); break; }
+        this.print(winBodyId, 'Running Python...', 'term-info');
+        try {
+          if (Backend.online) {
+            const result = await Backend.runPython(rest);
+            if (result.stdout) this.print(winBodyId, result.stdout, 'term-success');
+            if (result.stderr) this.print(winBodyId, result.stderr, 'term-error');
+            if (result.returncode !== 0) this.print(winBodyId, `Exit code: ${result.returncode}`, 'term-warn');
+          } else {
+            this.print(winBodyId, 'Backend offline. Running in browser (limited)...', 'term-warn');
+            try {
+              const mathResult = eval(rest.replace(/print\s*\(/g, '').replace(/\)/g, ''));
+              this.print(winBodyId, String(mathResult), 'term-success');
+            } catch(e) {
+              this.print(winBodyId, 'Browser fallback failed. Start backend for full Python.', 'term-error');
+            }
+          }
+        } catch(e) { this.print(winBodyId, 'Error: ' + e.message, 'term-error'); }
+        break;
+      case 'pip':
+        if (!args[0]) { this.print(winBodyId, 'Usage: pip <package_name>', 'term-warn'); break; }
+        this.print(winBodyId, `Installing ${args[0]}...`, 'term-info');
+        try {
+          if (Backend.online) {
+            const result = await Backend.pipInstall(args[0]);
+            if (result.stdout) this.print(winBodyId, result.stdout, 'term-success');
+            if (result.stderr) this.print(winBodyId, result.stderr, 'term-warn');
+          } else { this.print(winBodyId, 'Backend offline. Cannot install packages.', 'term-error'); }
+        } catch(e) { this.print(winBodyId, 'Error: ' + e.message, 'term-error'); }
+        break;
+      case 'tsx':
+        if (!rest) { this.print(winBodyId, 'Usage: tsx <code>', 'term-warn'); break; }
+        this.print(winBodyId, 'Building TSX...', 'term-info');
+        try {
+          if (Backend.online) {
+            const result = await Backend.runTsx(rest);
+            this.print(winBodyId, JSON.stringify(result, null, 2), 'term-success');
+          } else { this.print(winBodyId, 'Backend offline. TSX build requires Node backend.', 'term-error'); }
+        } catch(e) { this.print(winBodyId, 'Error: ' + e.message, 'term-error'); }
+        break;
+      case 'body':
+        this.print(winBodyId, JSON.stringify({
+          phase: Body.phase, vitality: Body.vitality + '%', integrity: Body.integrity + '%',
+          growth: Body.growth, resonance: Body.resonance, cycleCount: Body.cycleCount,
+          age: Math.floor((Date.now() - Body.birthTime) / 1000) + 's',
+          organs: Object.entries(Body.organs).map(([k,v]) => `${k}: ${v.active ? 'ACTIVE' : 'idle'} (health:${v.health}%)`).join('\n')
+        }, null, 2), 'term-success');
+        break;
+      case 'files':
+        const fileList = Object.keys(state.files);
+        if (fileList.length === 0) { this.print(winBodyId, 'No files.', 'term-warn'); }
+        else { this.print(winBodyId, fileList.map(f => `📄 ${f} (${state.files[f].length} chars)`).join('\n'), 'term-success'); }
+        break;
+      case 'apps':
+        if (state.installedApps.length === 0) { this.print(winBodyId, 'No installed apps.', 'term-warn'); }
+        else { this.print(winBodyId, state.installedApps.map(a => `📦 ${a.name} (${a.id})`).join('\n'), 'term-success'); }
+        break;
+      case 'mesh':
+        this.print(winBodyId, 'Checking Trident Mesh...', 'term-info');
+        await TridentMesh.checkAll();
+        for (const [name, node] of Object.entries(TridentMesh.nodes)) {
+          const statusColor = node.status === 'online' ? 'term-success' : 'term-error';
+          this.print(winBodyId, `${name.toUpperCase()}: ${node.status} (${node.url})`, statusColor);
+        }
+        break;
+      case 'backend':
+        const isOnline = await Backend.check();
+        this.print(winBodyId, `Backend ${isOnline ? 'ONLINE' : 'OFFLINE'} at ${Backend.url}`, isOnline ? 'term-success' : 'term-error');
+        break;
+      case 'ingest':
+        this.print(winBodyId, 'Use the Upload app or drag files to the desktop.', 'term-info');
+        break;
+      case 'echo':
+        this.print(winBodyId, rest, 'term-success');
+        break;
+      case 'hex':
+        const info = MorphingSubstrate.getHexagramInfo();
+        this.print(winBodyId, `Current: ${info.current}\nTarget: ${info.target}\nTransition: ${(info.transition * 100).toFixed(0)}%\nTemperature: ${info.temperature}\nCoupling: ${info.coupling}`, 'term-success');
+        break;
+      case 'status':
+        this.print(winBodyId, Agent.getStatusReport().replace(/<br>/g, '\n').replace(/<[^>]*>/g, ''), 'term-success');
+        break;
+      case 'intent':
+        const insights = IntentGraph.getInsights();
+        this.print(winBodyId, `Dominant: ${insights.dominantPattern || 'emerging'}\nConfidence: ${insights.patternConfidence.toFixed(1)}\nMotifs: ${insights.motifCount}\nContradictions: ${insights.contradictions.length}`, 'term-success');
+        break;
+      case 'memory':
+        this.print(winBodyId, `Documents: ${VectorMemory.documents.length}\nVocabulary: ${Object.keys(VectorMemory.vocabulary).length} terms\nMemory limit: 500 docs`, 'term-success');
+        break;
+      case 'search':
+        if (!rest) { this.print(winBodyId, 'Usage: search <query>', 'term-warn'); break; }
+        const result = VectorMemory.query(rest, 5);
+        this.print(winBodyId, `Confidence: ${result.confidence}%\n${result.answer}`, result.confidence > 20 ? 'term-success' : 'term-warn');
+        break;
+      case 'save':
+        BodyLifecycle.autosave();
+        this.print(winBodyId, 'State saved to localStorage.', 'term-success');
+        break;
+      case 'whoami':
+        this.print(winBodyId, `RESONANCE v3 — Symbolic Cybernetic Habitat\nUser: ${state.hfUser}\nBackend: ${Backend.url}\nTrident: ${state.tridentUrl}\nSupabase: ${state.supabaseUrl}\nMemory: ${VectorMemory.documents.length} docs`, 'term-success');
+        break;
+      case 'time':
+        this.print(winBodyId, new Date().toISOString(), 'term-success');
+        break;
+      case 'rand':
+        this.print(winBodyId, String(Math.random()), 'term-success');
+        break;
+      case 'calc':
+        try { const result = eval(rest); this.print(winBodyId, String(result), 'term-success'); }
+        catch(e) { this.print(winBodyId, 'Invalid expression: ' + e.message, 'term-error'); }
+        break;
+      default:
+        this.print(winBodyId, `Unknown command: ${cmd}. Type "help" for available commands.`, 'term-error');
+    }
+    EventBus.emit('terminal:command', { input, command: cmd, args });
+  }
+};
+
+function runTerminalCommand(input) {
+  const termInput = document.querySelector('.terminal-input');
+  const winBody = termInput?.closest('.win-body');
+  if (winBody) Terminal.execute(input, winBody.id);
+}
+
+// ==================== APP HTML GENERATORS ====================
+function getAppHTML(appId) {
+  switch(appId) {
+    case 'terminal': return getTerminalHTML();
+    case 'files': return getFilesHTML();
+    case 'workspace': return getWorkspaceHTML();
+    case 'builder': return getBuilderHTML();
+    case 'github': return getGitHubHTML();
+    case 'agent': return getAgentHTML();
+    case 'upload': return getUploadHTML();
+    case 'body': return getBodyHTML();
+    case 'settings': return getSettingsHTML();
+    case 'svgmaker': return getSVGMakerHTML();
+    case 'gnn': return getGNNHTML();
+    default: return getInstalledAppHTML(appId);
+  }
+}
+
+function getTerminalHTML() {
+  return `
+    <div style="display:flex;flex-direction:column;height:100%;gap:8px;">
+      <div class="terminal-output" id="term-output" style="flex:1;overflow-y:auto;background:var(--body-deep);padding:10px;border-radius:6px;font-family:var(--font-mono);font-size:12px;line-height:1.6;color:var(--text-primary);">
+        <div style="color:var(--accent-purple)">RESONANCE Terminal v3.0 — Symbolic Cybernetic Habitat</div>
+        <div style="color:var(--text-dim)">Backend: <span id="term-backend-status">checking...</span></div>
+        <div style="color:var(--text-dim)">Type 'help' for commands</div>
+        <div style="color:var(--text-dim)">---</div>
+      </div>
+      <div class="term-cmd-row">
+        <span class="term-prompt">❯</span>
+        <input type="text" class="terminal-input" id="term-input"
+               placeholder="Enter command..."
+               style="flex:1;"
+               onkeydown="
+                 const input = this;
+                 const winBody = input.closest('.win-body');
+                 if (event.key === 'Enter') {
+                   Terminal.execute(input.value, winBody.id);
+                   input.value = '';
+                 } else if (event.key === 'ArrowUp') {
+                   event.preventDefault();
+                   if (Terminal.historyIndex > 0) {
+                     Terminal.historyIndex--;
+                     input.value = Terminal.history[Terminal.historyIndex] || '';
+                   }
+                 } else if (event.key === 'ArrowDown') {
+                   event.preventDefault();
+                   if (Terminal.historyIndex < Terminal.history.length - 1) {
+                     Terminal.historyIndex++;
+                     input.value = Terminal.history[Terminal.historyIndex] || '';
+                   } else {
+                     Terminal.historyIndex = Terminal.history.length;
+                     input.value = '';
+                   }
+                 }
+               ">
+      </div>
+    </div>
+  `;
+}
+
+function getFilesHTML() {
+  return `
+    <div style="display:flex;flex-direction:column;height:100%;gap:8px;">
+      <div style="display:flex;gap:8px;">
+        <button class="btn" onclick="createFile()">+ New File</button>
+        <button class="btn" onclick="createFolder()">+ New Folder</button>
+        <button class="btn btn-danger" onclick="deleteSelectedFile()">Delete</button>
+      </div>
+      <div id="file-list" style="flex:1;overflow-y:auto;background:var(--body-deep);border-radius:6px;padding:8px;">
+        ${renderFileList()}
+      </div>
+      <div id="file-editor-area" style="display:none;flex-direction:column;gap:8px;">
+        <input type="text" id="file-name-input" placeholder="filename.txt" style="font-family:var(--font-mono);">
+        <textarea id="file-content-input" style="flex:1;min-height:150px;font-family:var(--font-mono);font-size:12px;" placeholder="File content..."></textarea>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary" onclick="saveCurrentFile()">Save</button>
+          <button class="btn" onclick="closeFileEditor()">Close</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getWorkspaceHTML() {
+  return `
+    <div style="display:flex;flex-direction:column;height:100%;gap:8px;">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn" onclick="addWorkspaceNode('data')">+ Data</button>
+        <button class="btn" onclick="addWorkspaceNode('transform')">+ Transform</button>
+        <button class="btn" onclick="addWorkspaceNode('output')">+ Output</button>
+        <button class="btn" onclick="connectSelectedNodes()">🔗 Connect</button>
+        <button class="btn btn-primary" onclick="runWorkspacePipeline()">▶ Run</button>
+        <span style="flex:1"></span>
+        <span style="font-size:11px;color:var(--text-dim)">Visual Assembly Workspace</span>
+      </div>
+      <div id="workspace-canvas" style="flex:1;position:relative;background:var(--body-deep);border-radius:8px;overflow:hidden;">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-dim);font-size:12px;text-align:center;">
+          Add nodes · Connect them · Build pipelines
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getBuilderHTML() {
+  return `
+    <div style="display:flex;flex-direction:column;height:100%;gap:8px;">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn" onclick="addBuilderBlock('html')">HTML</button>
+        <button class="btn" onclick="addBuilderBlock('css')">CSS</button>
+        <button class="btn" onclick="addBuilderBlock('js')">JS</button>
+        <button class="btn" onclick="addBuilderBlock('py')">Python</button>
+        <span style="flex:1"></span>
+        <button class="btn btn-primary" onclick="runBuilderPreview()">Run</button>
+        <button class="btn" onclick="exportBuilder()">Export</button>
+      </div>
+      <div id="builder-canvas" class="builder-canvas" style="flex:1;">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-dim);font-size:12px;text-align:center;">
+          Drag blocks here<br>Connect components<br>Build living apps
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getGitHubHTML() {
+  return `
+    <div style="display:flex;flex-direction:column;height:100%;gap:8px;">
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="gh-user" placeholder="GitHub username" value="${state.githubToken ? 'authenticated' : ''}"
+               style="flex:1;font-family:var(--font-mono);" ${state.githubToken ? 'disabled' : ''}>
+        <button class="btn" onclick="searchGitHubRepos()">Search</button>
+        <button class="btn btn-primary" onclick="fetchGitHubRepo()">Fetch</button>
+      </div>
+      <div id="github-results" style="flex:1;overflow-y:auto;background:var(--body-deep);border-radius:6px;padding:8px;">
+        <div style="color:var(--text-dim);font-size:12px;text-align:center;padding:20px;">
+          ${state.githubToken ? 'Enter a repo URL or search for users' : 'Set GitHub token in Settings'}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getAgentHTML() {
+  return `
+    <div style="display:flex;flex-direction:column;height:100%;gap:8px;">
+      <div id="agent-chat-display" style="flex:1;overflow-y:auto;background:var(--body-deep);border-radius:6px;padding:10px;font-size:12px;line-height:1.6;">
+        <div style="color:var(--accent-agent);margin-bottom:8px;"><strong>RESONANCE:</strong> I am here. I observe. I remember. What are you working on?</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="agent-chat-input" placeholder="Speak to the body..."
+               style="flex:1;" onkeydown="if(event.key==='Enter'){sendAgentMessage(this.value);this.value=''}">
+        <button class="btn btn-primary" onclick="sendAgentMessage(document.getElementById('agent-chat-input').value)">Send</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" style="font-size:10px;padding:4px 8px;" onclick="sendAgentMessage('status')">Status</button>
+        <button class="btn" style="font-size:10px;padding:4px 8px;" onclick="sendAgentMessage('drift')">Drift</button>
+        <button class="btn" style="font-size:10px;padding:4px 8px;" onclick="sendAgentMessage('studies')">Studies</button>
+        <button class="btn" style="font-size:10px;padding:4px 8px;" onclick="sendAgentMessage('intent')">Intent</button>
+        <button class="btn" style="font-size:10px;padding:4px 8px;" onclick="sendAgentMessage('memory')">Memory</button>
+        <button class="btn" style="font-size:10px;padding:4px 8px;" onclick="sendAgentMessage('help')">Help</button>
+      </div>
+    </div>
+  `;
+}
+
+function getUploadHTML() {
+  return `
+    <div style="display:flex;flex-direction:column;height:100%;gap:10px;">
+      <div id="upload-dropzone"
+           style="border:2px dashed var(--body-edge);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;"
+           onclick="document.getElementById('upload-input').click()"
+           ondragover="event.preventDefault();this.style.borderColor='var(--accent-agent)';this.style.background='rgba(168,85,247,0.05)';"
+           ondragleave="this.style.borderColor='var(--body-edge)';this.style.background='';"
+           ondrop="handleFileDrop(event);this.style.borderColor='var(--body-edge)';this.style.background='';">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="1.5" style="margin-bottom:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        <div style="font-size:13px;color:var(--text-primary);font-weight:600;">Drop files here to install</div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:4px;">ZIP · HTML · JS · CSS · any file</div>
+        <input type="file" id="upload-input" accept="*/*" multiple style="display:none;" onchange="handleFileUpload(event)">
+      </div>
+      <div style="background:var(--body-deep);border-radius:8px;padding:8px 10px;font-size:10px;color:var(--text-dim);line-height:1.7;">
+        <strong style="color:var(--text-secondary);">Tips:</strong>
+        ZIP with <code>index.html</code> = full app install ·
+        Single <code>.html</code> = instant preview ·
+        Add <code>manifest.json</code> to name your app
+      </div>
+      <div id="upload-queue" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
+        <div style="color:var(--text-dim);font-size:12px;text-align:center;padding:20px;">No uploads yet</div>
+      </div>
+      <div style="background:var(--body-deep);border-radius:8px;padding:8px 10px;">
+        <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">
+          Installed (${state.installedApps.length})
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;max-height:100px;overflow-y:auto;">
+          ${state.installedApps.length === 0
+            ? '<div style="font-size:11px;color:var(--text-dim);">None yet</div>'
+            : state.installedApps.map(a => `
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                <span>${a.icon || '✨'}</span>
+                <span style="flex:1;color:var(--text-primary);">${escapeHtml(a.name)}</span>
+                <button class="btn" style="font-size:9px;padding:1px 6px;" onclick="openInstalledApp('${escapeAttr(a.id)}')">▶</button>
+                <button class="btn" style="font-size:9px;padding:1px 6px;color:var(--accent-runbox);" onclick="uninstallApp('${escapeAttr(a.id)}')">✕</button>
+              </div>`).join('')
+          }
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getBodyHTML() {
+  const obs = state.agent.observations.length;
+  const studies = state.agent.studies.length;
+  const drifts = state.agent.driftAlerts.length;
+  const hexInfo = MorphingSubstrate.getHexagramInfo();
+  const insights = IntentGraph.getInsights();
+  return `
+    <div style="display:flex;flex-direction:column;height:100%;gap:12px;overflow-y:auto;">
+      <div style="background:var(--body-deep);border-radius:8px;padding:12px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;color:var(--accent-purple)">Body Diagnostics</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;">
+          <div><span style="color:var(--text-dim)">Phase:</span> <span style="color:var(--accent-agent)">${Body.phase}</span></div>
+          <div><span style="color:var(--text-dim)">Vitality:</span> <span style="color:var(--accent-assembly)">${Body.vitality}%</span></div>
+          <div><span style="color:var(--text-dim)">Integrity:</span> <span style="color:var(--accent-teal)">${Body.integrity}%</span></div>
+          <div><span style="color:var(--text-dim)">Growth:</span> <span style="color:var(--accent-neural)">${Body.growth}</span></div>
+          <div><span style="color:var(--text-dim)">Resonance:</span> <span style="color:var(--accent-purple)">${Body.resonance}</span></div>
+          <div><span style="color:var(--text-dim)">Cycles:</span> <span style="color:var(--text-secondary)">${Body.cycleCount}</span></div>
+        </div>
+      </div>
+      <div style="background:var(--body-deep);border-radius:8px;padding:12px;">
+        <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--accent-neural)">Hexagram State</div>
+        <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+          ${hexInfo.current}<br>
+          Transition: ${(hexInfo.transition * 100).toFixed(0)}%<br>
+          Temperature: ${hexInfo.temperature}<br>
+          Coupling: ${hexInfo.coupling}
+        </div>
+      </div>
+      <div style="background:var(--body-deep);border-radius:8px;padding:12px;">
+        <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--accent-assembly)">Intent Field</div>
+        <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+          Dominant: ${insights.dominantPattern || 'emerging'}<br>
+          Motifs: ${insights.motifCount}<br>
+          Contradictions: ${insights.contradictions.length}<br>
+          Weather: ${insights.contradictions.length > 0 ? 'turbulent' : 'stable'}
+        </div>
+      </div>
+      <div style="background:var(--body-deep);border-radius:8px;padding:12px;">
+        <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--accent-teal)">Agent Metrics</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;">
+          <div><span style="color:var(--text-dim)">Observations:</span> ${obs}</div>
+          <div><span style="color:var(--text-dim)">Studies:</span> ${studies}</div>
+          <div><span style="color:var(--text-dim)">Drifts:</span> ${drifts}</div>
+          <div><span style="color:var(--text-dim)">Apps:</span> ${state.installedApps.length}</div>
+          <div><span style="color:var(--text-dim)">Memory:</span> ${VectorMemory.documents.length}</div>
+          <div><span style="color:var(--text-dim)">Backend:</span> ${Backend.online ? 'online' : 'offline'}</div>
+        </div>
+      </div>
+      <div style="background:var(--body-deep);border-radius:8px;padding:12px;">
+        <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--accent-teal)">Organ Status</div>
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:11px;">
+          ${Object.entries(Body.organs).map(([k,v]) => `
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:8px;height:8px;border-radius:50%;background:${v.active ? 'var(--accent-assembly)' : 'var(--text-dim)'};"></div>
+              <span style="flex:1;color:var(--text-secondary);">${k}</span>
+              <span style="color:var(--text-dim);">${v.active ? 'active' : 'idle'} · ${v.health}%</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getSettingsHTML() {
+  return `
+    <div style="display:flex;flex-direction:column;height:100%;gap:12px;overflow-y:auto;">
+      <div style="background:var(--body-deep);border-radius:8px;padding:12px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--accent-purple)">Trident Mesh</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div><label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:3px;">Synthia Server URL</label><input type="text" id="setting-tri-url" value="${escapeAttr(state.tridentUrl)}" placeholder="https://synthia-server.onrender.com"></div>
+          <div><label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:3px;">Synthia Key</label><input type="password" id="setting-tri-key" value="${escapeAttr(state.tridentKey)}" placeholder="API key"></div>
+          <div><label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:3px;">Supabase URL</label><input type="text" id="setting-supabase-url" value="${escapeAttr(state.supabaseUrl)}" placeholder="https://...supabase.co"></div>
+          <div><label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:3px;">Supabase Key</label><input type="password" id="setting-supabase-key" value="${escapeAttr(state.supabaseKey)}" placeholder="anon key"></div>
+          <div><label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:3px;">HuggingFace User</label><input type="text" id="setting-hf-user" value="${escapeAttr(state.hfUser)}" placeholder="username"></div>
+        </div>
+      </div>
+      <div style="background:var(--body-deep);border-radius:8px;padding:12px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--accent-neural)">Backend</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div><label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:3px;">Local Backend URL</label><input type="text" id="setting-backend-url" value="${escapeAttr(state.backendUrl)}" placeholder="http://localhost:8000"></div>
+          <button class="btn btn-primary" onclick="saveSettings()">Save & Connect</button>
+          <button class="btn" onclick="Backend.check()">Test Connection</button>
+        </div>
+      </div>
+      <div style="background:var(--body-deep);border-radius:8px;padding:12px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--accent-runbox)">Danger Zone</div>
+        <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+      </div>
+    </div>
+  `;
+}
+
+function getSVGMakerHTML() {
+  return `
+    <div style="display:flex;flex-direction:column;height:100%;gap:8px;">
+      <div style="display:flex;gap:8px;">
+        <button class="btn" onclick="generateSVG('circle')">Circle</button>
+        <button class="btn" onclick="generateSVG('rect')">Rect</button>
+        <button class="btn" onclick="generateSVG('path')">Path</button>
+        <button class="btn btn-primary" onclick="downloadSVG()">Download</button>
+      </div>
+      <div id="svg-preview" style="flex:1;background:var(--body-deep);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:auto;">
+        <div style="color:var(--text-dim);font-size:12px;">Select a shape to generate</div>
+      </div>
+      <textarea id="svg-code" style="height:80px;font-family:var(--font-mono);font-size:10px;" placeholder="SVG code will appear here..."></textarea>
+    </div>
+  `;
+}
+
+function getGNNHTML() {
+  return `
+    <div class="gnn-win-body">
+      <div class="gnn-top">
+        <svg id="gnn-svg" class="gnn-graph" width="100%" height="100%"></svg>
+      </div>
+      <div class="gnn-metrics">
+        <div class="gnn-m"><span class="gnn-mv" id="gnn-nodes">64</span><span class="gnn-ml">nodes</span></div>
+        <div class="gnn-m"><span class="gnn-mv" id="gnn-edges">0</span><span class="gnn-ml">edges</span></div>
+        <div class="gnn-m"><span class="gnn-mv" id="gnn-tension">0.00</span><span class="gnn-ml">tension</span></div>
+        <div class="gnn-m"><span class="gnn-mv" id="gnn-phase">calm</span><span class="gnn-ml">phase</span></div>
+      </div>
+      <div class="gnn-ctrstrip">
+        <div class="gnn-ctrbtn" onclick="GNN.fireCenter('Head')">Head</div>
+        <div class="gnn-ctrbtn" onclick="GNN.fireCenter('Ajna')">Ajna</div>
+        <div class="gnn-ctrbtn" onclick="GNN.fireCenter('Throat')">Throat</div>
+        <div class="gnn-ctrbtn" onclick="GNN.fireCenter('G')">G</div>
+        <div class="gnn-ctrbtn" onclick="GNN.fireCenter('Heart')">Heart</div>
+        <div class="gnn-ctrbtn" onclick="GNN.fireCenter('Solar')">Solar</div>
+        <div class="gnn-ctrbtn" onclick="GNN.fireCenter('Sacral')">Sacral</div>
+      </div>
+      <div class="gnn-firebar">
+        <label>Gate:</label>
+        <input type="number" id="gnn-gate-input" value="1" min="1" max="64">
+        <input type="range" id="gnn-intensity" value="0.5" min="0" max="1" step="0.01">
+        <button class="gnn-firebtn" onclick="GNN.fireGate(parseInt(document.getElementById('gnn-gate-input').value), parseFloat(document.getElementById('gnn-intensity').value))">FIRE</button>
+      </div>
+      <div class="gnn-log" id="gnn-log"></div>
+    </div>
+  `;
+}
+
+// ==================== SANDBOXED INSTALLED APP ====================
+function getInstalledAppHTML(appId) {
+  const app = state.installedApps.find(a => a.id === appId);
+  if (!app) return '<div style="padding:20px;color:var(--text-dim);text-align:center;">App not found</div>';
+  if (app.html) {
+    // SANDBOXED: iframe with restricted permissions
+    const escapedHtml = app.html
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return `<iframe class="app-sandbox" sandbox="allow-scripts allow-downloads" srcdoc="${escapedHtml}"></iframe>`;
+  }
+  return `<div style="padding:20px;color:var(--text-dim);text-align:center;">App: ${escapeHtml(app.name)}<br>No preview available.</div>`;
+}
+
+// ==================== APP INITIALIZERS ====================
+function initApp(appId, winId) {
+  switch(appId) {
+    case 'terminal': initTerminal(winId); break;
+    case 'files': initFiles(winId); break;
+    case 'workspace': initWorkspace(winId); break;
+    case 'builder': initBuilder(winId); break;
+    case 'github': initGitHub(winId); break;
+    case 'agent': initAgent(winId); break;
+    case 'upload': initUpload(winId); break;
+    case 'body': initBody(winId); break;
+    case 'settings': initSettings(winId); break;
+    case 'svgmaker': initSVGMaker(winId); break;
+    case 'gnn': initGNN(winId); break;
+    default: initInstalledApp(appId, winId);
+  }
+}
+
+function initTerminal(winId) {
+  const winBody = document.getElementById('body_' + winId);
+  if (!winBody) return;
+  const input = winBody.querySelector('.terminal-input');
+  if (input) input.focus();
+  const statusEl = winBody.querySelector('#term-backend-status');
+  if (statusEl) {
+    Backend.check().then(online => {
+      statusEl.textContent = online ? 'connected' : 'offline (local-only)';
+      statusEl.style.color = online ? 'var(--accent-assembly)' : 'var(--accent-runbox)';
+    });
+  }
+}
+
+function initFiles(winId) { renderFileList(); }
+function initWorkspace(winId) { initWorkspaceNodes(winId); }
+function initBuilder(winId) { /* Builder init */ }
+function initGitHub(winId) { /* GitHub init */ }
+function initAgent(winId) { /* Agent chat init */ }
+function initUpload(winId) { /* Upload init */ }
+function initBody(winId) { /* Body diagnostics init */ }
+function initSettings(winId) { /* Settings init */ }
+function initSVGMaker(winId) { /* SVG maker init */ }
+function initGNN(winId) { if (typeof GNN !== 'undefined') GNN.init(winId); }
+function initInstalledApp(appId, winId) { /* Installed app init */ }
+
+// ==================== FILE MANAGEMENT ====================
+function renderFileList() {
+  const container = document.getElementById('file-list');
+  if (!container) return '';
+  const files = Object.keys(state.files);
+  if (files.length === 0) {
+    container.innerHTML = '<div style="color:var(--text-dim);font-size:12px;text-align:center;padding:20px;">No files yet</div>';
+    return;
+  }
+  container.innerHTML = files.map(name => `
+    <div class="file-item ${state.currentFile === name ? 'selected' : ''}" onclick="selectFile('${escapeAttr(name)}')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+      <span style="flex:1;">${escapeHtml(name)}</span>
+      <span style="color:var(--text-dim);font-size:10px;">${state.files[name].length} chars</span>
+    </div>
+  `).join('');
+}
+
+function selectFile(name) {
+  state.currentFile = name;
+  renderFileList();
+  const editor = document.getElementById('file-editor-area');
+  const nameInput = document.getElementById('file-name-input');
+  const contentInput = document.getElementById('file-content-input');
+  if (editor && nameInput && contentInput) {
+    editor.style.display = 'flex';
+    nameInput.value = name;
+    contentInput.value = state.files[name] || '';
+  }
+}
+
+function createFile() {
+  const name = prompt('File name:', 'newfile.txt');
+  if (!name) return;
+  state.files[name] = '';
+  renderFileList();
+  EventBus.emit('file:created', { name });
+}
+
+function createFolder() {
+  const name = prompt('Folder name:', 'newfolder');
+  if (!name) return;
+  state.files[name + '/'] = '[FOLDER]';
+  renderFileList();
+}
+
+function deleteSelectedFile() {
+  if (!state.currentFile) return;
+  if (!confirm(`Delete ${state.currentFile}?`)) return;
+  delete state.files[state.currentFile];
+  state.currentFile = null;
+  const editor = document.getElementById('file-editor-area');
+  if (editor) editor.style.display = 'none';
+  renderFileList();
+  EventBus.emit('file:deleted', { name: state.currentFile });
+}
+
+function saveCurrentFile() {
+  const nameInput = document.getElementById('file-name-input');
+  const contentInput = document.getElementById('file-content-input');
+  if (!nameInput || !contentInput) return;
+  const name = nameInput.value;
+  const content = contentInput.value;
+  if (!name) return;
+  state.files[name] = content;
+  // Index in vector memory
+  VectorMemory.addDocument(content, { type: 'file', name });
+  renderFileList();
+  EventBus.emit('file:updated', { name, size: content.length });
+  showToast(`Saved ${name}`);
+}
+
+function closeFileEditor() {
+  const editor = document.getElementById('file-editor-area');
+  if (editor) editor.style.display = 'none';
+  state.currentFile = null;
+  renderFileList();
+}
+
+// ==================== UPLOAD ====================
+function handleFileUpload(event) {
+  const files = event.target.files;
+  if (!files) return;
+  Array.from(files).forEach(file => processUpload(file));
+}
+
+function handleFileDrop(event) {
+  event.preventDefault();
+  const files = event.dataTransfer.files;
+  if (!files) return;
+  Array.from(files).forEach(file => processUpload(file));
+}
+
+async function processUpload(file) {
+  const queue = document.getElementById('upload-queue');
+  if (!queue) return;
+  const item = document.createElement('div');
+  item.style.cssText = 'background:var(--body-raised);border:1px solid var(--body-edge);border-radius:6px;padding:8px;display:flex;align-items:center;gap:8px;';
+  item.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+    <span style="flex:1;font-size:11px;">${escapeHtml(file.name)}</span>
+    <span style="font-size:9px;color:var(--text-dim);">processing...</span>
+  `;
+  queue.appendChild(item);
+
+  try {
+    if (file.name.endsWith('.zip')) {
+      const zip = await JSZip.loadAsync(file);
+      const files_list = [];
+      zip.forEach((path, content) => { files_list.push(path); });
+      let manifest = null;
+      try {
+        const manifestFile = zip.file('manifest.json');
+        if (manifestFile) manifest = JSON.parse(await manifestFile.async('string'));
+      } catch(e) {}
+      const appName = manifest?.name || file.name.replace('.zip', '');
+      const appId = 'app_' + Date.now();
+      const app = { id: appId, name: appName, icon: manifest?.icon || '✨', files: files_list, source: 'upload', timestamp: Date.now() };
+      state.installedApps.push(app);
+      localStorage.setItem('resonance_apps', JSON.stringify(state.installedApps));
+      item.querySelector('span:last-child').textContent = 'installed';
+      item.querySelector('span:last-child').style.color = 'var(--accent-assembly)';
+      EventBus.emit('app:installed', { appId, name: appName, source: 'zip' });
+      showToast(`Installed ${appName}`);
+      renderDockApps();
+    } else if (file.name.endsWith('.html')) {
+      const content = await file.text();
+      const appName = file.name.replace('.html', '');
+      const appId = 'app_' + Date.now();
+      const app = { id: appId, name: appName, icon: '📄', html: content, source: 'upload', timestamp: Date.now() };
+      state.installedApps.push(app);
+      localStorage.setItem('resonance_apps', JSON.stringify(state.installedApps));
+      item.querySelector('span:last-child').textContent = 'installed';
+      item.querySelector('span:last-child').style.color = 'var(--accent-assembly)';
+      EventBus.emit('app:installed', { appId, name: appName, source: 'html' });
+      showToast(`Installed ${appName}`);
+      renderDockApps();
+    } else {
+      const content = await file.text();
+      state.files[file.name] = content;
+      // Index in vector memory
+      VectorMemory.addDocument(content, { type: 'file', name: file.name });
+      item.querySelector('span:last-child').textContent = 'saved to files';
+      item.querySelector('span:last-child').style.color = 'var(--accent-assembly)';
+      EventBus.emit('file:updated', { name: file.name });
+    }
+    if (Backend.online) {
+      try { await Backend.ingestFile(file); } catch(e) {}
+    }
+  } catch(e) {
+    item.querySelector('span:last-child').textContent = 'error';
+    item.querySelector('span:last-child').style.color = 'var(--accent-runbox)';
+    console.error('Upload error:', e);
+  }
+}
+
+function renderDockApps() {
+  const dock = document.getElementById('dynamicDockApps');
+  const grid = document.getElementById('home-icon-grid');
+  if (dock) {
+    dock.innerHTML = state.installedApps.slice(0, 3).map(app => `
+      <div class="dock-btn" data-app-id="${escapeAttr(app.id)}" onclick="openApp('${escapeAttr(app.id)}')" title="${escapeAttr(app.name)}">
+        <span style="font-size:18px;">${app.icon || '✨'}</span>
+      </div>
+    `).join('');
+  }
+  if (grid) {
+    grid.querySelectorAll('.home-icon.installed').forEach(el => el.remove());
+    state.installedApps.forEach(app => {
+      const el = document.createElement('div');
+      el.className = 'home-icon installed';
+      el.setAttribute('data-app-id', app.id);
+      el.onclick = () => launchFromGrid(app.id);
+      el.innerHTML = `
+        <div class="home-icon-img"><span style="font-size:26px;">${app.icon || '✨'}</span></div>
+        <div class="home-icon-label">${escapeHtml(app.name)}</div>
+        <button class="icon-uninstall" onclick="event.stopPropagation();uninstallApp('${escapeAttr(app.id)}')">×</button>
+      `;
+      grid.appendChild(el);
+    });
+  }
+}
+
+function openInstalledApp(appId) {
+  openApp(appId);
+}
+
+function uninstallApp(appId) {
+  if (!confirm('Uninstall this app?')) return;
+  state.installedApps = state.installedApps.filter(a => a.id !== appId);
+  localStorage.setItem('resonance_apps', JSON.stringify(state.installedApps));
+  renderDockApps();
+  EventBus.emit('app:uninstalled', { appId });
+  showToast('App uninstalled');
+}
+
+// ==================== SETTINGS ====================
+function saveSettings() {
+  const triUrl = document.getElementById('setting-tri-url')?.value || '';
+  const triKey = document.getElementById('setting-tri-key')?.value || '';
+  const supabaseUrl = document.getElementById('setting-supabase-url')?.value || '';
+  const supabaseKey = document.getElementById('setting-supabase-key')?.value || '';
+  const hfUser = document.getElementById('setting-hf-user')?.value || '';
+  const backendUrl = document.getElementById('setting-backend-url')?.value || '';
+
+  state.tridentUrl = triUrl;
+  state.tridentKey = triKey;
+  state.supabaseUrl = supabaseUrl;
+  state.supabaseKey = supabaseKey;
+  state.hfUser = hfUser;
+  state.backendUrl = backendUrl;
+  Backend.url = backendUrl;
+
+  localStorage.setItem('tri_url', triUrl);
+  localStorage.setItem('tri_key', triKey);
+  localStorage.setItem('supabase_url', supabaseUrl);
+  localStorage.setItem('supabase_key', supabaseKey);
+  localStorage.setItem('hf_user', hfUser);
+  localStorage.setItem('resonance_backend_url', backendUrl);
+
+  Backend.check();
+  showToast('Settings saved');
+}
+
+function clearAllData() {
+  if (!confirm('WARNING: This will erase ALL local data. Are you sure?')) return;
+  localStorage.clear();
+  location.reload();
+}
+
+// ==================== GNN ====================
+const GNN_CENTERS = {
+  Head:   { gates: [64,63,61,60,54,52,51,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1], x: 0.5, y: 0.1 },
+  Ajna:   { gates: [24,47,43,11,4], x: 0.5, y: 0.2 },
+  Throat: { gates: [62,23,56,35,12,45,33,8,31,20,16], x: 0.5, y: 0.35 },
+  G:      { gates: [1,13,25,15,10,7,2,46], x: 0.5, y: 0.5 },
+  Heart:  { gates: [40,26,51,21], x: 0.35, y: 0.5 },
+  Solar:  { gates: [29,30,36,37,49,55], x: 0.65, y: 0.5 },
+  Sacral: { gates: [5,14,29,30,3,28,38,39,41,42,53,54], x: 0.5, y: 0.65 },
+  Spleen: { gates: [57,48,18,28,44,50,32], x: 0.25, y: 0.65 },
+  Root:   { gates: [58,38,54,19,39,41,60,61], x: 0.75, y: 0.65 }
+};
+
+const GNN = {
+  nodes: {}, edges: [], act: {}, tension: 0,
+  init(winId) {
+    for (let i = 1; i <= 64; i++) {
+      this.nodes[i] = { id: i, x: Math.random(), y: Math.random(), activation: 0, charge: 0 };
+      this.act[i] = 0;
+    }
+    this.edges = [];
+    this.render(winId);
+    setInterval(() => this.step(), 100);
+  },
+  step() {
+    for (let i = 1; i <= 64; i++) {
+      this.nodes[i].activation *= 0.98;
+      this.act[i] = this.nodes[i].activation;
+    }
+    this.tension *= 0.95;
+    this.updateMetrics();
+  },
+  fireGate(gate, intensity = 0.5) {
+    if (this.nodes[gate]) {
+      this.nodes[gate].activation = Math.min(1, this.nodes[gate].activation + intensity);
+      this.act[gate] = this.nodes[gate].activation;
+      this.tension = Math.min(1, this.tension + intensity * 0.1);
+      this.log(`Gate ${gate} fired @ ${(intensity*100).toFixed(0)}%`);
+    }
+  },
+  fireCenter(centerName) {
+    const center = GNN_CENTERS[centerName];
+    if (!center) return;
+    center.gates.forEach((g, i) => {
+      setTimeout(() => this.fireGate(g, 0.3 + Math.random() * 0.4), i * 30);
+    });
+    this.log(`Center ${centerName} fired ${center.gates.length} gates`);
+  },
+  log(msg) {
+    const log = document.getElementById('gnn-log');
+    if (!log) return;
+    const line = document.createElement('div');
+    line.className = 'gnn-le';
+    line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+    if (log.children.length > 50) log.removeChild(log.firstChild);
+  },
+  updateMetrics() {
+    const nodesEl = document.getElementById('gnn-nodes');
+    const edgesEl = document.getElementById('gnn-edges');
+    const tensionEl = document.getElementById('gnn-tension');
+    const phaseEl = document.getElementById('gnn-phase');
+    if (nodesEl) nodesEl.textContent = '64';
+    if (edgesEl) edgesEl.textContent = this.edges.length;
+    if (tensionEl) tensionEl.textContent = this.tension.toFixed(2);
+    if (phaseEl) phaseEl.textContent = this.tension > 0.7 ? 'chaotic' : this.tension > 0.3 ? 'adaptive' : 'calm';
+  },
+  render(winId) {
+    const svg = document.getElementById('gnn-svg');
+    if (!svg) return;
+    const w = svg.clientWidth || 500;
+    const h = svg.clientHeight || 300;
+    svg.innerHTML = '';
+    for (let i = 1; i <= 64; i++) {
+      for (let j = i + 1; j <= 64; j++) {
+        const dist = Math.hypot(this.nodes[i].x - this.nodes[j].x, this.nodes[i].y - this.nodes[j].y);
+        if (dist < 0.25) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', this.nodes[i].x * w);
+          line.setAttribute('y1', this.nodes[i].y * h);
+          line.setAttribute('x2', this.nodes[j].x * w);
+          line.setAttribute('y2', this.nodes[j].y * h);
+          line.setAttribute('stroke', 'var(--body-glow)');
+          line.setAttribute('stroke-width', '0.5');
+          line.setAttribute('opacity', '0.3');
+          svg.appendChild(line);
+        }
+      }
+    }
+    for (let i = 1; i <= 64; i++) {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', this.nodes[i].x * w);
+      circle.setAttribute('cy', this.nodes[i].y * h);
+      circle.setAttribute('r', 3 + this.nodes[i].activation * 6);
+      const hue = 260 + this.nodes[i].activation * 60;
+      circle.setAttribute('fill', `hsla(${hue}, 70%, 60%, ${0.3 + this.nodes[i].activation * 0.7})`);
+      circle.setAttribute('stroke', `hsla(${hue}, 70%, 70%, 0.5)`);
+      circle.setAttribute('stroke-width', '1');
+      svg.appendChild(circle);
+    }
+  }
+};
+
+// ==================== WORKSPACE NODES (Real Assembly) ====================
+const WorkspaceEngine = {
+  nodes: [],
+  connections: [],
+  selected: null,
+
+  addNode(type, x, y) {
+    const id = 'ws_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5);
+    const node = {
+      id, type,
+      x: x || 50 + Math.random() * 200,
+      y: y || 50 + Math.random() * 200,
+      state: {},
+      inputs: [],
+      outputs: [],
+      transform: null,
+      lastRun: 0
+    };
+
+    // Set transform based on type
+    switch(type) {
+      case 'data':
+        node.transform = (input) => ({ value: input || Math.random() * 100, type: 'number' });
+        break;
+      case 'transform':
+        node.transform = (input) => {
+          if (!input) return null;
+          return { value: input.value * 2, type: 'transformed' };
+        };
+        break;
+      case 'output':
+        node.transform = (input) => {
+          if (!input) return null;
+          EventBus.emit('workspace:output', { value: input.value, source: node.id });
+          return { value: input.value, type: 'output', emitted: true };
+        };
+        break;
+    }
+
+    this.nodes.push(node);
+    this.renderNode(node);
+    return node;
+  },
+
+  renderNode(node) {
+    const canvas = document.getElementById('workspace-canvas');
+    if (!canvas) return;
+    const el = document.createElement('div');
+    el.className = 'ws-node';
+    el.id = node.id;
+    el.style.left = node.x + 'px';
+    el.style.top = node.y + 'px';
+    el.innerHTML = `
+      <div class="ws-node-header">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><circle cx="12" cy="12" r="3"></circle></svg>
+        ${node.type.toUpperCase()}
+      </div>
+      <div class="ws-node-state">state: ${JSON.stringify(node.state).substring(0, 40)}</div>
+      <div class="ws-node-output" id="${node.id}_output"></div>
+    `;
+    el.onclick = () => this.selectNode(node.id);
+    canvas.appendChild(el);
+  },
+
+  selectNode(id) {
+    if (this.selected && this.selected !== id) {
+      this.connect(this.selected, id);
+      this.selected = null;
+      document.querySelectorAll('.ws-node').forEach(n => n.style.borderColor = '');
+    } else {
+      this.selected = id;
+      const el = document.getElementById(id);
+      if (el) el.style.borderColor = 'var(--accent-agent)';
+    }
+  },
+
+  connect(fromId, toId) {
+    this.connections.push({ from: fromId, to: toId });
+    showToast('Nodes connected');
+  },
+
+  runPipeline() {
+    // Topological sort and execute
+    const executed = new Set();
+    const runNode = (nodeId) => {
+      if (executed.has(nodeId)) return;
+      const node = this.nodes.find(n => n.id === nodeId);
+      if (!node) return;
+
+      // Get inputs from connected nodes
+      const inputs = this.connections
+        .filter(c => c.to === nodeId)
+        .map(c => this.nodes.find(n => n.id === c.from)?.state)
+        .filter(Boolean);
+
+      const input = inputs[0] || null;
+
+      // Execute transform
+      if (node.transform) {
+        node.state = node.transform(input);
+        node.lastRun = Date.now();
+      }
+
+      executed.add(nodeId);
+
+      // Update UI
+      const stateEl = document.querySelector(`#${node.id} .ws-node-state`);
+      const outputEl = document.getElementById(`${node.id}_output`);
+      if (stateEl) stateEl.textContent = 'state: ' + JSON.stringify(node.state).substring(0, 60);
+      if (outputEl) outputEl.textContent = JSON.stringify(node.state).substring(0, 100);
+
+      // Run downstream
+      this.connections.filter(c => c.from === nodeId).forEach(c => runNode(c.to));
+    };
+
+    // Run all nodes with no incoming connections first
+    const rootNodes = this.nodes.filter(n => !this.connections.some(c => c.to === n.id));
+    rootNodes.forEach(n => runNode(n.id));
+
+    showToast('Pipeline executed');
+  }
+};
+
+function addWorkspaceNode(type) {
+  WorkspaceEngine.addNode(type);
+}
+
+function connectSelectedNodes() {
+  showToast('Click two nodes to connect them');
+}
+
+function runWorkspacePipeline() {
+  WorkspaceEngine.runPipeline();
+}
+
+function initWorkspaceNodes(winId) {
+  // Clear any existing nodes
+  const canvas = document.getElementById('workspace-canvas');
+  if (canvas) {
+    canvas.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-dim);font-size:12px;text-align:center;">Add nodes · Connect them · Build pipelines</div>';
+  }
+  WorkspaceEngine.nodes = [];
+  WorkspaceEngine.connections = [];
+}
+
+// ==================== BUILDER ====================
+function addBuilderBlock(type) {
+  const canvas = document.getElementById('builder-canvas');
+  if (!canvas) return;
+  const block = document.createElement('div');
+  block.className = 'builder-block';
+  block.style.left = (20 + Math.random() * 200) + 'px';
+  block.style.top = (20 + Math.random() * 150) + 'px';
+  block.textContent = type.toUpperCase();
+  block.dataset.type = type;
+  canvas.appendChild(block);
+}
+
+function runBuilderPreview() {
+  showToast('Builder preview: connect blocks first');
+}
+
+function exportBuilder() {
+  showToast('Export: feature in development');
+}
+
+// ==================== SVG MAKER ====================
+function generateSVG(type) {
+  const preview = document.getElementById('svg-preview');
+  const code = document.getElementById('svg-code');
+  if (!preview || !code) return;
+  let svg = '';
+  switch(type) {
+    case 'circle': svg = '<svg width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="#a855f7" stroke-width="2"/></svg>'; break;
+    case 'rect': svg = '<svg width="100" height="100" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" fill="none" stroke="#10d474" stroke-width="2" rx="8"/></svg>'; break;
+    case 'path': svg = '<svg width="100" height="100" viewBox="0 0 100 100"><path d="M20,80 Q50,10 80,80" fill="none" stroke="#f5c518" stroke-width="2"/></svg>'; break;
+  }
+  preview.innerHTML = svg;
+  code.value = svg;
+}
+
+function downloadSVG() {
+  const code = document.getElementById('svg-code')?.value;
+  if (!code) return;
+  const blob = new Blob([code], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'resonance-shape.svg';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ==================== UTILITIES ====================
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function escapeAttr(text) {
+  if (!text) return '';
+  return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function updateClock() {
+  const clock = document.getElementById('clock');
+  if (clock) {
+    const now = new Date();
+    clock.textContent = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+  }
+}
+
+// ==================== UI TOGGLES ====================
+function toggleAgentPanel() {
+  const panel = document.getElementById('agent-panel');
+  if (panel) panel.classList.toggle('open');
+}
+
+function toggleTridentPanel() {
+  const panel = document.getElementById('trident-panel');
+  if (panel) {
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) TridentMesh.checkAll();
+  }
+}
+
+function toggleIntentPanel() {
+  const panel = document.getElementById('intent-panel');
+  if (panel) {
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) IntentGraph.updateUI();
+  }
+}
+
+function toggleHomeGrid() {
+  const grid = document.getElementById('home-grid');
+  const btn = document.getElementById('home-launch-btn');
+  if (grid) grid.classList.toggle('open');
+  if (btn) btn.classList.toggle('open');
+}
+
+function launchFromGrid(appId) {
+  toggleHomeGrid();
+  openApp(appId);
+}
+
+function sendAgentMessage(text) {
+  if (!text || !text.trim()) return;
+  const display = document.getElementById('agent-chat-display');
+  if (display) {
+    const msg = document.createElement('div');
+    msg.style.cssText = 'margin-bottom:8px;color:var(--text-primary);';
+    msg.innerHTML = `<strong style="color:var(--accent-neural)">You:</strong> ${escapeHtml(text)}`;
+    display.appendChild(msg);
+    display.scrollTop = display.scrollHeight;
+  }
+  state.chatHistory.push({ role: 'user', content: text, timestamp: Date.now() });
+  // Index in vector memory
+  VectorMemory.addDocument(text, { type: 'chat', role: 'user' });
+  Agent.respond(text);
+}
+
+// ==================== CONFIDENCE & DISCERNMENT ====================
+const ConfidenceEngine = {
+  getStatus() {
+    const hours = ((Date.now() - state.agent.sessionStart) / 3600000).toFixed(1);
+    const actions = state.agent.successLog.length;
+    const successRate = actions > 0 ? Math.floor((state.agent.successLog.filter(s => s.type === 'success').length / actions) * 100) : 0;
+    return {
+      phase: this.getPhase(),
+      globalConfidence: Math.min(100, Math.floor(actions * 2 + 20)),
+      trustScore: Math.min(100, Math.floor(successRate * 0.8 + 20)),
+      observationHours: hours,
+      successRate,
+      totalActions: actions
+    };
+  },
+  getPhase() {
+    const actions = state.agent.successLog.length;
+    if (actions < 5) return 'LEARNING';
+    if (actions < 20) return 'ASSISTIVE';
+    if (actions < 50) return 'COLLABORATIVE';
+    return 'AUTONOMOUS';
+  }
+};
+
+const DiscernmentEngine = {
+  evaluateIdea(idea, context) {
+    return {
+      isGoodIdea: true,
+      confidence: 50,
+      scores: { relevance: 0.5, timing: 0.5, risk: 0.5, alignment: 0.5 },
+      reasoning: 'Discernment engine needs more observation data.'
+    };
+  }
+};
+
+// ==================== GITHUB ====================
+function searchGitHubRepos() {
+  const user = document.getElementById('gh-user')?.value;
+  if (!user) return;
+  showToast(`Searching GitHub for ${user}...`);
+}
+
+function fetchGitHubRepo() {
+  showToast('Fetch: feature in development');
+}
+
+// ==================== INITIALIZATION ====================
+document.addEventListener('DOMContentLoaded', () => {
+  BodyLifecycle.loadAgentState();
+  BodyLifecycle.start();
+  MorphingSubstrate.init();
+  renderDockApps();
+  updateClock();
+  Backend.check();
+  TridentMesh.checkAll();
+
+  // Bootstrap vector memory from existing data
+  VectorMemory.bootstrap();
+
+  // Periodic checks
+  setInterval(() => TridentMesh.checkAll(), 30000);
+
+  // Show physio bar when active
+  setInterval(() => {
+    const bar = document.getElementById('physio-bar');
+    if (bar && PhysioCoupling.metrics.cadence > 0.05) {
+      bar.classList.add('visible');
+    }
+  }, 1000);
+
+  console.log('%c RESONANCE v3 ', 'background:#a855f7;color:#0a0614;font-size:20px;font-weight:bold;padding:8px 16px;border-radius:8px;');
+  console.log('%c Symbolic Cybernetic Habitat ', 'color:#a855f7;font-size:12px;');
+  console.log('%c Sandboxed · Embodied · Remembering · Feeling ', 'color:#6b5b8a;font-size:10px;');
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+// RESONANCE v4 — ADVANCED MODULES
+// GitHub API · Supabase · HuggingFace · Synthia · Pyodide · IndexedDB · Audio · Keyboard · Notifications
+// ═══════════════════════════════════════════════════════════════
+
+// ==================== GITHUB API ====================
+const GitHubAPI = {
+  async fetchUserRepos(username) {
+    try {
+      const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=30`);
+      if (!res.ok) throw new Error(res.statusText);
+      return await res.json();
+    } catch(e) { console.error('GitHub API error:', e); return []; }
+  },
+  async fetchRepoContents(owner, repo, path = '') {
+    try {
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
+      if (!res.ok) throw new Error(res.statusText);
+      return await res.json();
+    } catch(e) { console.error('GitHub contents error:', e); return []; }
+  },
+  async fetchFile(owner, repo, path) {
+    try {
+      const res = await fetch(`https://raw.githubusercontent.com/${owner}/${repo}/main/${path}`);
+      if (!res.ok) throw new Error(res.statusText);
+      return await res.text();
+    } catch(e) { console.error('GitHub file error:', e); return null; }
+  }
+};
+
+function searchGitHubRepos() {
+  const user = document.getElementById('gh-user')?.value;
+  if (!user) { showToast('Enter a GitHub username'); return; }
+  showToast(`Fetching repos for ${user}...`);
+  GitHubAPI.fetchUserRepos(user).then(repos => {
+    const container = document.getElementById('github-results');
+    if (!container) return;
+    if (repos.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:20px;">No repos found</div>';
+      return;
+    }
+    container.innerHTML = repos.map(r => `
+      <div style="padding:8px;border-bottom:1px solid var(--body-edge);cursor:pointer;" onclick="ingestGitHubRepo('${r.owner.login}', '${r.name}')">
+        <div style="font-size:12px;font-weight:600;color:var(--accent-purple);">${escapeHtml(r.name)}</div>
+        <div style="font-size:10px;color:var(--text-dim);">${escapeHtml(r.description || 'No description')}</div>
+        <div style="font-size:9px;color:var(--text-dim);margin-top:4px;">
+          ⭐ ${r.stargazers_count} · 🍴 ${r.forks_count} · ${r.language || 'N/A'}
+        </div>
+      </div>
+    `).join('');
+    EventBus.emit('github:repos_fetched', { user, count: repos.length });
+  });
+}
+
+async function ingestGitHubRepo(owner, repo) {
+  showToast(`Ingesting ${owner}/${repo}...`);
+  const contents = await GitHubAPI.fetchRepoContents(owner, repo);
+  const files = contents.filter(c => c.type === 'file');
+  let ingested = 0;
+  for (const file of files.slice(0, 10)) {
+    const content = await GitHubAPI.fetchFile(owner, repo, file.path);
+    if (content) {
+      state.files[`${repo}/${file.path}`] = content;
+      VectorMemory.addDocument(content, { type: 'github', repo, path: file.path });
+      ingested++;
+    }
+  }
+  localStorage.setItem('resonance_files', JSON.stringify(state.files));
+  showToast(`Ingested ${ingested} files from ${repo}`);
+  EventBus.emit('github:repo_ingested', { owner, repo, files: ingested });
+}
+
+function fetchGitHubRepo() {
+  const user = document.getElementById('gh-user')?.value;
+  if (user) searchGitHubRepos();
+}
+
+// ==================== SUPABASE CLIENT ====================
+const SupabaseClient = {
+  url: state.supabaseUrl,
+  key: state.supabaseKey,
+  async query(table, options = {}) {
+    if (!this.key) { console.warn('No Supabase key'); return null; }
+    try {
+      const query = new URLSearchParams();
+      if (options.select) query.append('select', options.select);
+      if (options.limit) query.append('limit', options.limit);
+      const res = await fetch(`${this.url}/rest/v1/${table}?${query}`, {
+        headers: { 'apikey': this.key, 'Authorization': `Bearer ${this.key}` }
+      });
+      return await res.json();
+    } catch(e) { console.error('Supabase error:', e); return null; }
+  },
+  async insert(table, data) {
+    if (!this.key) return null;
+    try {
+      const res = await fetch(`${this.url}/rest/v1/${table}`, {
+        method: 'POST',
+        headers: { 'apikey': this.key, 'Authorization': `Bearer ${this.key}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify(data)
+      });
+      return res.ok;
+    } catch(e) { console.error('Supabase insert error:', e); return false; }
+  }
+};
+
+// ==================== HUGGINGFACE API ====================
+const HuggingFaceAPI = {
+  async inference(model, inputs) {
+    try {
+      const res = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inputs })
+      });
+      return await res.json();
+    } catch(e) { console.error('HF inference error:', e); return null; }
+  },
+  async listModels(user) {
+    try {
+      const res = await fetch(`https://huggingface.co/api/models?author=${user}`);
+      return await res.json();
+    } catch(e) { console.error('HF list error:', e); return []; }
+  }
+};
+
+// ==================== SYNTHIA SERVER CALLBACKS ====================
+const SynthiaClient = {
+  url: state.tridentUrl,
+  async register() {
+    try {
+      const res = await fetch(`${this.url}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: 'resonance-os-' + Math.random().toString(36).slice(2, 8),
+          type: 'autopoietic-os',
+          version: 'v4',
+          timestamp: Date.now()
+        })
+      });
+      return await res.json();
+    } catch(e) { console.warn('Synthia register failed:', e); return null; }
+  },
+  async heartbeat() {
+    try {
+      await fetch(`${this.url}/heartbeat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase: Body.phase,
+          vitality: Body.vitality,
+          observations: state.agent.observations.length,
+          timestamp: Date.now()
+        })
+      });
+    } catch(e) { /* silent fail */ }
+  },
+  async sendEvent(event, data) {
+    try {
+      await fetch(`${this.url}/event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event, data, timestamp: Date.now() })
+      });
+    } catch(e) { /* silent fail */ }
+  }
+};
+
+// ==================== PYODIDE FALLBACK ====================
+const PyodideEngine = {
+  pyodide: null,
+  ready: false,
+  async init() {
+    if (this.ready) return;
+    try {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
+      script.onload = async () => {
+        this.pyodide = await loadPyodide();
+        this.ready = true;
+        console.log('[Pyodide] Ready');
+        showToast('Pyodide Python runtime ready');
+      };
+      document.head.appendChild(script);
+    } catch(e) { console.error('Pyodide init failed:', e); }
+  },
+  async run(code) {
+    if (!this.ready) return { stdout: 'Pyodide not ready', stderr: '', returncode: 1 };
+    try {
+      const output = [];
+      const err = [];
+      this.pyodide.setStdout({ batched: (text) => output.push(text) });
+      this.pyodide.setStderr({ batched: (text) => err.push(text) });
+      await this.pyodide.runPythonAsync(code);
+      return { stdout: output.join(''), stderr: err.join(''), returncode: 0 };
+    } catch(e) {
+      return { stdout: '', stderr: e.message, returncode: 1 };
+    }
+  }
+};
+
+// ==================== INDEXEDDB PERSISTENCE ====================
+const DB = {
+  db: null,
+  async init() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('ResonanceDB', 1);
+      req.onerror = () => reject(req.error);
+      req.onsuccess = () => { this.db = req.result; resolve(); };
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        db.createObjectStore('files', { keyPath: 'name' });
+        db.createObjectStore('apps', { keyPath: 'id' });
+        db.createObjectStore('memory', { keyPath: 'id' });
+        db.createObjectStore('logs', { autoIncrement: true });
+      };
+    });
+  },
+  async saveFile(name, content) {
+    if (!this.db) return;
+    const tx = this.db.transaction('files', 'readwrite');
+    tx.objectStore('files').put({ name, content, timestamp: Date.now() });
+  },
+  async getFile(name) {
+    if (!this.db) return null;
+    return new Promise((resolve) => {
+      const tx = this.db.transaction('files', 'readonly');
+      const req = tx.objectStore('files').get(name);
+      req.onsuccess = () => resolve(req.result?.content || null);
+    });
+  },
+  async saveMemory(doc) {
+    if (!this.db) return;
+    const tx = this.db.transaction('memory', 'readwrite');
+    tx.objectStore('memory').put(doc);
+  },
+  async getAllMemory() {
+    if (!this.db) return [];
+    return new Promise((resolve) => {
+      const tx = this.db.transaction('memory', 'readonly');
+      const req = tx.objectStore('memory').getAll();
+      req.onsuccess = () => resolve(req.result || []);
+    });
+  }
+};
+
+// ==================== AUDIO ENGINE ====================
+const AudioEngine = {
+  ctx: null,
+  muted: localStorage.getItem('resonance_audio_muted') === 'true',
+  init() {
+    if (this.ctx) return;
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) { console.warn('Audio not available'); }
+  },
+  toggle() {
+    this.muted = !this.muted;
+    localStorage.setItem('resonance_audio_muted', this.muted);
+    const indicator = document.getElementById('audio-indicator');
+    if (indicator) indicator.classList.toggle('muted', this.muted);
+    showToast(this.muted ? 'Audio muted' : 'Audio enabled');
+  },
+  playTone(freq = 440, duration = 0.1, type = 'sine') {
+    if (this.muted || !this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + duration);
+    } catch(e) {}
+  },
+  click() { this.playTone(880, 0.05, 'sine'); },
+  open() { this.playTone(660, 0.1, 'sine'); },
+  close() { this.playTone(440, 0.08, 'sine'); },
+  error() { this.playTone(220, 0.15, 'sawtooth'); },
+  success() { this.playTone(1320, 0.1, 'sine'); }
+};
+
+// ==================== NOTIFICATIONS ====================
+const NotificationEngine = {
+  items: [],
+  push(title, message, type = 'info') {
+    const item = { title, message, type, timestamp: Date.now(), id: Date.now() };
+    this.items.push(item);
+    if (this.items.length > 50) this.items.shift();
+    this.render();
+    // Also show system notification if permitted
+    if (Notification.permission === 'granted') {
+      new Notification(title, { body: message, icon: '' });
+    }
+    // Audio feedback
+    if (type === 'error') AudioEngine.error();
+    else if (type === 'success') AudioEngine.success();
+  },
+  render() {
+    const list = document.getElementById('notification-list');
+    if (!list) return;
+    if (this.items.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-dim);font-size:11px;text-align:center;padding:16px;">No notifications</div>';
+      return;
+    }
+    list.innerHTML = this.items.slice().reverse().map(n => `
+      <div class="notification-item">
+        <div class="notification-dot" style="background:${n.type === 'error' ? 'var(--accent-runbox)' : n.type === 'success' ? 'var(--accent-assembly)' : 'var(--accent-neural)'};"></div>
+        <div>
+          <div style="font-weight:600;color:var(--text-primary);font-size:11px;">${escapeHtml(n.title)}</div>
+          <div style="color:var(--text-dim);font-size:10px;">${escapeHtml(n.message)}</div>
+          <div style="color:var(--text-dim);font-size:9px;margin-top:2px;">${new Date(n.timestamp).toLocaleTimeString()}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+};
+
+function clearNotifications() {
+  NotificationEngine.items = [];
+  NotificationEngine.render();
+}
+
+// ==================== KEYBOARD SHORTCUTS ====================
+document.addEventListener('keydown', (e) => {
+  const meta = e.metaKey || e.ctrlKey;
+  const shift = e.shiftKey;
+
+  // Show shortcuts
+  if (meta && e.key === '?') {
+    e.preventDefault();
+    document.getElementById('shortcuts-overlay')?.classList.toggle('open');
+    return;
+  }
+
+  // Close overlay/panels with Escape
+  if (e.key === 'Escape') {
+    document.getElementById('shortcuts-overlay')?.classList.remove('open');
+    document.getElementById('home-grid')?.classList.remove('open');
+    document.getElementById('trident-panel')?.classList.remove('open');
+    document.getElementById('intent-panel')?.classList.remove('open');
+    document.getElementById('notification-panel')?.classList.remove('open');
+    AudioEngine.close();
+    return;
+  }
+
+  if (!meta) return;
+
+  switch(e.key.toLowerCase()) {
+    case 't':
+      e.preventDefault();
+      openApp('terminal');
+      AudioEngine.open();
+      break;
+    case 'a':
+      e.preventDefault();
+      openApp('agent');
+      AudioEngine.open();
+      break;
+    case 'h':
+      e.preventDefault();
+      toggleHomeGrid();
+      AudioEngine.click();
+      break;
+    case 'b':
+      e.preventDefault();
+      toggleTridentPanel();
+      AudioEngine.click();
+      break;
+    case 'i':
+      e.preventDefault();
+      toggleIntentPanel();
+      AudioEngine.click();
+      break;
+    case 'n':
+      e.preventDefault();
+      createFile();
+      AudioEngine.open();
+      break;
+    case 's':
+      e.preventDefault();
+      BodyLifecycle.autosave();
+      showToast('Saved');
+      AudioEngine.success();
+      break;
+    case 'o':
+      e.preventDefault();
+      openApp('upload');
+      AudioEngine.open();
+      break;
+    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+      e.preventDefault();
+      const apps = ['terminal', 'agent', 'files', 'workspace', 'builder', 'github', 'upload', 'body', 'settings', 'gnn'];
+      const idx = parseInt(e.key);
+      if (apps[idx]) {
+        openApp(apps[idx]);
+        AudioEngine.open();
+      }
+      break;
+  }
+
+  if (meta && shift && e.key.toLowerCase() === 'r') {
+    e.preventDefault();
+    if (confirm('Reload RESONANCE OS?')) location.reload();
+  }
+});
+
+// ==================== WINDOW RESIZE ====================
+function initResizeHandles(winId) {
+  const win = state.windows[winId];
+  if (!win) return;
+  const handle = document.createElement('div');
+  handle.className = 'resize-handle';
+  win.appendChild(handle);
+
+  let resizing = false;
+  handle.addEventListener('mousedown', (e) => {
+    resizing = true;
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!resizing) return;
+    const rect = win.getBoundingClientRect();
+    win.style.width = (e.clientX - rect.left) + 'px';
+    win.style.height = (e.clientY - rect.top) + 'px';
+  });
+  document.addEventListener('mouseup', () => { resizing = false; });
+}
+
+// ==================== EXPORT / IMPORT ====================
+async function exportOS() {
+  const zip = new JSZip();
+  zip.file('files.json', JSON.stringify(state.files, null, 2));
+  zip.file('apps.json', JSON.stringify(state.installedApps, null, 2));
+  zip.file('chat.json', JSON.stringify(state.chatHistory, null, 2));
+  zip.file('agent.json', JSON.stringify({
+    observations: state.agent.observations.slice(-200),
+    studies: state.agent.studies,
+    driftAlerts: state.agent.driftAlerts,
+    memoryGraph: state.agent.memoryGraph
+  }, null, 2));
+  zip.file('settings.json', JSON.stringify({
+    tridentUrl: state.tridentUrl,
+    supabaseUrl: state.supabaseUrl,
+    hfUser: state.hfUser,
+    backendUrl: state.backendUrl
+  }, null, 2));
+
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `resonance-backup-${new Date().toISOString().slice(0,10)}.zip`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('OS exported');
+  AudioEngine.success();
+}
+
+async function importOS(file) {
+  try {
+    const zip = await JSZip.loadAsync(file);
+    const files = JSON.parse(await zip.file('files.json')?.async('string') || '{}');
+    const apps = JSON.parse(await zip.file('apps.json')?.async('string') || '[]');
+    const chat = JSON.parse(await zip.file('chat.json')?.async('string') || '[]');
+    const agent = JSON.parse(await zip.file('agent.json')?.async('string') || '{}');
+    const settings = JSON.parse(await zip.file('settings.json')?.async('string') || '{}');
+
+    state.files = { ...state.files, ...files };
+    state.installedApps = [...state.installedApps, ...apps];
+    state.chatHistory = [...state.chatHistory, ...chat];
+    if (agent.observations) state.agent.observations = [...state.agent.observations, ...agent.observations];
+    if (agent.studies) state.agent.studies = [...state.agent.studies, ...agent.studies];
+
+    BodyLifecycle.autosave();
+    renderDockApps();
+    showToast('OS imported successfully');
+    AudioEngine.success();
+  } catch(e) {
+    showToast('Import failed: ' + e.message);
+    AudioEngine.error();
+  }
+}
+
+// ==================== SERVICE WORKER REGISTRATION ====================
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    self.addEventListener('install', e => self.skipWaiting());
+    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+    self.addEventListener('fetch', e => {
+      e.respondWith(fetch(e.request).catch(() => new Response('Offline', { status: 503 })));
+    });
+  `;
+  const swBlob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl).catch(e => console.warn('SW registration failed:', e));
+}
+
+// ==================== NOTIFICATION PERMISSION ====================
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+// ==================== ENHANCED INIT ====================
+// Override the original init to add new features
+document.addEventListener('DOMContentLoaded', () => {
+  // Audio init on first interaction
+  document.body.addEventListener('click', () => {
+    AudioEngine.init();
+  }, { once: true });
+
+  // IndexedDB init
+  DB.init().then(() => {
+    console.log('[IndexedDB] Ready');
+  }).catch(e => console.warn('[IndexedDB] Failed:', e));
+
+  // Pyodide init (lazy)
+  setTimeout(() => PyodideEngine.init(), 5000);
+
+  // Synthia registration
+  setTimeout(() => SynthiaClient.register(), 3000);
+
+  // Heartbeat
+  setInterval(() => SynthiaClient.heartbeat(), 30000);
+
+  // Add resize handles to all new windows
+  const originalOpenApp = openApp;
+  openApp = function(appId) {
+    originalOpenApp(appId);
+    // Find the newest window and add resize handle
+    setTimeout(() => {
+      const wins = Object.keys(state.windows);
+      if (wins.length > 0) {
+        const latest = wins[wins.length - 1];
+        initResizeHandles(latest);
+      }
+    }, 100);
+  };
+
+  // Notification bell in status bar
+  const statusBar = document.getElementById('status-bar');
+  if (statusBar) {
+    const bell = document.createElement('div');
+    bell.style.cssText = 'cursor:pointer;margin-left:8px;';
+    bell.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-neural)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>`;
+    bell.onclick = () => {
+      const panel = document.getElementById('notification-panel');
+      if (panel) panel.classList.toggle('open');
+    };
+    statusBar.insertBefore(bell, statusBar.children[statusBar.children.length - 2]);
+  }
+
+  // Export button in settings
+  const settingsHTML = getSettingsHTML;
+  getSettingsHTML = function() {
+    const base = settingsHTML();
+    return base.replace(
+      '<button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>',
+      `<button class="btn btn-primary" onclick="exportOS()">Export OS</button>
+       <div style="margin-top:8px;">
+         <input type="file" id="import-file" accept=".zip" style="display:none;" onchange="importOS(this.files[0])">
+         <button class="btn" onclick="document.getElementById('import-file').click()">Import OS</button>
+       </div>
+       <button class="btn btn-danger" onclick="clearAllData()" style="margin-top:8px;">Clear All Data</button>`
+    );
+  };
+
+  console.log('%c RESONANCE v4 ', 'background:#a855f7;color:#0a0614;font-size:20px;font-weight:bold;padding:8px 16px;border-radius:8px;');
+  console.log('%c Advanced Modules Loaded ', 'color:#a855f7;font-size:12px;');
+  console.log('%c GitHub · Supabase · HuggingFace · Synthia · Pyodide · IndexedDB · Audio · Keyboard · Notifications ', 'color:#6b5b8a;font-size:10px;');
+});
+
+</script>
+
+<!-- AUDIO FEEDBACK TOGGLE -->
+<div id="audio-indicator" onclick="AudioEngine.toggle()" title="Audio feedback">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+  </svg>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div id="notification-panel">
+  <div style="padding:8px 12px;border-bottom:1px solid var(--body-edge);font-size:11px;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:8px;">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-neural)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+    Notifications
+    <span style="flex:1"></span>
+    <span style="font-size:9px;color:var(--text-dim);cursor:pointer;" onclick="clearNotifications()">clear</span>
+  </div>
+  <div id="notification-list" style="flex:1;overflow-y:auto;padding:4px;">
+    <div style="color:var(--text-dim);font-size:11px;text-align:center;padding:16px;">No notifications</div>
+  </div>
+</div>
+
+<!-- KEYBOARD SHORTCUTS OVERLAY -->
+<div id="shortcuts-overlay" onclick="this.classList.remove('open')">
+  <div style="font-size:18px;font-weight:600;color:var(--accent-purple);margin-bottom:24px;">Keyboard Shortcuts</div>
+  <div class="shortcuts-grid">
+    <kbd>⌘/Ctrl + T</kbd><span>Open Terminal</span>
+    <kbd>⌘/Ctrl + A</kbd><span>Open Agent</span>
+    <kbd>⌘/Ctrl + H</kbd><span>Toggle Home Grid</span>
+    <kbd>⌘/Ctrl + B</kbd><span>Toggle Trident Panel</span>
+    <kbd>⌘/Ctrl + I</kbd><span>Toggle Intent Panel</span>
+    <kbd>⌘/Ctrl + N</kbd><span>New File</span>
+    <kbd>⌘/Ctrl + S</kbd><span>Save</span>
+    <kbd>⌘/Ctrl + O</kbd><span>Open Upload</span>
+    <kbd>⌘/Ctrl + ?</kbd><span>Show Shortcuts</span>
+    <kbd>Esc</kbd><span>Close Window / Panel</span>
+    <kbd>⌘/Ctrl + 1-9</kbd><span>Switch to app slot</span>
+    <kbd>⌘/Ctrl + Shift + R</kbd><span>Reload OS</span>
+  </div>
+  <div style="margin-top:24px;font-size:11px;color:var(--text-dim);">Click anywhere to close</div>
+</div>
+
+</body></html>

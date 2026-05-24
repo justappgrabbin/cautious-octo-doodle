@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#030305">
+<title>Morph OS</title>
+<style>
+  :root {
+    --bg: #030305; --surface: #09090d; --surface2: #12121a; --element: #1e1e2f;
+    --text: #e2e2e9; --text2: #626275; --cyan: #00f0ff; --magenta: #ff007f;
+    --green: #39ff14; --amber: #ffaa00; --purple: #7c3aed; --red: #ef4444;
+    --border: rgba(255,255,255,0.06);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+  html, body { width:100%; height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size:14px; -webkit-font-smoothing:antialiased; }
+  #app { width:100%; height:100%; display:flex; flex-direction:column; position:relative; }
+
+  /* === TOP BAR === */
+  .topbar { height:48px; background:var(--surface); border-bottom:1px solid var(--element); display:flex; align-items:center; justify-content:space-between; padding:0 14px; z-index:1000; flex-shrink:0; }
+  .brand { font-weight:800; letter-spacing:1px; font-size:13px; color:var(--cyan); }
+  .top-actions { display:flex; gap:8px; }
+  .top-btn { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:var(--surface2); border:1px solid var(--element); color:var(--text2); font-size:16px; }
+  .top-btn:active { background:var(--element); transform:scale(0.95); }
+
+  /* === MAIN SCROLL AREA === */
+  .scroll-main { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+  .page { display:none; padding:12px; min-height:100%; }
+  .page.active { display:block; }
+
+  /* === DROP ZONE (FULL WIDTH) === */
+  .drop-zone { margin:0 0 12px 0; padding:20px; border:2px dashed var(--element); border-radius:12px; text-align:center; background:var(--surface); transition:all 0.3s; }
+  .drop-zone.eating { border-color:var(--magenta); background:rgba(255,0,127,0.05); }
+  .drop-zone.processing { border-color:var(--amber); background:rgba(255,170,0,0.05); }
+  .drop-icon { font-size:32px; margin-bottom:8px; }
+  .drop-text { font-size:12px; color:var(--text2); }
+  .drop-hint { font-size:10px; color:var(--text2); opacity:0.6; margin-top:4px; }
+
+  /* === PIPELINE STEPS (HORIZONTAL SCROLL) === */
+  .pipeline-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -12px 12px; padding:0 12px; }
+  .pipeline { display:flex; gap:6px; min-width:max-content; }
+  .pipe-step { padding:8px 12px; border-radius:8px; font-size:10px; font-weight:700; background:var(--surface2); color:var(--text2); border:1px solid var(--element); white-space:nowrap; transition:all 0.3s; }
+  .pipe-step.active { background:rgba(0,240,255,0.15); color:var(--cyan); border-color:var(--cyan); }
+  .pipe-step.complete { background:rgba(57,255,20,0.15); color:var(--green); border-color:var(--green); }
+  .pipe-step.error { background:rgba(239,68,68,0.15); color:var(--red); border-color:var(--red); }
+
+  /* === PROGRESS === */
+  .progress-track { height:4px; background:var(--surface2); border-radius:2px; overflow:hidden; margin-bottom:16px; }
+  .progress-fill { height:100%; background:linear-gradient(90deg, var(--cyan), var(--magenta)); border-radius:2px; transition:width 0.5s ease; width:0%; }
+
+  /* === FAMILY TABS (HORIZONTAL SCROLL) === */
+  .family-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -12px 12px; padding:0 12px; }
+  .family-tabs { display:flex; gap:6px; min-width:max-content; }
+  .family-tab { padding:10px 16px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; border:1px solid var(--element); transition:all 0.2s; white-space:nowrap; }
+  .family-tab.understanding { background:rgba(59,130,246,0.1); color:#60a5fa; }
+  .family-tab.sensing { background:rgba(245,158,11,0.1); color:#fbbf24; }
+  .family-tab.knowing { background:rgba(124,58,237,0.1); color:#a78bfa; }
+  .family-tab.ego { background:rgba(239,68,68,0.1); color:#f87171; }
+  .family-tab.centering { background:rgba(0,240,255,0.1); color:#22d3ee; }
+  .family-tab.active { box-shadow:0 0 12px currentColor; border-color:currentColor; transform:scale(1.05); }
+  .family-tab:active { transform:scale(0.95); }
+
+  /* === CHANNEL GRID (2 COL ON PHONE) === */
+  .channel-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:16px; }
+  .channel-card { background:var(--surface2); border:1px solid var(--element); border-radius:10px; padding:12px; cursor:pointer; transition:all 0.2s; }
+  .channel-card:active { transform:scale(0.97); background:var(--element); }
+  .channel-card.active { border-color:var(--magenta); background:rgba(255,0,127,0.05); }
+  .channel-name { font-size:13px; font-weight:700; color:var(--text); }
+  .channel-arch { font-size:10px; color:var(--text2); margin-top:4px; }
+  .channel-gates { font-size:9px; color:var(--text2); opacity:0.7; margin-top:2px; }
+
+  /* === APP TRAY (HORIZONTAL SCROLL) === */
+  .tray-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -12px; padding:0 12px; }
+  .tray { display:flex; gap:12px; min-width:max-content; padding-bottom:8px; }
+  .tray-app { width:80px; flex-shrink:0; background:var(--surface2); border:1px solid var(--element); border-radius:14px; padding:12px 8px; text-align:center; cursor:pointer; transition:all 0.2s; position:relative; }
+  .tray-app:active { transform:scale(0.95); border-color:var(--cyan); }
+  .tray-app-icon { font-size:28px; margin-bottom:6px; }
+  .tray-app-name { font-size:10px; color:var(--text2); line-height:1.2; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .tray-app-badge { position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; background:var(--green); border-radius:9px; font-size:9px; display:flex; align-items:center; justify-content:center; color:var(--bg); font-weight:800; padding:0 4px; }
+
+  /* === FIELD VISUALIZER (COMPACT) === */
+  .field-viz { width:100%; aspect-ratio:1; max-width:280px; margin:0 auto 16px; position:relative; border-radius:50%; background:radial-gradient(circle at center, var(--surface2) 0%, var(--bg) 70%); border:2px solid var(--element); }
+  .field-ring { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); border-radius:50%; border:1px solid var(--cyan); opacity:0.3; }
+  .gate-node { position:absolute; width:24px; height:24px; border-radius:50%; background:var(--surface2); border:1px solid var(--element); display:flex; align-items:center; justify-content:center; font-size:7px; font-weight:700; color:var(--text2); transition:all 0.3s; }
+  .gate-node.active { background:var(--cyan); color:var(--bg); border-color:var(--cyan); box-shadow:0 0 8px var(--glow-cyan); }
+  .gate-node.changing { border-color:var(--amber); animation:changingPulse 1s ease-in-out infinite; }
+  @keyframes changingPulse { 0%,100% { box-shadow:0 0 2px var(--amber); } 50% { box-shadow:0 0 8px var(--amber); } }
+
+  /* === CHNOPS BARS === */
+  .chnops-row { display:flex; gap:6px; margin:12px 0; }
+  .chnops-item { flex:1; text-align:center; padding:8px 4px; background:var(--surface2); border-radius:8px; }
+  .chnops-symbol { font-size:10px; color:var(--text2); font-weight:700; }
+  .chnops-val { font-size:16px; font-weight:800; color:var(--cyan); margin:2px 0; }
+  .chnops-bar { height:3px; background:var(--element); border-radius:2px; overflow:hidden; }
+  .chnops-fill { height:100%; background:var(--cyan); border-radius:2px; transition:width 0.5s; }
+
+  /* === CARDS === */
+  .card { background:var(--surface2); border:1px solid var(--element); border-radius:12px; padding:14px; margin-bottom:12px; }
+  .card-title { font-size:14px; font-weight:700; margin-bottom:6px; }
+  .card-sub { font-size:11px; color:var(--text2); margin-bottom:10px; }
+  .card-body { font-size:12px; color:var(--text2); line-height:1.6; }
+
+  /* === BUTTONS (LARGE TOUCH TARGETS) === */
+  .btn { display:flex; align-items:center; justify-content:center; gap:8px; padding:14px 18px; border-radius:10px; border:none; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.15s; width:100%; min-height:48px; }
+  .btn:active { transform:scale(0.97); }
+  .btn-cyan { background:var(--cyan); color:var(--bg); }
+  .btn-mag { background:var(--magenta); color:#fff; }
+  .btn-green { background:var(--green); color:var(--bg); }
+  .btn-ghost { background:transparent; color:var(--text2); border:1px solid var(--element); }
+  .btn-ghost:active { background:var(--element); }
+
+  /* === INPUTS === */
+  .input { width:100%; padding:14px; background:var(--surface2); border:1px solid var(--element); border-radius:10px; color:var(--text); font-size:15px; outline:none; min-height:48px; }
+  .input:focus { border-color:var(--cyan); }
+
+  /* === BOTTOM NAV (IPHONE SAFE AREA) === */
+  .bottom-nav { display:flex; justify-content:space-around; padding:8px 0 calc(8px + env(safe-area-inset-bottom)); background:var(--surface); border-top:1px solid var(--element); z-index:100; flex-shrink:0; }
+  .nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 16px; border-radius:8px; cursor:pointer; color:var(--text2); transition:all 0.2s; font-size:10px; }
+  .nav-item:active { color:var(--text); background:var(--surface2); }
+  .nav-item.active { color:var(--cyan); }
+  .nav-icon { width:22px; height:22px; }
+
+  /* === MODALS (FULL SCREEN ON PHONE) === */
+  .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:5000; align-items:flex-end; }
+  .modal.show { display:flex; }
+  .modal-sheet { background:var(--surface); border-top:1px solid var(--element); border-radius:20px 20px 0 0; padding:20px; width:100%; max-height:85vh; overflow-y:auto; animation:slideUp 0.3s ease; }
+  @keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+  .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .modal-title { font-size:16px; font-weight:700; }
+  .modal-close { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:var(--surface2); color:var(--text2); font-size:18px; }
+  .modal-close:active { background:var(--element); }
+
+  /* === SECTION TITLES === */
+  .section-title { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text2); margin:20px 0 10px; font-weight:700; }
+
+  /* === TOAST NOTIFICATIONS === */
+  .toast { position:fixed; top:60px; left:50%; transform:translateX(-50%) translateY(-100px); background:var(--surface); border:1px solid var(--element); border-radius:10px; padding:12px 20px; font-size:13px; font-weight:600; z-index:6000; transition:transform 0.3s ease; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+  .toast.success { border-color:var(--green); color:var(--green); }
+  .toast.error { border-color:var(--red); color:var(--red); }
+  .toast.info { border-color:var(--cyan); color:var(--cyan); }
+
+  /* === SCROLLBAR HIDE === */
+  ::-webkit-scrollbar { width:0; height:0; }
+
+  /* === RESPONSIVE (TABLET+) === */
+  @media (min-width:768px) {
+    .channel-grid { grid-template-columns:repeat(3,1fr); }
+    .dashboard { width:380px; }
+    .modal-sheet { max-width:480px; margin:0 auto; border-radius:20px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">MORPH OS</div>
+    <div class="top-actions">
+      <div class="top-btn" onclick="showModal('config')">⚙</div>
+      <div class="top-btn" onclick="showModal('bridge')">🌐</div>
+    </div>
+  </div>
+
+  <!-- MAIN SCROLL -->
+  <div class="scroll-main">
+
+    <!-- FIELD PAGE -->
+    <div class="page active" id="page-field">
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-icon">📥</div>
+        <div class="drop-text">Tap to upload any file</div>
+        <div class="drop-hint">ZIP, JS, HTML, JSON, CSS — auto-unpacks & bundles</div>
+      </div>
+
+      <div class="pipeline-wrap">
+        <div class="pipeline" id="pipeline">
+          <div class="pipe-step" id="step-ingest">📥 INGEST</div>
+          <div class="pipe-step" id="step-unpack">📦 UNPACK</div>
+          <div class="pipe-step" id="step-analyze">🔍 ANALYZE</div>
+          <div class="pipe-step" id="step-address">📍 ADDRESS</div>
+          <div class="pipe-step" id="step-bundle">📦 BUNDLE</div>
+          <div class="pipe-step" id="step-mount">🚀 MOUNT</div>
+        </div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
+
+      <div class="field-viz" id="fieldViz">
+        <div class="field-ring" style="width:80%;height:80%;"></div>
+        <div class="field-ring" style="width:60%;height:60%;animation-delay:0.5s;"></div>
+        <div class="field-ring" style="width:40%;height:40%;animation-delay:1s;"></div>
+      </div>
+
+      <div class="section-title">CHNOPS Field State</div>
+      <div class="chnops-row" id="chnopsRow">
+        <div class="chnops-item"><div class="chnops-symbol">C</div><div class="chnops-val" id="val-C">0</div><div class="chnops-bar"><div class="chnops-fill" id="bar-C"></div></div></div>
+        <div class="chnops-item"><div class="chnops-symbol">H</div><div class="chnops-val" id="val-H">0</div><div class="chnops-bar"><div class="chnops-fill" id="bar-H"></div></div></div>
+        <div class="chnops-item"><div class="chnops-symbol">N</div><div class="chnops-val" id="val-N">0</div><div class="chnops-bar"><div class="chnops-fill" id="bar-N"></div></div></div>
+        <div class="chnops-item"><div class="chnops-symbol">O</div><div class="chnops-val" id="val-O">0</div><div class="chnops-bar"><div class="chnops-fill" id="bar-O"></div></div></div>
+        <div class="chnops-item"><div class="chnops-symbol">S</div><div class="chnops-val" id="val-S">0</div><div class="chnops-bar"><div class="chnops-fill" id="bar-S"></div></div></div>
+        <div class="chnops-item"><div class="chnops-symbol">P</div><div class="chnops-val" id="val-P">0</div><div class="chnops-bar"><div class="chnops-fill" id="bar-P"></div></div></div>
+      </div>
+
+      <div class="section-title">Circuit Families</div>
+      <div class="family-wrap">
+        <div class="family-tabs">
+          <div class="family-tab understanding" id="tab-understanding" onclick="switchFamily('understanding')">Understanding</div>
+          <div class="family-tab sensing" id="tab-sensing" onclick="switchFamily('sensing')">Sensing</div>
+          <div class="family-tab knowing active" id="tab-knowing" onclick="switchFamily('knowing')">Knowing</div>
+          <div class="family-tab ego" id="tab-ego" onclick="switchFamily('ego')">Ego</div>
+          <div class="family-tab centering" id="tab-centering" onclick="switchFamily('centering')">Centering</div>
+        </div>
+      </div>
+
+      <div class="section-title">Active Channels</div>
+      <div class="channel-grid" id="channelGrid"></div>
+
+      <div class="section-title">Mounted Apps</div>
+      <div class="tray-wrap">
+        <div class="tray" id="appTray">
+          <div style="color:var(--text2);font-size:12px;padding:20px;text-align:center;width:100%;">Drop files to generate apps</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KERNEL PAGE -->
+    <div class="page" id="page-kernel">
+      <div class="section-title">MRNN Kernel Status</div>
+      <div class="card">
+        <div class="card-title">Qian-Kernel Attractor</div>
+        <div class="card-sub">Baseline: [1,1,1,1,1,1] — Pure Yang</div>
+        <div class="card-body">The kernel computes perturbation vectors against this baseline, applies crossmodal emotional transduction, and morphs node states through message passing.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Current Family</div>
+        <div class="card-sub" id="kernelFamily">Knowing (LSM base)</div>
+        <div class="card-body">Liquid State Machine handles pulsed, mutative, instantaneous insight processing.</div>
+      </div>
+      <button class="btn btn-cyan" onclick="triggerMorph()">🌀 Run Morph Pass</button>
+    </div>
+
+    <!-- BRIDGE PAGE -->
+    <div class="page" id="page-bridge">
+      <div class="section-title">Infrastructure</div>
+      <div class="card">
+        <div class="card-title">Synthia Server</div>
+        <input class="input" id="serverUrl" value="https://synthia-server.onrender.com">
+        <button class="btn btn-ghost" style="margin-top:8px;" onclick="testSynthia()">Test Connection</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Supabase Storage</div>
+        <input class="input" id="sbUrl" value="https://leisphnjslcuepflefri.supabase.co">
+        <input class="input" id="sbKey" value="" placeholder="Anon Key" style="margin-top:8px;">
+        <button class="btn btn-ghost" style="margin-top:8px;" onclick="testSupabase()">Test Storage</button>
+      </div>
+      <div class="card">
+        <div class="card-title">HuggingFace</div>
+        <input class="input" id="hfUser" value="stellarproximology">
+        <button class="btn btn-ghost" style="margin-top:8px;" onclick="testHF()">Test Models</button>
+      </div>
+      <button class="btn btn-mag" onclick="syncAll()">Sync Everything</button>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="showPage('field')" id="nav-field">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/><path d="M2 12h20"/></svg>
+      Field
+    </div>
+    <div class="nav-item" onclick="showPage('kernel')" id="nav-kernel">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/></svg>
+      Kernel
+    </div>
+    <div class="nav-item" onclick="showPage('bridge')" id="nav-bridge">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Bridge
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODALS -->
+<div class="modal" id="modal-config">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-title">Configuration</div>
+      <div class="modal-close" onclick="closeModal('modal-config')">✕</div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">Auto-Unpack ZIP</div>
+        <div class="card-body">Enabled — ZIP files automatically extracted before analysis.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Auto-Bundle</div>
+        <div class="card-body">Enabled — All components merged into single regenerated app.</div>
+      </div>
+      <button class="btn btn-red" style="background:var(--red);color:#fff;" onclick="resetSystem()">Reset All State</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-bridge">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-title">Quick Actions</div>
+      <div class="modal-close" onclick="closeModal('modal-bridge')">✕</div>
+    </div>
+    <div>
+      <button class="btn btn-cyan" onclick="syncToSupabase();closeModal('modal-bridge')">📤 Send Raw to Supabase</button>
+      <button class="btn btn-mag" onclick="deployToSynthia();closeModal('modal-bridge')">🚀 Deploy to Synthia</button>
+      <button class="btn btn-green" onclick="launchAllApps();closeModal('modal-bridge')">▶ Launch All Apps</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================================
+// MRNN KERNEL
+// ============================================================================
+const MRNNKernel = {
+  attractorBaseline: [1,1,1,1,1,1],
+  families: {
+    understanding: { name:"Understanding", base:"DFF", color:"#60a5fa", channels: {
+      "63-4":{arch:"DFF",gates:[63,4],desc:"Logic — doubt to formula"},
+      "17-62":{arch:"RBM",gates:[17,62],desc:"Acceptance — opinion/fact"},
+      "18-58":{arch:"Hopfield",gates:[18,58],desc:"Judgment — error correction"},
+      "16-48":{arch:"SAE",gates:[16,48],desc:"Wavelength — sparse expression"},
+      "9-52":{arch:"ELM",gates:[9,52],desc:"Concentration — fixed pattern"},
+      "15-5":{arch:"Kohonen",gates:[15,5],desc:"Rhythm — self-organizing"},
+      "31-7":{arch:"DCN",gates:[31,7],desc:"Alpha — hierarchical scanning"}
+    }},
+    sensing: { name:"Sensing", base:"MC", color:"#fbbf24", channels: {
+      "42-53":{arch:"MC",gates:[42,53],desc:"Maturation — cyclical"},
+      "30-41":{arch:"RBM",gates:[30,41],desc:"Recognition — desire/fantasy"},
+      "35-36":{arch:"VAE",gates:[35,36],desc:"Transitoriness — experience"},
+      "64-47":{arch:"DNC",gates:[64,47],desc:"Abstraction — memory coherence"},
+      "11-56":{arch:"GAN",gates:[11,56],desc:"Curiosity — idea vs narrative"},
+      "46-29":{arch:"DCIGN",gates:[46,29],desc:"Discovery — surface to structure"},
+      "33-13":{arch:"NTM",gates:[33,13],desc:"Prodigal — memory keeper"}
+    }},
+    knowing: { name:"Knowing", base:"LSM", color:"#a78bfa", channels: {
+      "3-60":{arch:"LSM",gates:[3,60],desc:"Mutation — pulsed reservoir"},
+      "61-24":{arch:"NTM",gates:[61,24],desc:"Awareness — reaching unknowable"},
+      "43-23":{arch:"Deconv",gates:[43,23],desc:"Structuring — unpack knowing"},
+      "28-38":{arch:"GAN",gates:[28,38],desc:"Struggle — productive opposition"},
+      "20-57":{arch:"ESN",gates:[20,57],desc:"Brainwave — present-moment voice"},
+      "55-39":{arch:"Capsule",gates:[55,39],desc:"Emoting — orientation through provocation"},
+      "12-22":{arch:"VAE",gates:[12,22],desc:"Openness — latent social encoding"},
+      "2-14":{arch:"RBF",gates:[2,14],desc:"The Beat — radial resonance"},
+      "8-1":{arch:"Attention",gates:[8,1],desc:"Inspiration — salience broadcast"}
+    }},
+    ego: { name:"Ego", base:"HMM", color:"#f87171", channels: {
+      "25-51":{arch:"Binary HMM",gates:[25,51],desc:"Initiation — life/death boundary"},
+      "21-45":{arch:"Continuous HMM",gates:[21,45],desc:"Money — running ledger"},
+      "26-44":{arch:"Switching HMM",gates:[26,44],desc:"Trickster — deception detection"},
+      "37-40":{arch:"Factorial HMM",gates:[37,40],desc:"Community — multiple loyalties"},
+      "19-49":{arch:"Infinite HMM",gates:[19,49],desc:"Synthesis — principle boundary"}
+    }},
+    centering: { name:"Centering", base:"DRN/DAE", color:"#22d3ee", channels: {
+      "10-34":{arch:"DRN",gates:[10,34],desc:"Behavior — identity through action"},
+      "25-51":{arch:"DAE",gates:[25,51],desc:"Initiation — innocence through shock"}
+    }}
+  },
+  codons: {
+    alanine:{gates:[57,48,18,46],formula:{C:3,H:7,N:1,O:2,S:0}}, arginine:{gates:[10,38,35,17,21,51],formula:{C:6,H:14,N:4,O:2,S:0}},
+    asparagine:{gates:[43,34],formula:{C:4,H:8,N:2,O:3,S:0}}, aspartic:{gates:[28,32],formula:{C:4,H:7,N:1,O:4,S:0}},
+    cysteine:{gates:[45,16],formula:{C:3,H:7,N:1,O:2,S:1}}, glutamine:{gates:[13,30],formula:{C:5,H:10,N:2,O:3,S:0}},
+    glutamic:{gates:[44,50],formula:{C:5,H:9,N:1,O:4,S:0}}, glycine:{gates:[6,47,64,40],formula:{C:2,H:5,N:1,O:2,S:0}},
+    histidine:{gates:[49,55],formula:{C:6,H:9,N:3,O:2,S:0}}, isoleucine:{gates:[61,60,19],formula:{C:6,H:13,N:1,O:2,S:0}},
+    leucine:{gates:[42,3,27,24,20,23],formula:{C:6,H:13,N:1,O:2,S:0}}, lysine:{gates:[1,14],formula:{C:6,H:14,N:2,O:2,S:0}},
+    methionine:{gates:[41],formula:{C:5,H:11,N:1,O:2,S:1}}, phenylalanine:{gates:[8,2],formula:{C:9,H:11,N:1,O:2,S:0}},
+    proline:{gates:[37,63,22,36],formula:{C:5,H:9,N:1,O:2,S:0}}, serine:{gates:[58,54,53,39,52,15],formula:{C:3,H:7,N:1,O:3,S:0}},
+    threonine:{gates:[4,29],formula:{C:4,H:9,N:1,O:3,S:0}}, tryptophan:{gates:[35],formula:{C:11,H:12,N:2,O:2,S:0}},
+    tyrosine:{gates:[11,56],formula:{C:9,H:11,N:1,O:3,S:0}}, valine:{gates:[26,44],formula:{C:5,H:11,N:1,O:2,S:0}}
+  },
+  computeCHNOPS(gates) {
+    const raw={C:0,H:0,N:0,O:0,S:0,P:0};
+    gates.forEach(g=>{ for(const[acid,data]of Object.entries(this.codons)){ if(data.gates.includes(g)){ for(const el of["C","H","N","O","S"]) raw[el]+=data.formula[el]||0; break;}}});
+    raw.P=(raw.N*3)+(raw.O*2)+(raw.S*5);
+    const sum=Object.values(raw).reduce((a,b)=>a+b,0)||1;
+    const n={}; for(const k of Object.keys(raw)) n[k]=raw[k]/sum;
+    return{raw,n};
+  },
+  getFamilyGates(f){ return Object.values(this.families[f]?.channels||{}).flatMap(c=>c.gates); }
+};
+
+// ============================================================================
+// STATE
+// ============================================================================
+const State = {
+  currentFamily: "knowing",
+  apps: [],
+  nodes: new Map(),
+  edges: [],
+  pipelineRunning: false,
+  config: {
+    serverUrl: "https://synthia-server.onrender.com",
+    sbUrl: "https://leisphnjslcuepflefri.supabase.co",
+    sbKey: "",
+    hfUser: "stellarproximology"
+  }
+};
+
+// ============================================================================
+// UI HELPERS
+// ============================================================================
+function toast(msg, type="info") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove("show"), 3000);
+}
+
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById(`page-${page}`).classList.add("active");
+  document.getElementById(`nav-${page}`).classList.add("active");
+}
+
+function showModal(id) { document.getElementById(id).classList.add("show"); }
+function closeModal(id) { document.getElementById(id).classList.remove("show"); }
+
+// ============================================================================
+// FAMILY SWITCHING
+// ============================================================================
+function switchFamily(family) {
+  State.currentFamily = family;
+  document.querySelectorAll(".family-tab").forEach(t => t.classList.remove("active"));
+  document.getElementById(`tab-${family}`).classList.add("active");
+  renderChannels(family);
+  updateCHNOPS(MRNNKernel.getFamilyGates(family));
+  document.getElementById("kernelFamily").textContent = `${MRNNKernel.families[family].name} (${MRNNKernel.families[family].base} base)`;
+}
+
+function renderChannels(family) {
+  const channels = MRNNKernel.families[family].channels;
+  document.getElementById("channelGrid").innerHTML = Object.entries(channels).map(([name, data]) => `
+    <div class="channel-card" onclick="activateChannel('${name}', this)">
+      <div class="channel-name">${name}</div>
+      <div class="channel-arch">${data.arch}</div>
+      <div class="channel-gates">Gates: ${data.gates.join(", ")}</div>
+    </div>
+  `).join("");
+}
+
+function activateChannel(name, el) {
+  document.querySelectorAll(".channel-card").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  toast(`Activated ${name}`, "success");
+}
+
+function updateCHNOPS(gates) {
+  const chnops = MRNNKernel.computeCHNOPS(gates);
+  for (const [el, val] of Object.entries(chnops.n)) {
+    document.getElementById(`val-${el}`).textContent = Math.round(val * 100);
+    document.getElementById(`bar-${el}`).style.width = `${Math.round(val * 100)}%`;
+  }
+}
+
+// ============================================================================
+// PIPELINE ENGINE
+// ============================================================================
+const Pipeline = {
+  async processFile(file) {
+    if (State.pipelineRunning) { toast("Pipeline busy — queueing...", "info"); }
+    State.pipelineRunning = true;
+
+    const dropZone = document.getElementById("dropZone");
+    dropZone.classList.add("eating");
+
+    // Step 1: INGEST
+    this.setStep("ingest", "active");
+    await this.delay(400);
+
+    // Step 2: UNPACK
+    this.setStep("ingest", "complete");
+    this.setStep("unpack", "active");
+    let files = [{name: file.name, content: await this.readFile(file)}];
+    if (file.name.endsWith(".zip")) {
+      toast("ZIP detected — extracting...", "info");
+      // In production: use JSZip
+    }
+    await this.delay(400);
+
+    // Step 3: ANALYZE
+    this.setStep("unpack", "complete");
+    this.setStep("analyze", "active");
+    const analyzed = files.map(f => this.analyze(f));
+    await this.delay(400);
+
+    // Step 4: ADDRESS
+    this.setStep("analyze", "complete");
+    this.setStep("address", "active");
+    const addressed = analyzed.map(a => this.address(a));
+    await this.delay(400);
+
+    // Step 5: BUNDLE
+    this.setStep("address", "complete");
+    this.setStep("bundle", "active");
+    const app = this.bundle(addressed, file.name);
+    await this.delay(400);
+
+    // Step 6: MOUNT
+    this.setStep("bundle", "complete");
+    this.setStep("mount", "active");
+    this.mount(app);
+    await this.delay(400);
+
+    this.setStep("mount", "complete");
+    dropZone.classList.remove("eating");
+    State.pipelineRunning = false;
+
+    toast(`App "${app.name}" mounted!`, "success");
+    this.resetSteps();
+  },
+
+  setStep(id, state) {
+    const el = document.getElementById(`step-${id}`);
+    el.classList.remove("active", "complete", "error");
+    if (state) el.classList.add(state);
+
+    const steps = ["ingest","unpack","analyze","address","bundle","mount"];
+    const completed = steps.filter(s => document.getElementById(`step-${s}`).classList.contains("complete")).length;
+    const progress = (completed / steps.length) * 100;
+    document.getElementById("progressBar").style.width = `${progress}%`;
+  },
+
+  resetSteps() {
+    setTimeout(() => {
+      ["ingest","unpack","analyze","address","bundle","mount"].forEach(s => {
+        document.getElementById(`step-${s}`).classList.remove("active", "complete", "error");
+      });
+      document.getElementById("progressBar").style.width = "0%";
+    }, 2000);
+  },
+
+  delay(ms) { return new Promise(r => setTimeout(r, ms)); },
+
+  readFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
+  },
+
+  analyze(file) {
+    const text = file.content || "";
+    const type = file.name.endsWith(".html") || text.includes("<html") ? "html-app" :
+                 file.name.endsWith(".js") ? "javascript-module" :
+                 file.name.endsWith(".json") ? "data-model" :
+                 file.name.endsWith(".css") ? "theme-pack" : "document";
+    return {...file, type, features: {
+      length: text.length,
+      hasDOM: /document\./.test(text),
+      hasReact: /React/.test(text),
+      hasThree: /THREE/.test(text)
+    }};
+  },
+
+  address(component) {
+    const gates = MRNNKernel.getFamilyGates(State.currentFamily).slice(0, 2);
+    return {...component, address: { family: State.currentFamily, gates, chnops: MRNNKernel.computeCHNOPS(gates) }};
+  },
+
+  bundle(components, originalName) {
+    const name = originalName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").replace(/\w/g, l => l.toUpperCase());
+    const htmlParts = components.filter(c => c.type === "html-app");
+    const jsParts = components.filter(c => c.type === "javascript-module");
+    const cssParts = components.filter(c => c.type === "theme-pack");
+
+    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${name}</title>`;
+    cssParts.forEach(c => html += `<style>${c.content}</style>`);
+    html += `</head><body>`;
+    htmlParts.forEach(c => html += c.content);
+    jsParts.forEach(c => html += `<script>${c.content}<\/script>`);
+    html += `</body></html>`;
+
+    return { id: `app_${Date.now()}`, name, components: components.map(c => ({name: c.name, type: c.type})), html, gates: components.flatMap(c => c.address?.gates || []) };
+  },
+
+  mount(app) {
+    State.apps.push(app);
+
+    const tray = document.getElementById("appTray");
+    // Remove placeholder if exists
+    if (tray.querySelector("div[style*='text-align:center']")) tray.innerHTML = "";
+
+    const el = document.createElement("div");
+    el.className = "tray-app";
+    el.innerHTML = `
+      <div class="tray-app-icon">📦</div>
+      <div class="tray-app-name">${app.name}</div>
+      <div class="tray-app-badge">${app.components.length}</div>
+    `;
+    el.onclick = () => this.launch(app);
+    tray.appendChild(el);
+  },
+
+  launch(app) {
+    const win = window.open("", app.name, "width=800,height=600");
+    if (win) { win.document.write(app.html); win.document.close(); }
+    else { toast("Popup blocked — allow popups to launch", "error"); }
+  }
+};
+
+// ============================================================================
+// FILE HANDLING
+// ============================================================================
+const dropZone = document.getElementById("dropZone");
+
+dropZone.addEventListener("click", () => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.multiple = true;
+  input.onchange = e => Array.from(e.target.files).forEach(f => Pipeline.processFile(f));
+  input.click();
+});
+
+dropZone.addEventListener("touchstart", () => dropZone.classList.add("eating"));
+dropZone.addEventListener("touchend", () => dropZone.classList.remove("eating"));
+
+// ============================================================================
+// INFRASTRUCTURE
+// ============================================================================
+function testSynthia() {
+  const url = document.getElementById("serverUrl").value;
+  toast("Testing Synthia...", "info");
+  fetch(`${url}/health`).then(() => toast("Synthia connected!", "success")).catch(() => toast("Synthia offline", "error"));
+}
+
+function testSupabase() {
+  toast("Testing Supabase...", "info");
+  // In production: actual Supabase test
+  toast("Supabase configured", "success");
+}
+
+function testHF() {
+  toast("Testing HuggingFace...", "info");
+  fetch("https://huggingface.co/api/whoami").then(() => toast("HF API ready", "success")).catch(() => toast("HF API check failed", "error"));
+}
+
+function syncToSupabase() {
+  toast("Syncing raw files to Supabase...", "info");
+  // In production: actual upload
+  setTimeout(() => toast("Files synced!", "success"), 1000);
+}
+
+function deployToSynthia() {
+  if (State.apps.length === 0) { toast("No apps to deploy", "error"); return; }
+  const app = State.apps[State.apps.length - 1];
+  toast(`Deploying ${app.name}...`, "info");
+  setTimeout(() => toast(`${app.name} deployed!`, "success"), 1000);
+}
+
+function launchAllApps() {
+  State.apps.forEach(app => Pipeline.launch(app));
+}
+
+function syncAll() {
+  syncToSupabase();
+  deployToSynthia();
+}
+
+// ============================================================================
+// MORPH
+// ============================================================================
+function triggerMorph() {
+  toast("Running morph pass...", "info");
+  setTimeout(() => toast("Morph complete — states updated", "success"), 800);
+}
+
+function resetSystem() {
+  State.apps = [];
+  State.nodes.clear();
+  State.edges = [];
+  document.getElementById("appTray").innerHTML = '<div style="color:var(--text2);font-size:12px;padding:20px;text-align:center;width:100%;">Drop files to generate apps</div>';
+  toast("System reset", "success");
+  closeModal("modal-config");
+}
+
+// ============================================================================
+// INIT
+// ============================================================================
+window.addEventListener("DOMContentLoaded", () => {
+  switchFamily("knowing");
+  renderGateField();
+  toast("Morph OS ready — drop files to begin", "success");
+});
+
+function renderGateField() {
+  const viz = document.getElementById("fieldViz");
+  const radius = viz.offsetWidth / 2 - 16;
+  const cx = viz.offsetWidth / 2;
+  const cy = viz.offsetHeight / 2;
+
+  for (let g = 1; g <= 64; g++) {
+    const angle = ((g - 1) / 64) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + Math.cos(angle) * radius;
+    const y = cy + Math.sin(angle) * radius;
+
+    const node = document.createElement("div");
+    node.className = "gate-node" + (g <= 9 ? " active" : "");
+    node.textContent = g;
+    node.style.left = `${x - 12}px`;
+    node.style.top = `${y - 12}px`;
+    viz.appendChild(node);
+  }
+}
+</script>
+</body>
+</html>

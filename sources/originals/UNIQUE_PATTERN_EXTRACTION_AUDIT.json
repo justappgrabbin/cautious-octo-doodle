@@ -1,0 +1,1638 @@
+{
+  "created_at": "2026-05-24",
+  "rule": "No secret omissions: preserve donor ancestry, extract unique patterns, deduplicate repeated shells by capability, do not alter Synthia substrate core; expose it through OS panel/bridge.",
+  "files_scanned": [
+    {
+      "file": "index_actual.html",
+      "bytes": 449458,
+      "sha1": "226172749cbf25c2ba569fcfe52bced9a66c9105"
+    },
+    {
+      "file": "MRNN_Morph_Substrate_PureJS_Unified.html",
+      "bytes": 39115,
+      "sha1": "44db8d2a9986fd8d8b30e5b23bd1fe5ad53c4dc4"
+    },
+    {
+      "file": "MorphSubstrate_Assembled_PureJS.html",
+      "bytes": 479390,
+      "sha1": "30a455c2b41aebc4f083992e09ecca9980b64afa"
+    },
+    {
+      "file": "resonance-os-construct-grapesjs-webstudio.html",
+      "bytes": 400114,
+      "sha1": "cce8cde882c9425cf97c21b809e74ef54689dd67"
+    },
+    {
+      "file": "resonance-phonyos-final.html",
+      "bytes": 452363,
+      "sha1": "a3d7b9877e13cd4ff34afac0664e1c42ce79a2e9"
+    },
+    {
+      "file": "resonance-os-construct-local.html",
+      "bytes": 327568,
+      "sha1": "850862aa43eb235d5d5d1069a43e3a2b88581319"
+    },
+    {
+      "file": "resonance-os-bottom-menu-repaired.html",
+      "bytes": 314501,
+      "sha1": "9d9f926561b46af1f92aea85b4e1e7b45954fcc3"
+    },
+    {
+      "file": "resonance-os-menu-fixed.html",
+      "bytes": 314917,
+      "sha1": "b29f266f2f316651e7832a59369cc87c6c0c681f"
+    },
+    {
+      "file": "resonance-os-unified-fixed.html",
+      "bytes": 442724,
+      "sha1": "732f85a96f9683aaf500f9626142a406e513e8e5"
+    },
+    {
+      "file": "Synthia_Morph_Substrate_FULL_PureJS.html",
+      "bytes": 51336,
+      "sha1": "a6a22dd36c8008fb5ec04664c86ac8930a17c22a"
+    },
+    {
+      "file": "joe-resonance-unified-substrate.html",
+      "bytes": 442699,
+      "sha1": "ffcdbae8f0cbd48cafc91f4cbaa4203421f4ce7e"
+    }
+  ],
+  "unique_raw_symbols": {
+    "index_actual.html": {
+      "functions": [
+        "openCanonicalIframe"
+      ],
+      "classes": [],
+      "consts": [],
+      "ids": [],
+      "globals": [
+        "openCanonicalIframe"
+      ],
+      "markers": []
+    },
+    "MRNN_Morph_Substrate_PureJS_Unified.html": {
+      "functions": [
+        "frameLoop",
+        "readDroppedFile",
+        "renderBenchMetrics",
+        "renderLearn",
+        "renderOps",
+        "renderSelf",
+        "routeCodeFile"
+      ],
+      "classes": [
+        "CognitiveKernel",
+        "CrossmodalContextualizer",
+        "CrossmodalMorphEngine",
+        "CrossmodalRenderer",
+        "CrossmodalState",
+        "EngineCore"
+      ],
+      "consts": [],
+      "ids": [
+        "${containerId}",
+        "${contentContainerId}",
+        "appTray",
+        "bench-view-content",
+        "canvas-container",
+        "clip-trigger",
+        "console-input",
+        "display-sub-layer",
+        "emo-dock",
+        "field-matrix",
+        "file-picker",
+        "global-toast",
+        "nav-dock",
+        "phone-shell",
+        "send-trigger",
+        "ui-layer",
+        "viewport"
+      ],
+      "globals": [
+        "core",
+        "sentenceEngine",
+        "showToast"
+      ],
+      "markers": []
+    },
+    "MorphSubstrate_Assembled_PureJS.html": {
+      "functions": [
+        "addMorphHomeIcon",
+        "bootPureMorph",
+        "openCanonicalDirectSurface",
+        "return"
+      ],
+      "classes": [
+        "import"
+      ],
+      "consts": [
+        "LS_KEY",
+        "PureMorph"
+      ],
+      "ids": [
+        "${app}",
+        "ans_${q.id}",
+        "plasmic-directsurface-${winId}"
+      ],
+      "globals": [
+        "Backend",
+        "JSZip",
+        "PhysioCoupling",
+        "PureMorphSubstrate",
+        "openCanonicalDirectSurface"
+      ],
+      "markers": []
+    },
+    "resonance-os-construct-grapesjs-webstudio.html": {
+      "functions": [],
+      "classes": [],
+      "consts": [],
+      "ids": [],
+      "globals": [],
+      "markers": []
+    },
+    "resonance-phonyos-final.html": {
+      "functions": [
+        "applyMode",
+        "bootPanel",
+        "inferMode",
+        "readReality",
+        "updateRealityStrip",
+        "updateUI"
+      ],
+      "classes": [],
+      "consts": [
+        "MODES"
+      ],
+      "ids": [
+        "phonyos-mode-chip",
+        "phonyos-mode-menu",
+        "phonyos-morph-controller",
+        "phonyos-morph-skin"
+      ],
+      "globals": [
+        "PhonyOSMorph",
+        "state"
+      ],
+      "markers": [
+        "PhonyOSMorph"
+      ]
+    },
+    "resonance-os-construct-local.html": {
+      "functions": [],
+      "classes": [],
+      "consts": [],
+      "ids": [],
+      "globals": [],
+      "markers": []
+    },
+    "resonance-os-bottom-menu-repaired.html": {
+      "functions": [],
+      "classes": [],
+      "consts": [],
+      "ids": [],
+      "globals": [],
+      "markers": []
+    },
+    "resonance-os-menu-fixed.html": {
+      "functions": [
+        "emergencyDock"
+      ],
+      "classes": [],
+      "consts": [],
+      "ids": [],
+      "globals": [],
+      "markers": []
+    },
+    "resonance-os-unified-fixed.html": {
+      "functions": [],
+      "classes": [],
+      "consts": [],
+      "ids": [],
+      "globals": [],
+      "markers": []
+    },
+    "Synthia_Morph_Substrate_FULL_PureJS.html": {
+      "functions": [
+        "autoTick",
+        "bindDrop",
+        "frame",
+        "labCreate",
+        "mindAsk",
+        "mindRead",
+        "moneyProduct",
+        "readFile",
+        "renderPanel",
+        "routeFile",
+        "showPanel",
+        "spawnProject",
+        "tickClock"
+      ],
+      "classes": [
+        "AutonomyEngine",
+        "BodyCoupling",
+        "FieldRenderer",
+        "FinancialDrive",
+        "MemoryStore",
+        "MorphField",
+        "OrchestrationEngine",
+        "PressureEngine",
+        "ScienceLab",
+        "SensoryCodeAnalyzer",
+        "SynthiaMind",
+        "UniversalIngester"
+      ],
+      "consts": [],
+      "ids": [
+        "${targetId}",
+        "console",
+        "drop",
+        "emotionDock",
+        "field",
+        "field-wrap",
+        "file",
+        "fileBtn",
+        "hypothesis",
+        "input",
+        "mindText",
+        "moneyText",
+        "panel",
+        "panelBody",
+        "phase",
+        "pulse",
+        "send",
+        "shell",
+        "status",
+        "toast"
+      ],
+      "globals": [],
+      "markers": []
+    },
+    "joe-resonance-unified-substrate.html": {
+      "functions": [],
+      "classes": [],
+      "consts": [],
+      "ids": [],
+      "globals": [],
+      "markers": []
+    }
+  },
+  "organ_buckets": {
+    "00_substrate_core_bridge": [
+      {
+        "symbol": "SynthiaOS",
+        "owners": [
+          "MRNN_Morph_Substrate_PureJS_Unified.html",
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "MemoryStore",
+        "owners": [
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "MorphField",
+        "owners": [
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "QuantumPotentialNode",
+        "owners": [
+          "MRNN_Morph_Substrate_PureJS_Unified.html",
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "RelationalSentenceEngine",
+        "owners": [
+          "MRNN_Morph_Substrate_PureJS_Unified.html",
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "PressureEngine",
+        "owners": [
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "AutonomyEngine",
+        "owners": [
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "UniversalIngester",
+        "owners": [
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "PureMemorySubstrate",
+        "owners": [
+          "MRNN_Morph_Substrate_PureJS_Unified.html",
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "IntegrationCircuitSubstrate",
+        "owners": [
+          "MRNN_Morph_Substrate_PureJS_Unified.html",
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "VisualCircuitMesh",
+        "owners": [
+          "MRNN_Morph_Substrate_PureJS_Unified.html",
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      }
+    ],
+    "01_app_center_registry": [
+      {
+        "symbol": "JoeAppCenter",
+        "owners": [
+          "resonance-phonyos-final.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "JoeBuiltInArtifacts",
+        "owners": [
+          "resonance-phonyos-final.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "AgentRegistry",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "ResonanceCanonicalRegistry",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html"
+        ],
+        "selected_source": "MorphSubstrate_Assembled_PureJS.html"
+      },
+      {
+        "symbol": "RESONANCE_CANONICAL_MANIFEST",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html"
+        ],
+        "selected_source": "MorphSubstrate_Assembled_PureJS.html"
+      },
+      {
+        "symbol": "installAppManifest",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      },
+      {
+        "symbol": "normalizeAppManifest",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      },
+      {
+        "symbol": "renderDockApps",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "openInstalledApp",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "registryApps",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      }
+    ],
+    "02_app_editor_builder": [
+      {
+        "symbol": "AppBuilder",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "getBuilderHTML",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "initBuilder",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "addBuilderBlock",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "runBuilderPreview",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "exportBuilder",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "BuilderReplacementRegistry",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      },
+      {
+        "symbol": "openGrapesConstruct",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      },
+      {
+        "symbol": "openWebstudioBridge",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      },
+      {
+        "symbol": "openPlasmic",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      },
+      {
+        "symbol": "PlasmicApp",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "grapesjs",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      }
+    ],
+    "03_svg_studio": [
+      {
+        "symbol": "getSVGMakerHTML",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "initSVGMaker",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "generateSVG",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "downloadSVG",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "construct-icon-svg",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-os-construct-local.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      },
+      {
+        "symbol": "construct-preview",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-os-construct-local.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      },
+      {
+        "symbol": "construct-prompt",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-os-construct-local.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      }
+    ],
+    "04_mesh_matrix": [
+      {
+        "symbol": "GNN",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "GNN_CENTERS",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "TridentMesh",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "MeshNode",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "WorkspaceEngine",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "addWorkspaceNode",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "connectSelectedNodes",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "runWorkspacePipeline",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "VisualCircuitMesh",
+        "owners": [
+          "MRNN_Morph_Substrate_PureJS_Unified.html",
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      }
+    ],
+    "05_morphic_overlay_skin": [
+      {
+        "symbol": "PhonyOSMorph",
+        "owners": [
+          "resonance-phonyos-final.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "MODES",
+        "owners": [
+          "resonance-phonyos-final.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "applyMode",
+        "owners": [
+          "resonance-phonyos-final.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "inferMode",
+        "owners": [
+          "resonance-phonyos-final.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "readReality",
+        "owners": [
+          "resonance-phonyos-final.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "reality",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-phonyos-final.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "morph:device-mode",
+        "owners": [
+          "resonance-phonyos-final.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "MorphingSubstrate",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "PhysioCoupling",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "BodyLifecycle",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "BodyState",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      }
+    ],
+    "06_ingestion_runtime": [
+      {
+        "symbol": "handleFileUpload",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "handleFileDrop",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "processUpload",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "BeefIngestor",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html"
+        ],
+        "selected_source": "MorphSubstrate_Assembled_PureJS.html"
+      },
+      {
+        "symbol": "initArtifactIngestor",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html"
+        ],
+        "selected_source": "MorphSubstrate_Assembled_PureJS.html"
+      },
+      {
+        "symbol": "getArtifactIngestorHTML",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html"
+        ],
+        "selected_source": "MorphSubstrate_Assembled_PureJS.html"
+      },
+      {
+        "symbol": "runtimeOperator",
+        "owners": [
+          "MRNN_Morph_Substrate_PureJS_Unified.html",
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "functionalCircuit",
+        "owners": [
+          "MRNN_Morph_Substrate_PureJS_Unified.html",
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      },
+      {
+        "symbol": "UniversalIngester",
+        "owners": [
+          "Synthia_Morph_Substrate_FULL_PureJS.html"
+        ],
+        "selected_source": "Synthia_Morph_Substrate_FULL_PureJS.html"
+      }
+    ],
+    "07_agent_memory_intent": [
+      {
+        "symbol": "Agent",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "AgentPanel",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "VectorMemory",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "MemorySearch",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "IntentGraph",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "DiscernmentEngine",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "ConfidenceEngine",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "Orchestrator",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "sendAgentMessage",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      }
+    ],
+    "08_file_terminal_runtime": [
+      {
+        "symbol": "Terminal",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "getTerminalHTML",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "initTerminal",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "runTerminalCommand",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "getFilesHTML",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "initFiles",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "createFile",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "createFolder",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "saveCurrentFile",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "selectFile",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      }
+    ],
+    "09_external_bridges": [
+      {
+        "symbol": "GitHubAPI",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "HuggingFaceAPI",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "SupabaseClient",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "Backend",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "WebSocketSync",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "PyodideEngine",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "ExpoBridge",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "MCPToolRegistry",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      }
+    ],
+    "10_body_apps": [
+      {
+        "symbol": "getBodyHTML",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "initBody",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "getSynthiaLifeHTML",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html"
+        ],
+        "selected_source": "resonance-os-construct-grapesjs-webstudio.html"
+      },
+      {
+        "symbol": "SynthiaLife",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "Desktop3D",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "getGNNHTML",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      },
+      {
+        "symbol": "initGNN",
+        "owners": [
+          "index_actual.html",
+          "MorphSubstrate_Assembled_PureJS.html",
+          "resonance-os-construct-grapesjs-webstudio.html",
+          "resonance-phonyos-final.html",
+          "resonance-os-construct-local.html",
+          "resonance-os-bottom-menu-repaired.html",
+          "resonance-os-menu-fixed.html",
+          "resonance-os-unified-fixed.html",
+          "joe-resonance-unified-substrate.html"
+        ],
+        "selected_source": "resonance-phonyos-final.html"
+      }
+    ]
+  },
+  "proposed_output_files": {
+    "app-center-registry.js": [
+      "JoeAppCenter",
+      "JoeBuiltInArtifacts",
+      "AgentRegistry",
+      "ResonanceCanonicalRegistry",
+      "installAppManifest",
+      "registryApps"
+    ],
+    "app-editor.js": [
+      "AppBuilder",
+      "BuilderReplacementRegistry",
+      "Grapes/WebStudio/Plasmic bridges",
+      "builder preview/export"
+    ],
+    "svg-studio.js": [
+      "SVGMaker",
+      "generateSVG",
+      "downloadSVG",
+      "construct icon preview"
+    ],
+    "mesh-matrix.js": [
+      "GNN",
+      "TridentMesh",
+      "WorkspaceEngine",
+      "VisualCircuitMesh adapter"
+    ],
+    "morphic-overlay.js": [
+      "PhonyOSMorph",
+      "device modes",
+      "reality strip",
+      "morph lens"
+    ],
+    "substrate-bridge.js": [
+      "SynthiaOS iframe/module bridge",
+      "event proxy",
+      "state mirror",
+      "ingest passthrough"
+    ],
+    "ingestion-runtime.js": [
+      "file upload/drop",
+      "artifact ingestor",
+      "runtimeOperator",
+      "functionalCircuit routing"
+    ],
+    "agent-memory-intent.js": [
+      "VectorMemory",
+      "IntentGraph",
+      "DiscernmentEngine",
+      "AgentPanel"
+    ],
+    "file-terminal-runtime.js": [
+      "VFS/files app",
+      "Terminal",
+      "export/import OS"
+    ],
+    "external-bridges.js": [
+      "GitHub/HF/Supabase/WebSocket/Pyodide/MCP optional adapters"
+    ]
+  }
+}

@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synthia Morph Orchestrator</title>
+<style>
+:root {
+  --bg: #0a0a14;
+  --surface: #12121f;
+  --surface-hover: #1a1a2e;
+  --border: #2a2a40;
+  --text: #e5e7eb;
+  --text-muted: #6b7280;
+  --accent: #8b5cf6;
+  --accent-glow: rgba(139, 92, 246, 0.3);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── HEADER ─── */
+.header {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header h1 {
+  font-size: 24px;
+  background: linear-gradient(135deg, var(--accent), var(--success));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+.header-sub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ─── STATS GRID ─── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 24px 32px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s;
+}
+.stat-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+.stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* ─── MAIN LAYOUT ─── */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  padding: 0 32px 24px;
+}
+
+/* ─── LEFT COLUMN ─── */
+.left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ─── VIEW TABS ─── */
+.view-tabs {
+  display: flex;
+  gap: 8px;
+}
+.view-tab {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+.view-tab:hover { color: var(--text); }
+.view-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ─── NETWORK CANVAS ─── */
+.network-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 400px;
+  position: relative;
+}
+#networkCanvas {
+  width: 100%;
+  height: 360px;
+}
+
+/* ─── FEATURE LIST ─── */
+.feature-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.feature-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.feature-header h3 { font-size: 16px; }
+.feature-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+.feature-items {
+  max-height: 300px;
+  overflow-y: auto;
+}
+.feature-item {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: background 0.2s;
+}
+.feature-item:hover { background: var(--surface-hover); }
+.feature-item:last-child { border-bottom: none; }
+
+.feature-status {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.feature-status.pending { background: var(--text-muted); }
+.feature-status.in-progress { background: var(--warning); animation: pulse 1.5s infinite; }
+.feature-status.done { background: var(--success); }
+.feature-status.blocked { background: var(--danger); }
+
+.feature-info { flex: 1; }
+.feature-name { font-weight: 500; font-size: 14px; }
+.feature-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.feature-progress {
+  width: 120px;
+}
+.progress-bar {
+  height: 6px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+.progress-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* ─── RIGHT COLUMN ─── */
+.right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ─── AGENT PANEL ─── */
+.agent-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.agent-panel h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.agent-card {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-left: 3px solid var(--text-muted);
+  transition: all 0.2s;
+}
+.agent-card:hover { transform: translateX(4px); }
+.agent-card.idle { border-left-color: var(--success); }
+.agent-card.busy { border-left-color: var(--warning); }
+.agent-card.offline { border-left-color: var(--text-muted); opacity: 0.6; }
+
+.agent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.agent-name { font-size: 14px; font-weight: 500; }
+.agent-status {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.agent-status.idle { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+.agent-status.busy { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+.agent-status.offline { background: rgba(107, 114, 128, 0.15); color: var(--text-muted); }
+
+.agent-caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.cap-tag {
+  font-size: 10px;
+  background: var(--surface-hover);
+  color: var(--text-muted);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.agent-load {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.load-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--bg);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.load-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+.load-text { font-size: 11px; color: var(--text-muted); }
+
+/* ─── MESSAGE STREAM ─── */
+.message-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  flex: 1;
+}
+.message-panel h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.message-item {
+  background: var(--bg);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.msg-from { color: var(--accent); font-weight: 500; }
+.msg-arrow { color: var(--text-muted); }
+.msg-to { color: var(--success); font-weight: 500; }
+.msg-type {
+  background: var(--surface-hover);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  margin-left: auto;
+}
+.msg-time { color: var(--text-muted); font-size: 11px; }
+
+/* ─── INTENT COMPOSER ─── */
+.composer {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 0 32px 32px;
+}
+.composer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.composer-label {
+  font-size: 14px;
+  color: var(--accent);
+  font-weight: 500;
+}
+.composer-project {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.composer-input {
+  display: flex;
+  gap: 12px;
+}
+.composer-input textarea {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 14px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
+}
+.composer-input textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.composer-input textarea::placeholder { color: var(--text-muted); }
+
+.route-btn {
+  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  color: #fff;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+.route-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.route-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .right-col { order: -1; }
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .header { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .composer-input { flex-direction: column; }
+  .route-btn { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <h1>Synthia Morph Orchestrator</h1>
+    <div class="header-sub">Speak once. The substrate routes, delegates, tracks, and morphs.</div>
+  </div>
+  <div class="connection-status">
+    <div class="status-dot"></div>
+    <span>Orchestrator Active</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value" id="statProjects">0</div>
+    <div class="stat-label">Projects</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="statFeatures">0</div>
+    <div class="stat-label">Features</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="statAgents">0</div>
+    <div class="stat-label">Active Agents</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="statMessages">0</div>
+    <div class="stat-label">Messages</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="left-col">
+    <!-- View Tabs -->
+    <div class="view-tabs">
+      <button class="view-tab active" onclick="setView('network')">Agent Network</button>
+      <button class="view-tab" onclick="setView('features')">Features</button>
+      <button class="view-tab" onclick="setView('messages')">All Messages</button>
+    </div>
+
+    <!-- Network View -->
+    <div class="network-container" id="networkView">
+      <canvas id="networkCanvas"></canvas>
+    </div>
+
+    <!-- Features View -->
+    <div class="feature-list" id="featuresView" style="display:none;">
+      <div class="feature-header">
+        <h3>Active Features</h3>
+        <span class="feature-count" id="featureCount">0 features</span>
+      </div>
+      <div class="feature-items" id="featureItems"></div>
+    </div>
+
+    <!-- Messages View -->
+    <div class="feature-list" id="messagesView" style="display:none;">
+      <div class="feature-header">
+        <h3>Message Log</h3>
+        <span class="feature-count" id="messageCount">0 messages</span>
+      </div>
+      <div class="feature-items" id="messageItems"></div>
+    </div>
+  </div>
+
+  <div class="right-col">
+    <!-- Agent Panel -->
+    <div class="agent-panel">
+      <h3>Agent Network</h3>
+      <div id="agentList"></div>
+    </div>
+
+    <!-- Live Messages -->
+    <div class="message-panel">
+      <h3>Live Stream</h3>
+      <div class="message-list" id="liveMessages"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INTENT COMPOSER -->
+<div class="composer">
+  <div class="composer-header">
+    <span class="composer-label">Speak Once. The Substrate Routes.</span>
+    <select class="composer-project" id="projectSelect">
+      <option value="default">Default Project</option>
+      <option value="synthia-os">Synthia OS</option>
+      <option value="morph-engine">Morph Engine</option>
+      <option value="neural-net">Neural Net</option>
+      <option value="new">+ New Project</option>
+    </select>
+  </div>
+  <div class="composer-input">
+    <textarea id="intentInput" placeholder="e.g., 'Build a JWT auth system with React frontend and Node backend. Make the agents coordinate on the API contract.'" rows="3"></textarea>
+    <button class="route-btn" id="routeBtn" onclick="submitIntent()">Route Intent</button>
+  </div>
+</div>
+
+<script>
+// ─── MORPH ORCHESTRATOR (BROWSER VERSION) ───
+
+class MorphOrchestrator {
+  constructor() {
+    this.agents = new Map();
+    this.projects = new Map();
+    this.messages = [];
+    this.listeners = new Set();
+    this.loadState();
+    this.startSimulation();
+  }
+
+  generateId() {
+    return 'syn_' + Math.random().toString(36).substring(2, 10);
+  }
+
+  registerAgent(agent) {
+    const fullAgent = {
+      ...agent,
+      currentLoad: 0,
+      status: 'idle',
+      lastSeen: new Date()
+    };
+    this.agents.set(agent.id, fullAgent);
+    this.emit({ type: 'agent_registered', agent: fullAgent });
+    this.saveState();
+    return fullAgent;
+  }
+
+  parseIntent(raw) {
+    const actionWords = ['build', 'create', 'make', 'fix', 'debug', 'deploy', 'analyze', 'refactor'];
+    const domainWords = ['frontend', 'backend', 'ui', 'api', 'database', 'design', 'devops'];
+    const lower = raw.toLowerCase();
+    const action = actionWords.find(w => lower.includes(w)) || 'build';
+    const domains = domainWords.filter(w => lower.includes(w));
+    return { action, domain: domains.length > 0 ? domains : ['general'], entities: [] };
+  }
+
+  async submitIntent(raw, context) {
+    const intent = {
+      id: this.generateId(),
+      raw,
+      parsed: this.parseIntent(raw),
+      context,
+      timestamp: new Date()
+    };
+
+    this.emit({ type: 'intent_received', intent });
+
+    // Route to agents
+    const targetAgents = [];
+    for (const domain of intent.parsed.domain) {
+      for (const [id, agent] of this.agents) {
+        if (agent.capabilities.includes(domain) || agent.capabilities.includes('general')) {
+          if (agent.currentLoad < agent.maxConcurrent) {
+            targetAgents.push(agent);
+            break;
+          }
+        }
+      }
+    }
+
+    if (targetAgents.length === 0) {
+      this.emit({ type: 'intent_blocked', intent, reason: 'no_available_agents' });
+      return intent;
+    }
+
+    // Create feature
+    const project = this.getOrCreateProject(context.projectId);
+    const feature = {
+      id: this.generateId(),
+      name: intent.parsed.entities[0] || raw.slice(0, 30),
+      description: raw,
+      status: 'in-progress',
+      priority: 3,
+      delegations: targetAgents.map(a => ({
+        agentId: a.id,
+        scope: `Handle ${intent.parsed.domain.join(', ')}`,
+        status: 'pending'
+      })),
+      progress: 0,
+      blocks: [],
+      outputs: {},
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    project.features.push(feature);
+
+    // Send messages
+    for (const agent of targetAgents) {
+      agent.currentLoad++;
+      agent.status = 'busy';
+
+      this.sendMessage({
+        from: 'orchestrator',
+        to: agent.id,
+        type: 'task',
+        payload: { intent: raw, featureId: feature.id },
+        timestamp: new Date(),
+        acked: false,
+        featureId: feature.id
+      });
+    }
+
+    this.emit({ type: 'intent_routed', intent, feature, agents: targetAgents.map(a => a.id) });
+    this.saveState();
+    return intent;
+  }
+
+  sendMessage(msg) {
+    const fullMsg = { ...msg, id: this.generateId() };
+    this.messages.push(fullMsg);
+    this.emit({ type: 'message', message: fullMsg });
+    this.saveState();
+    return fullMsg;
+  }
+
+  getOrCreateProject(projectId) {
+    if (!this.projects.has(projectId)) {
+      this.projects.set(projectId, {
+        id: projectId,
+        name: projectId,
+        features: [],
+        agents: new Map(),
+        messages: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    }
+    return this.projects.get(projectId);
+  }
+
+  getMorphData() {
+    const projects = Array.from(this.projects.values());
+    const agents = Array.from(this.agents.values());
+
+    return {
+      timestamp: new Date(),
+      summary: {
+        totalProjects: projects.length,
+        totalFeatures: projects.reduce((s, p) => s + p.features.length, 0),
+        activeAgents: agents.filter(a => a.status === 'busy').length,
+        idleAgents: agents.filter(a => a.status === 'idle').length,
+        pendingMessages: this.messages.filter(m => !m.acked).length
+      },
+      projects: projects.map(p => ({
+        id: p.id,
+        name: p.name,
+        featureCount: p.features.length,
+        completionRate: p.features.length > 0 
+          ? p.features.filter(f => f.status === 'done').length / p.features.length 
+          : 0,
+        features: p.features
+      })),
+      agentNetwork: agents.map(a => ({
+        id: a.id,
+        name: a.name,
+        status: a.status,
+        load: a.maxConcurrent > 0 ? a.currentLoad / a.maxConcurrent : 0,
+        capabilities: a.capabilities,
+        lastSeen: a.lastSeen
+      })),
+      recentMessages: this.messages.slice(-20)
+    };
+  }
+
+  on(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  emit(event) {
+    this.listeners.forEach(l => {
+      try { l(event); } catch(e) { console.error(e); }
+    });
+  }
+
+  saveState() {
+    try {
+      const state = {
+        agents: Array.from(this.agents.entries()),
+        projects: Array.from(this.projects.entries()).map(([id, p]) => [id, { ...p, agents: Array.from(p.agents.entries()) }]),
+        messages: this.messages.slice(-500)
+      };
+      localStorage.setItem('synthia_orchestrator', JSON.stringify(state));
+    } catch(e) {}
+  }
+
+  loadState() {
+    try {
+      const raw = localStorage.getItem('synthia_orchestrator');
+      if (raw) {
+        const state = JSON.parse(raw);
+        this.agents = new Map(state.agents || []);
+        this.projects = new Map((state.projects || []).map(([id, p]) => [id, { ...p, agents: new Map(p.agents || []) }]));
+        this.messages = state.messages || [];
+      }
+    } catch(e) {}
+  }
+
+  startSimulation() {
+    // Simulate agent progress
+    setInterval(() => {
+      for (const project of this.projects.values()) {
+        for (const feature of project.features) {
+          if (feature.status === 'in-progress') {
+            feature.progress = Math.min(1, feature.progress + Math.random() * 0.05);
+            if (feature.progress >= 1) {
+              feature.status = 'done';
+              feature.delegations.forEach(d => {
+                d.status = 'completed';
+                const agent = this.agents.get(d.agentId);
+                if (agent) {
+                  agent.currentLoad = Math.max(0, agent.currentLoad - 1);
+                  if (agent.currentLoad === 0) agent.status = 'idle';
+                }
+              });
+              this.emit({ type: 'feature_done', feature });
+            }
+            feature.updatedAt = new Date();
+          }
+        }
+      }
+      this.emit({ type: 'tick' });
+    }, 2000);
+
+    // Simulate messages between agents
+    setInterval(() => {
+      const busyAgents = Array.from(this.agents.values()).filter(a => a.status === 'busy');
+      if (busyAgents.length >= 2 && Math.random() > 0.7) {
+        const [from, to] = [busyAgents[0], busyAgents[1]];
+        this.sendMessage({
+          from: from.id,
+          to: to.id,
+          type: Math.random() > 0.5 ? 'context' : 'question',
+          payload: { text: 'Syncing progress...' },
+          timestamp: new Date(),
+          acked: false
+        });
+      }
+    }, 3000);
+  }
+}
+
+// ─── GLOBAL STATE ───
+const orchestrator = new MorphOrchestrator();
+
+// ─── REGISTER DEFAULT AGENTS ───
+function initAgents() {
+  orchestrator.registerAgent({
+    id: 'claude-local',
+    name: 'Claude Code',
+    capabilities: ['code-generation', 'typescript', 'react', 'architecture', 'debugging'],
+    endpoint: 'mcp://localhost:3001',
+    protocol: 'mcp-stdio',
+    priority: 1,
+    maxConcurrent: 3,
+    metadata: { platform: 'anthropic' }
+  });
+
+  orchestrator.registerAgent({
+    id: 'gpt-local',
+    name: 'GPT Agent',
+    capabilities: ['code-generation', 'python', 'analysis', 'documentation'],
+    endpoint: 'mcp://localhost:3002',
+    protocol: 'mcp-http',
+    priority: 2,
+    maxConcurrent: 5,
+    metadata: { platform: 'openai' }
+  });
+
+  orchestrator.registerAgent({
+    id: 'hf-stellar',
+    name: 'HF StellarProximology',
+    capabilities: ['neural-computation', 'astrology', 'human-design', 'pattern-recognition'],
+    endpoint: 'https://api-inference.huggingface.co/models/stellarproximology/',
+    protocol: 'mcp-http',
+    priority: 1,
+    maxConcurrent: 2,
+    metadata: { platform: 'huggingface' }
+  });
+
+  orchestrator.registerAgent({
+    id: 'synthia-server',
+    name: 'Synthia Server',
+    capabilities: ['orchestration', 'data-persistence', 'user-management', 'broadcast'],
+    endpoint: 'https://synthia-server.onrender.com/mcp',
+    protocol: 'mcp-http',
+    priority: 1,
+    maxConcurrent: 10,
+    metadata: { platform: 'render' }
+  });
+
+  orchestrator.registerAgent({
+    id: 'termux-daemon',
+    name: 'Termux Daemon',
+    capabilities: ['system-admin', 'deployment', 'file-operations', 'process-management'],
+    endpoint: 'stdio://termux-mcp',
+    protocol: 'mcp-stdio',
+    priority: 3,
+    maxConcurrent: 4,
+    metadata: { platform: 'termux' }
+  });
+
+  orchestrator.registerAgent({
+    id: 'joe-cursor',
+    name: "Joe's Cursor",
+    capabilities: ['typescript', 'react', 'ui-design', 'tailwind'],
+    endpoint: 'mcp://joe-laptop.local:3001',
+    protocol: 'mcp-http',
+    priority: 2,
+    maxConcurrent: 2,
+    metadata: { owner: 'joe' }
+  });
+}
+
+initAgents();
+
+// ─── UI RENDERING ───
+
+function updateStats() {
+  const data = orchestrator.getMorphData();
+  document.getElementById('statProjects').textContent = data.summary.totalProjects;
+  document.getElementById('statFeatures').textContent = data.summary.totalFeatures;
+  document.getElementById('statAgents').textContent = data.summary.activeAgents;
+  document.getElementById('statMessages').textContent = data.summary.pendingMessages;
+}
+
+function renderAgents() {
+  const data = orchestrator.getMorphData();
+  const container = document.getElementById('agentList');
+
+  container.innerHTML = data.agentNetwork.map(agent => `
+    <div class="agent-card ${agent.status}">
+      <div class="agent-header">
+        <span class="agent-name">${agent.name}</span>
+        <span class="agent-status ${agent.status}">${agent.status}</span>
+      </div>
+      <div class="agent-caps">
+        ${agent.capabilities.map(c => `<span class="cap-tag">${c}</span>`).join('')}
+      </div>
+      <div class="agent-load">
+        <div class="load-bar"><div class="load-fill" style="width:${agent.load * 100}%"></div></div>
+        <span class="load-text">${Math.round(agent.load * 100)}%</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderFeatures() {
+  const data = orchestrator.getMorphData();
+  const allFeatures = data.projects.flatMap(p => p.features.map(f => ({ ...f, project: p.name })));
+
+  document.getElementById('featureCount').textContent = `${allFeatures.length} features`;
+  document.getElementById('featureItems').innerHTML = allFeatures.map(f => `
+    <div class="feature-item">
+      <div class="feature-status ${f.status}"></div>
+      <div class="feature-info">
+        <div class="feature-name">${f.name}</div>
+        <div class="feature-meta">${f.project} • ${f.delegations.map(d => d.agentId).join(', ')}</div>
+      </div>
+      <div class="feature-progress">
+        <div class="progress-bar"><div class="progress-fill" style="width:${f.progress * 100}%"></div></div>
+        <div class="progress-text">${Math.round(f.progress * 100)}%</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderMessages() {
+  const data = orchestrator.getMorphData();
+
+  document.getElementById('messageCount').textContent = `${data.recentMessages.length} messages`;
+  document.getElementById('messageItems').innerHTML = data.recentMessages.map(m => `
+    <div class="feature-item" style="padding:12px 20px;">
+      <div class="feature-info">
+        <div class="feature-name" style="font-size:13px;">
+          <span style="color:var(--accent)">${m.from}</span>
+          <span style="color:var(--text-muted)"> → </span>
+          <span style="color:var(--success)">${m.to}</span>
+          <span style="background:var(--surface-hover);padding:2px 8px;border-radius:4px;font-size:11px;margin-left:8px;">${m.type}</span>
+        </div>
+        <div class="feature-meta">${new Date(m.timestamp).toLocaleTimeString()}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderLiveMessages() {
+  const data = orchestrator.getMorphData();
+  const container = document.getElementById('liveMessages');
+  const recent = data.recentMessages.slice(-8);
+
+  container.innerHTML = recent.map(m => `
+    <div class="message-item">
+      <span class="msg-from">${m.from}</span>
+      <span class="msg-arrow">→</span>
+      <span class="msg-to">${m.to}</span>
+      <span class="msg-type">${m.type}</span>
+      <span class="msg-time">${new Date(m.timestamp).toLocaleTimeString()}</span>
+    </div>
+  `).join('');
+}
+
+// ─── NETWORK CANVAS ───
+let networkNodes = [];
+let networkEdges = [];
+
+function initNetwork() {
+  const canvas = document.getElementById('networkCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width - 40;
+    canvas.height = 360;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function animate() {
+    const data = orchestrator.getMorphData();
+    const agents = data.agentNetwork;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(canvas.width, canvas.height) * 0.35;
+
+    // Draw edges
+    agents.forEach((agent, i) => {
+      const angle = (i / agents.length) * Math.PI * 2 - Math.PI / 2;
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+
+      // Connection to center
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = agent.status === 'busy' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(139, 92, 246, 0.2)';
+      ctx.lineWidth = 1 + agent.load * 2;
+      ctx.stroke();
+
+      // Draw node
+      ctx.beginPath();
+      ctx.arc(x, y, 8 + agent.load * 12, 0, Math.PI * 2);
+      ctx.fillStyle = agent.status === 'offline' ? '#6b7280' : 
+                      agent.status === 'busy' ? '#f59e0b' : '#10b981';
+      ctx.fill();
+
+      // Glow for busy
+      if (agent.status === 'busy') {
+        ctx.beginPath();
+        ctx.arc(x, y, 20 + agent.load * 15, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(245, 158, 11, ${0.1 + agent.load * 0.2})`;
+        ctx.fill();
+      }
+
+      // Label
+      ctx.fillStyle = '#e5e7eb';
+      ctx.font = '12px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(agent.name, x, y - 25);
+
+      // Load %
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = '10px Inter, sans-serif';
+      ctx.fillText(`${Math.round(agent.load * 100)}%`, x, y + 4);
+    });
+
+    // Center node
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 25, 0, Math.PI * 2);
+    ctx.fillStyle = '#8b5cf6';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 35, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(139, 92, 246, 0.2)';
+    ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 12px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('SYNTHIA', centerX, centerY + 4);
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+}
+
+// ─── VIEW SWITCHING ───
+function setView(view) {
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  document.getElementById('networkView').style.display = view === 'network' ? 'block' : 'none';
+  document.getElementById('featuresView').style.display = view === 'features' ? 'block' : 'none';
+  document.getElementById('messagesView').style.display = view === 'messages' ? 'block' : 'none';
+}
+
+// ─── INTENT SUBMISSION ───
+async function submitIntent() {
+  const input = document.getElementById('intentInput');
+  const btn = document.getElementById('routeBtn');
+  const project = document.getElementById('projectSelect').value;
+
+  if (!input.value.trim()) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Routing...';
+
+  await orchestrator.submitIntent(input.value, {
+    projectId: project,
+    previousMessages: [],
+    userState: {}
+  });
+
+  input.value = '';
+  btn.disabled = false;
+  btn.textContent = 'Route Intent';
+}
+
+// ─── EVENT LISTENERS ───
+orchestrator.on(() => {
+  updateStats();
+  renderAgents();
+  renderFeatures();
+  renderMessages();
+  renderLiveMessages();
+});
+
+// ─── INIT ───
+initNetwork();
+updateStats();
+renderAgents();
+renderFeatures();
+renderLiveMessages();
+
+// Add a demo intent after 2 seconds
+setTimeout(() => {
+  orchestrator.submitIntent(
+    "Build JWT authentication with React login page and Node.js backend. Make frontend and backend agents coordinate.",
+    { projectId: 'demo-project', previousMessages: [], userState: {} }
+  );
+}, 2000);
+
+console.log('🧬 Synthia Morph Orchestrator initialized');
+console.log('   Agents:', Array.from(orchestrator.agents.keys()).join(', '));
+</script>
+
+</body>
+</html>

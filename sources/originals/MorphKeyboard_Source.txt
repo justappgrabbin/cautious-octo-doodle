@@ -1,0 +1,905 @@
+
+// ============================================================
+// MORPH KEYBOARD - Code-Aware Android IME
+// Theme: Pink / Purple / Teal
+// ============================================================
+
+// === FILE 1: AndroidManifest.xml ===
+// Place in: android/app/src/main/AndroidManifest.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.morph.keyboard">
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application
+        android:label="Morph Keyboard"
+        android:theme="@style/MorphTheme">
+
+        <service
+            android:name=".MorphKeyboardService"
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data
+                android:name="android.view.im"
+                android:resource="@xml/method" />
+        </service>
+
+    </application>
+</manifest>
+
+// === FILE 2: xml/method.xml ===
+// Place in: android/app/src/main/res/xml/method.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<input-method xmlns:android="http://schemas.android.com/apk/res/android"
+    android:settingsActivity="com.morph.keyboard.SettingsActivity"
+    android:supportsSwitchingToNextInputMethod="true">
+    <subtype
+        android:label="Morph Code"
+        android:languageTag="en"
+        android:imeSubtypeMode="keyboard" />
+</input-method>
+
+// === FILE 3: colors.xml ===
+// Place in: android/app/src/main/res/values/colors.xml
+// PINK / PURPLE / TEAL THEME
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Core Palette -->
+    <color name="morph_pink">#FF6B9D</color>
+    <color name="morph_pink_light">#FFB8D0</color>
+    <color name="morph_pink_dark">#C44569</color>
+
+    <color name="morph_purple">#8B5CF6</color>
+    <color name="morph_purple_light">#C4B5FD</color>
+    <color name="morph_purple_dark">#6D28D9</color>
+
+    <color name="morph_teal">#14B8A6</color>
+    <color name="morph_teal_light">#5EEAD4</color>
+    <color name="morph_teal_dark">#0F766E</color>
+
+    <!-- Semantic Colors -->
+    <color name="morph_bg_dark">#1A0B2E</color>
+    <color name="morph_bg_card">#2D1B4E</color>
+    <color name="morph_bg_key">#3D2366</color>
+    <color name="morph_bg_key_pressed">#FF6B9D</color>
+
+    <color name="morph_text_primary">#F0E6FF</color>
+    <color name="morph_text_secondary">#C4B5FD</color>
+    <color name="morph_text_code">#5EEAD4</color>
+
+    <color name="morph_error">#FF4757</color>
+    <color name="morph_warning">#FFA502</color>
+    <color name="morph_success">#2ED573</color>
+
+    <!-- Gradient Stops -->
+    <color name="morph_gradient_start">#FF6B9D</color>
+    <color name="morph_gradient_mid">#8B5CF6</color>
+    <color name="morph_gradient_end">#14B8A6</color>
+</resources>
+
+// === FILE 4: themes.xml ===
+// Place in: android/app/src/main/res/values/themes.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MorphTheme" parent="Theme.MaterialComponents.Dark.NoActionBar">
+        <item name="colorPrimary">@color/morph_purple</item>
+        <item name="colorPrimaryDark">@color/morph_bg_dark</item>
+        <item name="colorAccent">@color/morph_teal</item>
+        <item name="android:windowBackground">@color/morph_bg_dark</item>
+    </style>
+</resources>
+
+// === FILE 5: MorphKeyboardService.kt ===
+// Place in: android/app/src/main/java/com/morph/keyboard/MorphKeyboardService.kt
+
+package com.morph.keyboard
+
+import android.inputmethodservice.InputMethodService
+import android.view.View
+import android.view.LayoutInflater
+import android.widget.LinearLayout
+import android.widget.GridLayout
+import android.widget.Button
+import android.widget.TextView
+import android.widget.HorizontalScrollView
+import android.os.Vibrator
+import android.content.Context
+import android.view.inputmethod.EditorInfo
+import android.text.TextUtils
+import android.graphics.drawable.GradientDrawable
+import android.graphics.Color
+import android.view.MotionEvent
+import android.os.Handler
+import android.os.Looper
+
+class MorphKeyboardService : InputMethodService() {
+
+    private lateinit var keyboardView: View
+    private lateinit var suggestionBar: LinearLayout
+    private lateinit var codeIndicator: TextView
+    private lateinit var keyGrid: GridLayout
+    private lateinit var vibrator: Vibrator
+
+    private val codeAnalyzer = CodeAnalyzer()
+    private val currentInput = StringBuilder()
+    private var isCodeMode = false
+    private var detectedLang = ""
+    private val handler = Handler(Looper.getMainLooper())
+
+    // Key layouts
+    private val qwertyRow1 = "QWERTYUIOP".toCharArray()
+    private val qwertyRow2 = "ASDFGHJKL".toCharArray()
+    private val qwertyRow3 = "ZXCVBNM".toCharArray()
+    private val numbers = "1234567890".toCharArray()
+    private val symbols = "!@#$%^&*()_+-=[]{}|;':",./<>?".toCharArray()
+
+    override fun onCreateInputView(): View {
+        keyboardView = LayoutInflater.from(this).inflate(R.layout.keyboard_layout, null)
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
+        suggestionBar = keyboardView.findViewById(R.id.suggestion_bar)
+        codeIndicator = keyboardView.findViewById(R.id.code_indicator)
+        keyGrid = keyboardView.findViewById(R.id.key_grid)
+
+        setupKeyboard()
+        return keyboardView
+    }
+
+    override fun onStartInputView(info: EditorInfo, restarting: Boolean) {
+        super.onStartInputView(info, restarting)
+        currentInput.clear()
+        isCodeMode = false
+        updateCodeIndicator()
+    }
+
+    private fun setupKeyboard() {
+        keyGrid.removeAllViews()
+
+        // Row 1: Numbers + top letters
+        addKeyRow("1234567890", true)
+        addKeyRow("QWERTYUIOP", false)
+        addKeyRow("ASDFGHJKL", false)
+        addSpecialRow()
+        addSpaceRow()
+    }
+
+    private fun addKeyRow(chars: String, isNumber: Boolean) {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = GridLayout.LayoutParams().apply {
+                width = GridLayout.LayoutParams.MATCH_PARENT
+                height = GridLayout.LayoutParams.WRAP_CONTENT
+            }
+        }
+
+        chars.forEach { char ->
+            val key = createKey(char.toString(), isNumber)
+            row.addView(key)
+        }
+
+        keyGrid.addView(row)
+    }
+
+    private fun createKey(label: String, isSpecial: Boolean = false): Button {
+        return Button(this).apply {
+            text = label
+            textSize = if (isSpecial) 14f else 18f
+            setTextColor(resources.getColor(R.color.morph_text_primary, null))
+
+            val bg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 16f
+                setColor(resources.getColor(
+                    if (isSpecial) R.color.morph_purple else R.color.morph_bg_key, 
+                    null
+                ))
+                setStroke(2, resources.getColor(R.color.morph_purple_light, null))
+            }
+            background = bg
+
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                120,
+                1f
+            ).apply {
+                setMargins(4, 4, 4, 4)
+            }
+
+            setOnClickListener {
+                vibrate()
+                onKeyPress(label)
+            }
+
+            setOnLongClickListener {
+                if (label in "1234567890") {
+                    // Long press number for symbol
+                    onKeyPress(getSymbolForNumber(label))
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+    }
+
+    private fun addSpecialRow() {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+
+        // Shift key
+        row.addView(createSpecialKey("⇧", R.color.morph_teal) {
+            toggleShift()
+        })
+
+        // Remaining letters
+        "ZXCVBNM".forEach { char ->
+            row.addView(createKey(char.toString()))
+        }
+
+        // Backspace
+        row.addView(createSpecialKey("⌫", R.color.morph_pink) {
+            onBackspace()
+        })
+
+        keyGrid.addView(row)
+    }
+
+    private fun addSpaceRow() {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+
+        row.addView(createSpecialKey("?123", R.color.morph_purple_dark) {
+            toggleSymbols()
+        })
+
+        // Space bar with gradient
+        val space = Button(this).apply {
+            text = "MORPH"
+            textSize = 14f
+            setTextColor(resources.getColor(R.color.morph_teal_light, null))
+
+            val bg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 24f
+                colors = intArrayOf(
+                    resources.getColor(R.color.morph_pink, null),
+                    resources.getColor(R.color.morph_purple, null),
+                    resources.getColor(R.color.morph_teal, null)
+                )
+                gradientType = GradientDrawable.LINEAR_GRADIENT
+                orientation = GradientDrawable.Orientation.LEFT_RIGHT
+            }
+            background = bg
+
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                120,
+                4f
+            ).apply {
+                setMargins(8, 4, 8, 4)
+            }
+
+            setOnClickListener {
+                vibrate()
+                onKeyPress(" ")
+            }
+        }
+        row.addView(space)
+
+        row.addView(createSpecialKey("↵", R.color.morph_teal) {
+            onKeyPress("\n")
+        })
+
+        keyGrid.addView(row)
+    }
+
+    private fun createSpecialKey(label: String, colorRes: Int, action: () -> Unit): Button {
+        return Button(this).apply {
+            text = label
+            textSize = 16f
+            setTextColor(resources.getColor(R.color.morph_text_primary, null))
+
+            val bg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 16f
+                setColor(resources.getColor(colorRes, null))
+            }
+            background = bg
+
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                120,
+                1f
+            ).apply {
+                setMargins(4, 4, 4, 4)
+            }
+
+            setOnClickListener {
+                vibrate()
+                action()
+            }
+        }
+    }
+
+    private fun onKeyPress(key: String) {
+        val ic = currentInputConnection ?: return
+
+        when (key) {
+            "\n" -> ic.commitText("\n", 1)
+            " " -> ic.commitText(" ", 1)
+            else -> ic.commitText(key, 1)
+        }
+
+        // Update buffer and analyze
+        if (key == "\n" || key == " ") {
+            currentInput.append(key)
+        } else {
+            currentInput.append(key)
+        }
+
+        analyzeInput()
+    }
+
+    private fun onBackspace() {
+        val ic = currentInputConnection ?: return
+        ic.deleteSurroundingText(1, 0)
+        if (currentInput.isNotEmpty()) {
+            currentInput.deleteAt(currentInput.length - 1)
+        }
+        analyzeInput()
+    }
+
+    private fun analyzeInput() {
+        val text = currentInput.toString()
+        val words = text.split(Regex("\s+"))
+        val lastWord = words.lastOrNull() ?: ""
+
+        // Check for code patterns
+        val detection = codeAnalyzer.detect(lastWord, text)
+
+        if (detection.isCode && !isCodeMode) {
+            isCodeMode = true
+            detectedLang = detection.language
+            updateCodeIndicator()
+            showCodeSuggestions(detection)
+        } else if (!detection.isCode && isCodeMode) {
+            isCodeMode = false
+            detectedLang = ""
+            updateCodeIndicator()
+            clearSuggestions()
+        } else if (isCodeMode) {
+            showCodeSuggestions(detection)
+        }
+    }
+
+    private fun updateCodeIndicator() {
+        codeIndicator.text = if (isCodeMode) {
+            "◉ $detectedLang"
+        } else {
+            "○ TEXT"
+        }
+        codeIndicator.setTextColor(resources.getColor(
+            if (isCodeMode) R.color.morph_teal else R.color.morph_text_secondary,
+            null
+        ))
+    }
+
+    private fun showCodeSuggestions(detection: CodeDetection) {
+        suggestionBar.removeAllViews()
+
+        // Error indicator
+        if (detection.hasError) {
+            val errorChip = createSuggestionChip("⚠ ${detection.errorMessage}", R.color.morph_error)
+            suggestionBar.addView(errorChip)
+        }
+
+        // Suggestions
+        detection.suggestions.forEach { suggestion ->
+            val chip = createSuggestionChip(suggestion, R.color.morph_teal)
+            chip.setOnClickListener {
+                applySuggestion(suggestion, detection)
+            }
+            suggestionBar.addView(chip)
+        }
+
+        // Language indicator chip
+        val langChip = createSuggestionChip(detectedLang.uppercase(), R.color.morph_purple)
+        suggestionBar.addView(langChip)
+    }
+
+    private fun createSuggestionChip(text: String, colorRes: Int): TextView {
+        return TextView(this).apply {
+            this.text = text
+            textSize = 12f
+            setTextColor(resources.getColor(R.color.morph_text_primary, null))
+            setPadding(16, 8, 16, 8)
+
+            val bg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 20f
+                setColor(resources.getColor(colorRes, null))
+                setAlpha(180)
+            }
+            background = bg
+
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(8, 4, 8, 4)
+            }
+        }
+    }
+
+    private fun applySuggestion(suggestion: String, detection: CodeDetection) {
+        val ic = currentInputConnection ?: return
+
+        // Replace the problematic text with suggestion
+        ic.beginBatchEdit()
+        ic.deleteSurroundingText(detection.errorLength, 0)
+        ic.commitText(suggestion, 1)
+        ic.endBatchEdit()
+
+        vibrate()
+    }
+
+    private fun clearSuggestions() {
+        suggestionBar.removeAllViews()
+    }
+
+    private fun vibrate() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            vibrator.vibrate(android.os.VibrationEffect.createOneShot(15, 50))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(15)
+        }
+    }
+
+    private fun toggleShift() {
+        // Toggle uppercase/lowercase
+    }
+
+    private fun toggleSymbols() {
+        // Switch to symbol layout
+    }
+
+    private fun getSymbolForNumber(num: String): String {
+        val map = mapOf(
+            "1" to "!", "2" to "@", "3" to "#", "4" to "$", "5" to "%",
+            "6" to "^", "7" to "&", "8" to "*", "9" to "(", "0" to ")"
+        )
+        return map[num] ?: num
+    }
+}
+
+// === FILE 6: CodeAnalyzer.kt ===
+// Place in: android/app/src/main/java/com/morph/keyboard/CodeAnalyzer.kt
+
+package com.morph.keyboard
+
+data class CodeDetection(
+    val isCode: Boolean,
+    val language: String,
+    val hasError: Boolean,
+    val errorMessage: String,
+    val errorLength: Int,
+    val suggestions: List<String>
+)
+
+class CodeAnalyzer {
+
+    // Language detection patterns
+    private val patterns = mapOf(
+        "html" to listOf(
+            Regex("^</?[a-zA-Z][^>]*>"),
+            Regex("<(div|span|p|a|img|script|style|html|body|head)"),
+            Regex("class=|id=|style=")
+        ),
+        "css" to listOf(
+            Regex("[.#][a-zA-Z-]+\s*\{"),
+            Regex("(color|background|margin|padding|display|position|font)\s*:"),
+            Regex("px|em|rem|%|vh|vw\b")
+        ),
+        "javascript" to listOf(
+            Regex("\b(const|let|var|function|return|if|else|for|while|class|import|export)\b"),
+            Regex("=>|===|!==|\+\+|--"),
+            Regex("console\.log|document\.|window\.")
+        ),
+        "python" to listOf(
+            Regex("\b(def|class|if|elif|else|for|while|import|from|return|yield)\b"),
+            Regex("\bprint\(|self\.|__init__"),
+            Regex("\b(True|False|None|and|or|not|in|is)\b")
+        ),
+        "typescript" to listOf(
+            Regex("\b(interface|type|enum|namespace|implements|extends)\b"),
+            Regex("\b(number|string|boolean|any|void|never|unknown)\b"),
+            Regex(":\s*[A-Z][a-zA-Z]+\b")
+        ),
+        "json" to listOf(
+            Regex("^\s*[\[{]"),
+            Regex(""[a-zA-Z_]+"\s*:")
+        )
+    )
+
+    // Syntax error checks
+    private val bracketPairs = mapOf('(' to ')', '[' to ']', '{' to '}', '<' to '>')
+    private val closingBrackets = setOf(')', ']', '}', '>')
+
+    fun detect(currentWord: String, fullText: String): CodeDetection {
+        // Check if current word matches any language pattern
+        var detectedLang = ""
+        var confidence = 0
+
+        for ((lang, regexes) in patterns) {
+            var matches = 0
+            for (regex in regexes) {
+                if (regex.containsMatchIn(currentWord) || regex.containsMatchIn(fullText.takeLast(200))) {
+                    matches++
+                }
+            }
+            if (matches > confidence) {
+                confidence = matches
+                detectedLang = lang
+            }
+        }
+
+        val isCode = confidence > 0
+
+        if (!isCode) {
+            return CodeDetection(false, "", false, "", 0, emptyList())
+        }
+
+        // Analyze for syntax errors
+        val errorCheck = checkSyntax(fullText, detectedLang)
+
+        return CodeDetection(
+            isCode = true,
+            language = detectedLang,
+            hasError = errorCheck.hasError,
+            errorMessage = errorCheck.message,
+            errorLength = errorCheck.length,
+            suggestions = errorCheck.suggestions
+        )
+    }
+
+    private fun checkSyntax(text: String, lang: String): SyntaxError {
+        val lastLine = text.substringAfterLast('\n').trim()
+
+        // Bracket balance check
+        val stack = mutableListOf<Char>()
+        var inString = false
+        var stringChar: Char? = null
+
+        for (char in text) {
+            when {
+                !inString && (char == '"' || char == "'" || char == '`') -> {
+                    inString = true
+                    stringChar = char
+                }
+                inString && char == stringChar -> {
+                    inString = false
+                    stringChar = null
+                }
+                !inString -> {
+                    when {
+                        bracketPairs.containsKey(char) -> stack.add(char)
+                        closingBrackets.contains(char) -> {
+                            if (stack.isNotEmpty() && bracketPairs[stack.last()] == char) {
+                                stack.removeAt(stack.size - 1)
+                            } else {
+                                return SyntaxError(
+                                    true,
+                                    "Mismatched bracket: $char",
+                                    1,
+                                    listOf("Delete $char", "Add opening bracket")
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Unclosed brackets
+        if (stack.isNotEmpty()) {
+            val needed = stack.map { bracketPairs[it] }.joinToString("")
+            return SyntaxError(
+                true,
+                "Unclosed: ${stack.joinToString("")}",
+                0,
+                listOf("Add $needed", "Remove ${stack.last()}")
+            )
+        }
+
+        // Language-specific checks
+        when (lang) {
+            "html" -> {
+                if (lastLine.contains("<") && !lastLine.contains(">")) {
+                    return SyntaxError(
+                        true,
+                        "Unclosed HTML tag",
+                        lastLine.length,
+                        listOf(">", "/>", "></div>")
+                    )
+                }
+            }
+            "javascript", "typescript" -> {
+                if (lastLine.contains("function") && !lastLine.contains("(")) {
+                    return SyntaxError(
+                        true,
+                        "Missing function params",
+                        lastLine.length,
+                        listOf("()", "(params)", "() {}")
+                    )
+                }
+                if (lastLine.endsWith("=") && !lastLine.contains(";")) {
+                    return SyntaxError(
+                        false,
+                        "Assignment incomplete",
+                        0,
+                        listOf("value;", "null;", "undefined;")
+                    )
+                }
+            }
+            "python" -> {
+                if (lastLine.endsWith(":")) {
+                    return SyntaxError(
+                        false,
+                        "Indent expected",
+                        0,
+                        listOf("\n    pass", "\n    ...")
+                    )
+                }
+                if (lastLine.startsWith("def ") && !lastLine.contains(":")) {
+                    return SyntaxError(
+                        true,
+                        "Missing colon",
+                        lastLine.length,
+                        listOf(":", ":\n    pass")
+                    )
+                }
+            }
+            "css" -> {
+                if (lastLine.contains("{") && !lastLine.contains("}")) {
+                    return SyntaxError(
+                        false,
+                        "Unclosed rule",
+                        0,
+                        listOf("}", "property: value; }")
+                    )
+                }
+            }
+        }
+
+        return SyntaxError(false, "", 0, emptyList())
+    }
+
+    data class SyntaxError(
+        val hasError: Boolean,
+        val message: String,
+        val length: Int,
+        val suggestions: List<String>
+    )
+}
+
+// === FILE 7: keyboard_layout.xml ===
+// Place in: android/app/src/main/res/layout/keyboard_layout.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/morph_bg_dark"
+    android:padding="4dp">
+
+    <!-- Code Detection Indicator -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/code_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="○ TEXT"
+            android:textColor="@color/morph_text_secondary"
+            android:textSize="12sp"
+            android:fontFamily="monospace"
+            android:padding="4dp 12dp"
+            android:background="@drawable/chip_bg" />
+
+        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MORPH"
+            android:textColor="@color/morph_pink"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Suggestion Bar -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:padding="4dp">
+
+        <LinearLayout
+            android:id="@+id/suggestion_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="4dp" />
+    </HorizontalScrollView>
+
+    <!-- Divider with gradient -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@drawable/gradient_divider"
+        android:layout_marginVertical="4dp" />
+
+    <!-- Key Grid -->
+    <GridLayout
+        android:id="@+id/key_grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="1"
+        android:padding="4dp" />
+
+</LinearLayout>
+
+// === FILE 8: chip_bg.xml ===
+// Place in: android/app/src/main/res/drawable/chip_bg.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/morph_bg_card" />
+    <corners android:radius="12dp" />
+    <stroke android:width="1dp" android:color="@color/morph_purple_light" />
+</shape>
+
+// === FILE 9: gradient_divider.xml ===
+// Place in: android/app/src/main/res/drawable/gradient_divider.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="@color/morph_pink"
+        android:centerColor="@color/morph_purple"
+        android:endColor="@color/morph_teal"
+        android:angle="0" />
+</shape>
+
+// === FILE 10: build.gradle (Module) ===
+// Place in: android/app/build.gradle
+
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.morph.keyboard'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.morph.keyboard"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0-MORPH"
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+}
+
+// === FILE 11: build.gradle (Project) ===
+// Place in: android/build.gradle
+
+buildscript {
+    ext.kotlin_version = '1.9.22'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+// === FILE 12: settings.gradle ===
+// Place in: android/settings.gradle
+
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "MorphKeyboard"
+include ':app'
+
+// === FILE 13: gradle.properties ===
+// Place in: android/gradle.properties
+
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.useAndroidX=true
+kotlin.code.style=official
+android.nonTransitiveRClass=true
+
+// ============================================================
+// BUILD INSTRUCTIONS
+// ============================================================
+// 1. Install Android Studio
+// 2. Create new project → Empty Activity
+// 3. Replace all files with the above
+// 4. Sync Gradle
+// 5. Build → Build Bundle(s) / APK(s) → Build APK
+// 6. Transfer APK to phone and install
+// 7. Go to Settings → Languages & Input → Virtual Keyboard → Manage Keyboards
+// 8. Enable "Morph Keyboard"
+// 9. Tap any text field → Switch keyboard → Choose Morph
+// ============================================================

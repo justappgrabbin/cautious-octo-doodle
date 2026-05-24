@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MORPH OS v2 ◈ LIVING INTERFACE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External parsers loaded as modules -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth.js/1.6.0/mammoth.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        :root {
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --l-bg-deep: #fff1e8;
+            --l-wallpaper-a: #ffe0cc;
+            --l-wallpaper-b: #fff7f1;
+            --l-wallpaper-c: #ffc4a8;
+            --l-surface: rgba(255, 244, 238, 0.72);
+            --l-surface-solid: rgba(255, 248, 244, 0.92);
+            --l-border: rgba(255, 145, 110, 0.30);
+            --l-text: #3a2118;
+            --l-text-muted: #8a5f52;
+            --l-accent: #ffb38a;
+            --l-accent-strong: #ff916e;
+            --l-shadow: 0 18px 60px rgba(98, 42, 20, 0.16);
+
+            --s-bg-deep: #0a0514;
+            --s-wallpaper-a: #130722;
+            --s-wallpaper-b: #1a0b2e;
+            --s-wallpaper-c: #0d0418;
+            --s-surface: rgba(13, 6, 28, 0.75);
+            --s-surface-solid: rgba(10, 5, 20, 0.92);
+            --s-border: rgba(0, 212, 170, 0.20);
+            --s-text: #e2e8f0;
+            --s-text-muted: #94a3b8;
+            --s-accent: #00d4aa;
+            --s-accent-strong: #7c3aed;
+            --s-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+
+            --m-bg-deep: #fafafa;
+            --m-wallpaper-a: #f5f5f5;
+            --m-wallpaper-b: #ffffff;
+            --m-wallpaper-c: #eeeeee;
+            --m-surface: rgba(255, 255, 255, 0.85);
+            --m-surface-solid: rgba(250, 250, 250, 0.95);
+            --m-border: rgba(0, 0, 0, 0.08);
+            --m-text: #1a1a1a;
+            --m-text-muted: #666666;
+            --m-accent: #2563eb;
+            --m-accent-strong: #1d4ed8;
+            --m-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+
+            --bg-deep: var(--l-bg-deep);
+            --wallpaper-a: var(--l-wallpaper-a);
+            --wallpaper-b: var(--l-wallpaper-b);
+            --wallpaper-c: var(--l-wallpaper-c);
+            --surface: var(--l-surface);
+            --surface-solid: var(--l-surface-solid);
+            --border: var(--l-border);
+            --text: var(--l-text);
+            --text-muted: var(--l-text-muted);
+            --accent: var(--l-accent);
+            --accent-strong: var(--l-accent-strong);
+            --shadow: var(--l-shadow);
+
+            --nav-height: 64px;
+            --header-height: 44px;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        html, body {
+            height: 100%; width: 100%; overflow: hidden;
+            font-family: var(--font-body);
+            background: var(--bg-deep); color: var(--text);
+            transition: background 0.6s ease, color 0.4s ease;
+        }
+
+        #wallpaper {
+            position: fixed; inset: 0; z-index: 0;
+            background:
+                radial-gradient(circle at 18% 12%, var(--wallpaper-a), transparent 40%),
+                radial-gradient(circle at 80% 18%, var(--wallpaper-b), transparent 44%),
+                radial-gradient(circle at 50% 100%, var(--wallpaper-c), transparent 50%),
+                linear-gradient(135deg, var(--wallpaper-a), var(--wallpaper-b) 48%, var(--wallpaper-c));
+            transition: all 0.8s ease;
+        }
+
+        #wallpaper::after {
+            content: ''; position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            opacity: 0.4; pointer-events: none;
+        }
+
+        .orb {
+            position: fixed; border-radius: 50%; filter: blur(60px);
+            pointer-events: none; z-index: 1;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+        .orb-1 { width: 200px; height: 200px; background: var(--accent); opacity: 0.25; top: 10%; left: -10%; animation-delay: 0s; }
+        .orb-2 { width: 150px; height: 150px; background: var(--accent-strong); opacity: 0.2; top: 60%; right: -5%; animation-delay: -7s; }
+        .orb-3 { width: 100px; height: 100px; background: var(--accent); opacity: 0.15; bottom: 20%; left: 30%; animation-delay: -14s; }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -40px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        #app {
+            position: fixed; inset: 0; z-index: 10;
+            display: flex; flex-direction: column;
+            padding-top: calc(var(--header-height) + var(--safe-top));
+            padding-bottom: calc(var(--nav-height) + var(--safe-bottom));
+        }
+
+        #header {
+            position: fixed; top: 0; left: 0; right: 0;
+            height: calc(var(--header-height) + var(--safe-top));
+            padding-top: var(--safe-top); z-index: 100;
+            background: var(--surface);
+            backdrop-filter: blur(20px) saturate(1.2);
+            -webkit-backdrop-filter: blur(20px) saturate(1.2);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding-left: 16px; padding-right: 16px;
+            transition: all 0.4s ease;
+        }
+
+        .header-brand {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: var(--text);
+        }
+        .header-brand i { color: var(--accent-strong); font-size: 14px; }
+
+        .header-meta {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 11px; color: var(--text-muted);
+        }
+
+        .vitality-badge {
+            padding: 4px 10px; border-radius: 20px;
+            background: var(--surface-solid); border: 1px solid var(--border);
+            font-weight: 600; color: var(--accent-strong); font-size: 10px; letter-spacing: 0.04em;
+        }
+
+        #content {
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px; position: relative;
+        }
+        #content::-webkit-scrollbar { width: 0; }
+
+        .view { display: none; animation: viewIn 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+        .view.active { display: block; }
+
+        @keyframes viewIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .panel {
+            background: var(--surface);
+            backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+            border: 1px solid var(--border); border-radius: 20px;
+            padding: 16px; margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        .panel:active { transform: scale(0.98); }
+
+        .panel-title {
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--text-muted);
+            margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+        }
+
+        #gate-field {
+            display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; padding: 8px;
+        }
+
+        .gate-cell {
+            aspect-ratio: 1; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px; font-weight: 700; font-family: var(--font-mono);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; position: relative; overflow: hidden;
+        }
+        .gate-cell::before {
+            content: ''; position: absolute; inset: 0;
+            background: var(--accent); opacity: var(--gate-active, 0);
+            transition: opacity 0.6s ease; border-radius: inherit;
+        }
+        .gate-cell span { position: relative; z-index: 2; color: var(--text); opacity: 0.4; transition: all 0.3s ease; }
+        .gate-cell.active span { opacity: 1; color: var(--text); font-weight: 800; }
+        .gate-cell.active { box-shadow: 0 0 12px var(--accent-strong); transform: scale(1.05); }
+
+        .drop-zone {
+            border: 2px dashed var(--border); border-radius: 16px;
+            padding: 32px 16px; text-align: center;
+            transition: all 0.3s ease; background: var(--surface); cursor: pointer;
+        }
+        .drop-zone.dragover { border-color: var(--accent-strong); background: var(--surface-solid); transform: scale(1.02); }
+        .drop-zone i { font-size: 32px; color: var(--accent); margin-bottom: 12px; display: block; }
+        .drop-zone h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+        .drop-zone p { font-size: 11px; color: var(--text-muted); }
+        .drop-zone .file-types { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 12px; }
+
+        .file-badge {
+            padding: 3px 8px; border-radius: 6px;
+            background: var(--surface-solid); border: 1px solid var(--border);
+            font-size: 9px; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono);
+        }
+
+        .file-list { display: flex; flex-direction: column; gap: 8px; }
+
+        .file-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px; background: var(--surface-solid);
+            border: 1px solid var(--border); border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        .file-item:active { transform: scale(0.98); }
+
+        .file-icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; background: var(--accent); color: var(--bg-deep); flex-shrink: 0;
+        }
+
+        .file-info { flex: 1; min-width: 0; }
+        .file-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-family: var(--font-mono); }
+
+        .file-status {
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; flex-shrink: 0;
+        }
+        .status-ingested { background: rgba(0, 212, 170, 0.15); color: #00d4aa; border: 1px solid rgba(0, 212, 170, 0.3); }
+        .status-processing { background: rgba(255, 179, 138, 0.15); color: #ff916e; border: 1px solid rgba(255, 145, 110, 0.3); }
+        .status-error { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+        .theme-option {
+            padding: 16px 8px; border-radius: 16px;
+            border: 2px solid transparent; text-align: center;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .theme-option:active { transform: scale(0.95); }
+        .theme-option.active { border-color: var(--accent-strong); box-shadow: 0 0 20px var(--accent); }
+
+        .theme-preview { width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 8px; position: relative; overflow: hidden; }
+        .theme-preview-lennox { background: linear-gradient(135deg, #ffe0cc, #ffb38a); }
+        .theme-preview-synthia { background: linear-gradient(135deg, #1a0b2e, #00d4aa); }
+        .theme-preview-minimal { background: linear-gradient(135deg, #f5f5f5, #2563eb); }
+        .theme-name { font-size: 11px; font-weight: 600; color: var(--text); }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+        .metric-box {
+            padding: 12px; background: var(--surface-solid);
+            border: 1px solid var(--border); border-radius: 12px;
+        }
+        .metric-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 4px; }
+        .metric-value { font-size: 18px; font-weight: 700; color: var(--accent-strong); font-family: var(--font-mono); }
+
+        .terminal {
+            background: rgba(0, 0, 0, 0.85); border: 1px solid var(--border); border-radius: 12px;
+            padding: 12px; font-family: var(--font-mono); font-size: 10px; line-height: 1.6;
+            color: var(--accent); max-height: 200px; overflow-y: auto;
+        }
+        .terminal-line { margin-bottom: 4px; opacity: 0; animation: termLineIn 0.3s ease forwards; }
+        @keyframes termLineIn { to { opacity: 1; } }
+        .term-time { color: var(--text-muted); margin-right: 8px; }
+        .term-src { color: var(--accent-strong); font-weight: 600; margin-right: 6px; }
+
+        #nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            height: calc(var(--nav-height) + var(--safe-bottom));
+            padding-bottom: var(--safe-bottom); z-index: 100;
+            background: var(--surface);
+            backdrop-filter: blur(24px) saturate(1.2);
+            -webkit-backdrop-filter: blur(24px) saturate(1.2);
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-around;
+            padding-left: 8px; padding-right: 8px;
+            transition: all 0.4s ease;
+        }
+
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 4px; padding: 8px 16px; border-radius: 16px;
+            cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none; background: transparent; color: var(--text-muted);
+            font-family: var(--font-body); flex: 1; max-width: 80px;
+        }
+        .nav-item:active { transform: scale(0.88); }
+        .nav-item i { font-size: 20px; transition: all 0.3s ease; }
+        .nav-item span { font-size: 9px; font-weight: 600; letter-spacing: 0.04em; transition: all 0.3s ease; }
+        .nav-item.active { color: var(--accent-strong); background: var(--surface-solid); }
+        .nav-item.active i { transform: translateY(-2px); filter: drop-shadow(0 4px 8px var(--accent)); }
+
+        .toast-container {
+            position: fixed;
+            top: calc(var(--header-height) + var(--safe-top) + 8px);
+            left: 50%; transform: translateX(-50%); z-index: 200;
+            display: flex; flex-direction: column; gap: 8px;
+            pointer-events: none; width: calc(100% - 32px); max-width: 400px;
+        }
+
+        .toast {
+            background: var(--surface-solid); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 14px;
+            padding: 12px 16px; box-shadow: var(--shadow);
+            display: flex; align-items: center; gap: 10px;
+            animation: toastIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+        }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .toast-out { animation: toastOut 0.3s ease forwards; }
+        @keyframes toastOut { to { opacity: 0; transform: translateY(-10px) scale(0.95); } }
+        .toast-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .toast-success .toast-icon { background: rgba(0, 212, 170, 0.15); color: #00d4aa; }
+        .toast-info .toast-icon { background: rgba(255, 179, 138, 0.15); color: #ff916e; }
+        .toast-error .toast-icon { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .toast-content { flex: 1; }
+        .toast-title { font-size: 13px; font-weight: 600; color: var(--text); }
+        .toast-msg { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+        .empty-state { text-align: center; padding: 40px 16px; color: var(--text-muted); }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+        .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+        .empty-state p { font-size: 12px; }
+
+        /* App cards */
+        .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .app-card {
+            padding: 16px; background: var(--surface-solid);
+            border: 1px solid var(--border); border-radius: 16px;
+            cursor: pointer; transition: all 0.3s ease;
+            text-align: center;
+        }
+        .app-card:active { transform: scale(0.95); }
+        .app-card i { font-size: 28px; color: var(--accent); margin-bottom: 8px; }
+        .app-card h4 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+        .app-card p { font-size: 10px; color: var(--text-muted); }
+
+        /* Modal for running apps */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 300;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-window {
+            background: var(--surface-solid); border: 1px solid var(--border);
+            border-radius: 20px; width: 100%; max-width: 500px; max-height: 80vh;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: var(--shadow); animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .modal-header {
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .modal-header h3 { font-size: 14px; font-weight: 700; color: var(--text); }
+        .modal-body { flex: 1; overflow-y: auto; padding: 16px; }
+        .modal-close {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: none; background: var(--surface); color: var(--text-muted);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Code execution output */
+        .code-output {
+            background: rgba(0,0,0,0.85); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px;
+            font-family: var(--font-mono); font-size: 11px;
+            color: var(--accent); min-height: 60px; white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .run-btn {
+            padding: 8px 16px; background: var(--accent-strong); color: var(--bg-deep);
+            border: none; border-radius: 10px; font-weight: 700; font-size: 12px;
+            cursor: pointer; margin-top: 8px;
+        }
+
+        @media (min-width: 768px) {
+            #app { max-width: 430px; margin: 0 auto; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+            #header, #nav { max-width: 430px; margin: 0 auto; }
+        }
+
+        .hidden { display: none !important; }
+        .pulse { animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head><body>
+    <div id="wallpaper"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="toast-container" id="toasts"></div>
+
+    <!-- App Execution Modal -->
+    <div class="modal-overlay" id="app-modal">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3 id="modal-title">App</h3>
+                <button class="modal-close" onclick="MorphOS.closeModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <div class="code-output" id="modal-output">Ready to execute...</div>
+                <button class="run-btn" id="modal-run" onclick="MorphOS.runMountedApp()">
+                    <i class="fa-solid fa-play"></i> Execute
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app">
+        <header id="header">
+            <div class="header-brand">
+                <i class="fa-solid fa-atom"></i>
+                <span>MORPH OS v2</span>
+            </div>
+            <div class="header-meta">
+                <span class="vitality-badge" id="vitality">FIELD: 100%</span>
+                <span id="clock">00:00</span>
+            </div>
+        </header>
+
+        <main id="content">
+            <!-- HOME VIEW -->
+            <div class="view active" id="view-home">
+                <div class="panel">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-network-wired"></i>
+                        64-Gate Resonance Field
+                    </div>
+                    <div id="gate-field"></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-wave-square"></i>
+                        Dimensional Telemetry
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <div class="metric-label">D1 Impulse</div>
+                            <div class="metric-value" id="m-d1">0.00</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">D2 Polarity</div>
+                            <div class="metric-value" id="m-d2">0.00</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">D3 Witness</div>
+                            <div class="metric-value" id="m-d3">0.00</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">D4 Context</div>
+                            <div class="metric-value" id="m-d4">0.00</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">D5 Coherence</div>
+                            <div class="metric-value" id="m-d5">0.00</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">Active Gates</div>
+                            <div class="metric-value" id="m-active">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-terminal"></i>
+                        System Log
+                    </div>
+                    <div class="terminal" id="terminal">
+                        <div class="terminal-line">
+                            <span class="term-time">--:--</span>
+                            <span class="term-src">[SYSTEM]</span>
+                            <span>Morph OS v2 initialized. 64-gate field online.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INGEST VIEW -->
+            <div class="view" id="view-ingest">
+                <div class="drop-zone" id="drop-zone">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <h3>Drop Files Here</h3>
+                    <p>Or tap to browse your system</p>
+                    <div class="file-types">
+                        <span class="file-badge">.js</span>
+                        <span class="file-badge">.ts</span>
+                        <span class="file-badge">.csv</span>
+                        <span class="file-badge">.pdf</span>
+                        <span class="file-badge">.zip</span>
+                        <span class="file-badge">.md</span>
+                        <span class="file-badge">.docx</span>
+                        <span class="file-badge">.xlsx</span>
+                    </div>
+                    <input type="file" id="file-input" class="hidden" multiple accept=".js,.ts,.jsx,.tsx,.csv,.pdf,.zip,.md,.txt,.docx,.xlsx,.xls,.json,.html,.css">
+                </div>
+
+                <div class="panel" id="ingested-panel" style="display:none;">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-cubes"></i>
+                        Ingested Matter
+                        <span style="margin-left:auto;font-size:10px;color:var(--text-muted);" id="ingest-count">0 items</span>
+                    </div>
+                    <div class="file-list" id="file-list"></div>
+                </div>
+
+                <div class="empty-state" id="empty-ingest">
+                    <i class="fa-solid fa-box-open"></i>
+                    <h3>No Files Yet</h3>
+                    <p>Drop files to begin morphological analysis</p>
+                </div>
+            </div>
+
+            <!-- WORLDS VIEW -->
+            <div class="view" id="view-worlds">
+                <div class="panel">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-palette"></i>
+                        Visual Themes
+                    </div>
+                    <div class="theme-grid">
+                        <div class="theme-option active" data-theme="lennox" onclick="MorphOS.setTheme('lennox')">
+                            <div class="theme-preview theme-preview-lennox"></div>
+                            <div class="theme-name">Lennox</div>
+                        </div>
+                        <div class="theme-option" data-theme="synthia" onclick="MorphOS.setTheme('synthia')">
+                            <div class="theme-preview theme-preview-synthia"></div>
+                            <div class="theme-name">Synthia</div>
+                        </div>
+                        <div class="theme-option" data-theme="minimal" onclick="MorphOS.setTheme('minimal')">
+                            <div class="theme-preview theme-preview-minimal"></div>
+                            <div class="theme-name">Minimal</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-sliders"></i>
+                        Field Calibration
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">RESONANCE THRESHOLD</label>
+                        <input type="range" min="0" max="100" value="42" style="width:100%;accent-color:var(--accent-strong);" id="threshold-slider">
+                        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-muted);margin-top:4px;">
+                            <span>Loose</span>
+                            <span id="threshold-val">42%</span>
+                            <span>Strict</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">PROPAGATION CYCLES</label>
+                        <div style="display:flex;gap:6px;">
+                            <button onclick="MorphOS.setCycles(2)" class="nav-item" style="flex:none;max-width:none;padding:8px 12px;border:1px solid var(--border);border-radius:10px;">2</button>
+                            <button onclick="MorphOS.setCycles(4)" class="nav-item active" style="flex:none;max-width:none;padding:8px 12px;border:1px solid var(--border);border-radius:10px;">4</button>
+                            <button onclick="MorphOS.setCycles(8)" class="nav-item" style="flex:none;max-width:none;padding:8px 12px;border:1px solid var(--border);border-radius:10px;">8</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-server"></i>
+                        Server Pipeline
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">ENDPOINT URL</label>
+                        <input type="text" id="server-url" value="https://synthia-server.onrender.com/api/v3/ingest"
+                            style="width:100%;padding:10px 12px;background:var(--surface-solid);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font-mono);font-size:11px;outline:none;">
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="MorphOS.testServer()" class="run-btn" style="flex:1;margin-top:0;">
+                            <i class="fa-solid fa-satellite-dish"></i> Test Connection
+                        </button>
+                        <button onclick="MorphOS.syncToServer()" class="run-btn" style="flex:1;margin-top:0;background:var(--accent);">
+                            <i class="fa-solid fa-upload"></i> Sync All
+                        </button>
+                    </div>
+                    <div id="server-status" style="margin-top:10px;font-size:10px;color:var(--text-muted);font-family:var(--font-mono);"></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-circle-info"></i>
+                        System Status
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <div class="metric-label">Files Ingested</div>
+                            <div class="metric-value" id="stat-files">0</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">Nodes Active</div>
+                            <div class="metric-value" id="stat-nodes">0</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">Field Coherence</div>
+                            <div class="metric-value" id="stat-coherence">0%</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">Dominant Gate</div>
+                            <div class="metric-value" id="stat-gate">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAB VIEW -->
+            <div class="view" id="view-lab">
+                <div class="panel">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-flask"></i>
+                        HD Morph Engine
+                    </div>
+                    <div class="terminal" id="lab-terminal" style="max-height:300px;">
+                        <div class="terminal-line">
+                            <span class="term-time">--:--</span>
+                            <span class="term-src">[ENGINE]</span>
+                            <span>HD Message Passing Morph Engine ready.</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="term-time">--:--</span>
+                            <span class="term-src">[ENGINE]</span>
+                            <span>64 gates initialized. 36 channels mapped.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-keyboard"></i>
+                        Test Input
+                    </div>
+                    <textarea 
+                        id="lab-input" 
+                        placeholder="Enter text to analyze through the 64-gate field..."
+                        style="width:100%;min-height:100px;background:var(--surface-solid);border:1px solid var(--border);border-radius:12px;padding:12px;color:var(--text);font-family:var(--font-body);font-size:13px;resize:none;outline:none;"
+                    ></textarea>
+                    <button 
+                        onclick="MorphOS.analyzeText()"
+                        style="width:100%;margin-top:10px;padding:12px;background:var(--accent-strong);color:var(--bg-deep);border:none;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;"
+                    >
+                        <i class="fa-solid fa-bolt" style="margin-right:6px;"></i>
+                        Propagate Through Field
+                    </button>
+                </div>
+            </div>
+
+            <!-- APPS VIEW -->
+            <div class="view" id="view-apps">
+                <div class="panel">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-rocket"></i>
+                        Mounted Apps
+                        <span style="margin-left:auto;font-size:10px;color:var(--text-muted);" id="app-count">0 apps</span>
+                    </div>
+                    <div class="app-grid" id="app-grid"></div>
+                </div>
+
+                <div class="empty-state" id="empty-apps" style="display:none;">
+                    <i class="fa-solid fa-rocket"></i>
+                    <h3>No Apps Yet</h3>
+                    <p>Ingest executable files (JS, HTML, JSON) to mount them as apps.</p>
+                </div>
+            </div>
+        </main>
+
+        <nav id="nav">
+            <button class="nav-item active" data-view="home" onclick="MorphOS.switchView('home')">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-view="ingest" onclick="MorphOS.switchView('ingest')">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Ingest</span>
+            </button>
+            <button class="nav-item" data-view="worlds" onclick="MorphOS.switchView('worlds')">
+                <i class="fa-solid fa-globe"></i>
+                <span>Worlds</span>
+            </button>
+            <button class="nav-item" data-view="lab" onclick="MorphOS.switchView('lab')">
+                <i class="fa-solid fa-flask"></i>
+                <span>Lab</span>
+            </button>
+            <button class="nav-item" data-view="apps" onclick="MorphOS.switchView('apps')">
+                <i class="fa-solid fa-grid-2"></i>
+                <span>Apps</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+    // ═══════════════════════════════════════════════════════════════
+    // MORPH OS v2 — FULL PIPELINE RUNTIME
+    // ═══════════════════════════════════════════════════════════════
+
+    const MorphOS = {
+        // State
+        theme: 'lennox',
+        currentView: 'home',
+        files: [],
+        mountedApps: [],
+        cycles: 4,
+        threshold: 0.42,
+        vitality: 1.0,
+        tick: 0,
+        serverUrl: 'https://synthia-server.onrender.com/api/v3/ingest',
+        currentModalApp: null,
+
+        // 64 Gate Registry
+        gates: {},
+        channels: [
+            [1,8],[2,14],[3,60],[4,63],[5,15],[6,59],[7,31],[9,52],
+            [10,20],[10,34],[10,57],[11,56],[12,22],[13,33],[16,48],[17,62],
+            [18,58],[19,49],[20,34],[20,57],[21,45],[23,43],[24,61],[25,51],
+            [26,44],[27,50],[28,38],[29,46],[30,41],[32,54],[35,36],[37,40],
+            [39,55],[42,53],[47,64]
+        ],
+
+        emotions: {
+            Happy:  { L: 75.0, a: 25.0, b: 45.0,  size: 0.70, valence: 0.85,  arousal: 0.75,  energy: 0.80 },
+            Anger:  { L: 35.0, a: 35.0, b: 30.0,  size: 0.65, valence: -0.70, arousal: 0.90,  energy: 0.85 },
+            Sad:    { L: 30.0, a: 0.0,  b: -10.0, size: 0.40, valence: -0.80, arousal: -0.60, energy: 0.20 },
+            Fear:   { L: 32.0, a: 2.0,  b: -5.0,  size: 0.45, valence: -0.75, arousal: 0.70,  energy: 0.60 },
+            Tender: { L: 65.0, a: 15.0, b: -20.0, size: 0.35, valence: 0.70,  arousal: -0.30, energy: 0.25 }
+        },
+
+        themes: {
+            lennox: {
+                '--bg-deep': '#fff1e8', '--wallpaper-a': '#ffe0cc', '--wallpaper-b': '#fff7f1', '--wallpaper-c': '#ffc4a8',
+                '--surface': 'rgba(255, 244, 238, 0.72)', '--surface-solid': 'rgba(255, 248, 244, 0.92)',
+                '--border': 'rgba(255, 145, 110, 0.30)', '--text': '#3a2118', '--text-muted': '#8a5f52',
+                '--accent': '#ffb38a', '--accent-strong': '#ff916e', '--shadow': '0 18px 60px rgba(98, 42, 20, 0.16)'
+            },
+            synthia: {
+                '--bg-deep': '#0a0514', '--wallpaper-a': '#130722', '--wallpaper-b': '#1a0b2e', '--wallpaper-c': '#0d0418',
+                '--surface': 'rgba(13, 6, 28, 0.75)', '--surface-solid': 'rgba(10, 5, 20, 0.92)',
+                '--border': 'rgba(0, 212, 170, 0.20)', '--text': '#e2e8f0', '--text-muted': '#94a3b8',
+                '--accent': '#00d4aa', '--accent-strong': '#7c3aed', '--shadow': '0 20px 50px rgba(0, 0, 0, 0.7)'
+            },
+            minimal: {
+                '--bg-deep': '#fafafa', '--wallpaper-a': '#f5f5f5', '--wallpaper-b': '#ffffff', '--wallpaper-c': '#eeeeee',
+                '--surface': 'rgba(255, 255, 255, 0.85)', '--surface-solid': 'rgba(250, 250, 250, 0.95)',
+                '--border': 'rgba(0, 0, 0, 0.08)', '--text': '#1a1a1a', '--text-muted': '#666666',
+                '--accent': '#2563eb', '--accent-strong': '#1d4ed8', '--shadow': '0 4px 24px rgba(0, 0, 0, 0.08)'
+            }
+        },
+
+        init() {
+            this.loadMemory();
+            this.initGates();
+            this.renderGateField();
+            this.bindClock();
+            this.bindDragDrop();
+            this.bindNav();
+            this.bindThreshold();
+            this.startHeartbeat();
+            this.renderApps();
+            this.log('SYSTEM', 'Morph OS v2 initialized. 64-gate field online.');
+            this.log('SYSTEM', `Memory: ${this.files.length} files, ${this.mountedApps.length} apps restored.`);
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // MEMORY / PERSISTENCE
+        // ═══════════════════════════════════════════════════════════════
+        saveMemory() {
+            try {
+                const data = {
+                    files: this.files.map(f => ({
+                        id: f.id, name: f.name, size: f.size, type: f.type,
+                        status: f.status, nodes: f.nodes,
+                        content: f.content && f.content.length > 5000 ? f.content.substring(0, 5000) + '...[TRUNCATED]' : f.content
+                    })),
+                    mountedApps: this.mountedApps.map(a => ({
+                        id: a.id, name: a.name, type: a.type, nodes: a.nodes
+                    })),
+                    gates: Object.fromEntries(Object.entries(this.gates).map(([k,v]) => [k, { activation: v.activation, resonance: v.resonance }])),
+                    theme: this.theme,
+                    threshold: this.threshold,
+                    cycles: this.cycles,
+                    vitality: this.vitality
+                };
+                localStorage.setItem('morphos_memory', JSON.stringify(data));
+                this.log('MEMORY', 'State persisted to localStorage.');
+            } catch(e) {
+                this.log('ERROR', `Memory save failed: ${e.message}`);
+            }
+        },
+
+        loadMemory() {
+            try {
+                const raw = localStorage.getItem('morphos_memory');
+                if (!raw) return;
+                const data = JSON.parse(raw);
+
+                if (data.files) this.files = data.files;
+                if (data.mountedApps) this.mountedApps = data.mountedApps;
+                if (data.theme) this.theme = data.theme;
+                if (data.threshold !== undefined) this.threshold = data.threshold;
+                if (data.cycles) this.cycles = data.cycles;
+                if (data.vitality) this.vitality = data.vitality;
+
+                // Restore gate states
+                if (data.gates) {
+                    Object.entries(data.gates).forEach(([id, state]) => {
+                        if (this.gates[id]) {
+                            this.gates[id].activation = state.activation || 0;
+                            this.gates[id].resonance = state.resonance || 0;
+                        }
+                    });
+                }
+
+                this.log('MEMORY', 'Prior state restored from localStorage.');
+            } catch(e) {
+                this.log('ERROR', `Memory load failed: ${e.message}`);
+            }
+        },
+
+        clearMemory() {
+            localStorage.removeItem('morphos_memory');
+            this.files = [];
+            this.mountedApps = [];
+            this.initGates();
+            this.renderFileList();
+            this.renderApps();
+            this.updateGateVisuals();
+            this.log('MEMORY', 'All memory cleared.');
+            this.showToast('info', 'Memory', 'System memory wiped clean.');
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // GATE FIELD
+        // ═══════════════════════════════════════════════════════════════
+        initGates() {
+            const gateNames = {
+                1:'Creative',2:'Receptive',3:'Ordering',4:'Folly',5:'Waiting',6:'Conflict',
+                7:'Leading',8:'Holding',9:'Taming',10:'Conduct',11:'Peace',12:'Standstill',
+                13:'Fellowship',14:'Possession',15:'Modesty',16:'Enthusiasm',17:'Following',
+                18:'Correction',19:'Approach',20:'Contemplation',21:'Biting',22:'Grace',
+                23:'Splitting',24:'Returning',25:'Innocence',26:'Taming',27:'Nourishing',
+                28:'Excess',29:'Abyss',30:'Clinging',31:'Influence',32:'Duration',33:'Retreat',
+                34:'Power',35:'Progress',36:'Darkening',37:'Family',38:'Opposition',39:'Obstruction',
+                40:'Deliverance',41:'Decrease',42:'Increase',43:'Breakthrough',44:'Coming',
+                45:'Gathering',46:'Pushing',47:'Exhaustion',48:'Well',49:'Revolution',
+                50:'Cauldron',51:'Shock',52:'Keeping',53:'Development',54:'Marrying',
+                55:'Abundance',56:'Wanderer',57:'Gentle',58:'Joy',59:'Dispersion',
+                60:'Limitation',61:'Inner Truth',62:'Small',63:'After Completion',64:'Before Completion'
+            };
+
+            for (let i = 1; i <= 64; i++) {
+                this.gates[i] = {
+                    id: i, name: gateNames[i] || `Gate ${i}`,
+                    center: ['G','Sacral','Ajna','Solar Plexus','Throat','Spleen','Head','Heart','Root'][i % 9],
+                    polarity: i % 2 === 0 ? 1 : -1,
+                    frequency: 396 + ((i * 111) % 789),
+                    activation: 0, resonance: 0,
+                    color: `hsl(${(i * 5.625) % 360}, 70%, 65%)`
+                };
+            }
+        },
+
+        renderGateField() {
+            const field = document.getElementById('gate-field');
+            field.innerHTML = '';
+            for (let i = 1; i <= 64; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'gate-cell';
+                cell.dataset.gate = i;
+                cell.innerHTML = `<span>${i}</span>`;
+                cell.style.setProperty('--gate-active', this.gates[i]?.activation || 0);
+                cell.addEventListener('click', () => this.pulseGate(i));
+                field.appendChild(cell);
+            }
+        },
+
+        pulseGate(id) {
+            const cell = document.querySelector(`[data-gate="${id}"]`);
+            cell.classList.add('active');
+            cell.style.setProperty('--gate-active', '1');
+            this.gates[id].activation = 1;
+            this.gates[id].resonance = 1;
+            setTimeout(() => {
+                cell.classList.remove('active');
+                cell.style.setProperty('--gate-active', Math.min(1, this.gates[id].activation * 2).toString());
+                this.gates[id].activation *= 0.7;
+                this.gates[id].resonance *= 0.7;
+            }, 800);
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // FILE INGESTION WITH REAL PARSERS
+        // ═══════════════════════════════════════════════════════════════
+        bindDragDrop() {
+            const zone = document.getElementById('drop-zone');
+            const input = document.getElementById('file-input');
+
+            zone.addEventListener('click', () => input.click());
+
+            ['dragenter','dragover'].forEach(e => {
+                zone.addEventListener(e, (ev) => { ev.preventDefault(); zone.classList.add('dragover'); });
+            });
+            ['dragleave','drop'].forEach(e => {
+                zone.addEventListener(e, (ev) => { ev.preventDefault(); zone.classList.remove('dragover'); });
+            });
+
+            zone.addEventListener('drop', (e) => this.ingestFiles(e.dataTransfer.files));
+            input.addEventListener('change', (e) => this.ingestFiles(e.target.files));
+        },
+
+        async ingestFiles(fileList) {
+            const files = Array.from(fileList);
+            if (!files.length) return;
+
+            for (const file of files) {
+                const id = Date.now() + Math.random().toString(36).substr(2, 5);
+                const fileData = {
+                    id, name: file.name, size: file.size,
+                    type: file.type || this.inferMime(file.name),
+                    status: 'processing', content: null, nodes: 0,
+                    ast: null
+                };
+
+                this.files.push(fileData);
+                this.showToast('info', 'Ingesting', `Processing ${file.name}...`);
+
+                try {
+                    // Try real parsers first
+                    const parsed = await this.parseFile(file);
+                    fileData.content = parsed.content;
+                    fileData.ast = parsed.ast;
+                    fileData.nodes = parsed.nodes;
+                    fileData.status = 'ingested';
+
+                    // Mount as app if executable
+                    this.tryMountApp(fileData);
+
+                    // Process through field
+                    this.processThroughField(fileData);
+
+                    // Try server upload
+                    this.uploadToServer(file, fileData);
+
+                    this.showToast('success', 'Ingested', `${file.name} -> ${fileData.nodes} nodes`);
+                    this.log('INGEST', `${file.name} (${fileData.nodes} nodes, ${parsed.parser}) -> Field updated`);
+                } catch (err) {
+                    fileData.status = 'error';
+                    this.showToast('error', 'Failed', err.message);
+                    this.log('ERROR', `Ingestion failed: ${err.message}`);
+                }
+            }
+
+            this.renderFileList();
+            this.updateStats();
+            this.saveMemory();
+        },
+
+        async parseFile(file) {
+            const name = file.name.toLowerCase();
+
+            // ZIP archives - extract and recurse
+            if (name.endsWith('.zip')) {
+                return await this.parseZip(file);
+            }
+
+            // PDF - use pdf.js text extraction
+            if (name.endsWith('.pdf')) {
+                return await this.parsePDF(file);
+            }
+
+            // DOCX - use mammoth.js
+            if (name.endsWith('.docx')) {
+                return await this.parseDOCX(file);
+            }
+
+            // XLSX - use SheetJS
+            if (name.match(/\.(xlsx|xls)$/)) {
+                return await this.parseXLSX(file);
+            }
+
+            // JSON - structured parse
+            if (name.endsWith('.json')) {
+                return await this.parseJSON(file);
+            }
+
+            // CSV - structured parse
+            if (name.endsWith('.csv')) {
+                return await this.parseCSV(file);
+            }
+
+            // Code files - text parse with AST estimation
+            if (name.match(/\.(js|ts|jsx|tsx|html|css|md|txt)$/)) {
+                return await this.parseText(file);
+            }
+
+            // Binary / fallback
+            return { content: '[BINARY]', nodes: 1, parser: 'fallback', ast: { type: 'binary', size: file.size } };
+        },
+
+        async parseZip(file) {
+            const zip = await JSZip.loadAsync(file);
+            let totalNodes = 0;
+            let allContent = '';
+            const files = [];
+
+            for (const [path, zipEntry] of Object.entries(zip.files)) {
+                if (zipEntry.dir) continue;
+                if (path.startsWith('__MACOSX') || path.startsWith('.')) continue;
+
+                const ext = path.split('.').pop()?.toLowerCase();
+                if (ext && ext.match(/^(js|ts|jsx|tsx|json|md|txt|csv|html|css)$/)) {
+                    const text = await zipEntry.async('text');
+                    const nodes = this.estimateCodeNodes(text, path);
+                    totalNodes += nodes;
+                    allContent += `\n=== ${path} ===\n${text.substring(0, 500)}\n`;
+                    files.push({ path, nodes, size: text.length });
+                }
+            }
+
+            return {
+                content: allContent,
+                nodes: Math.max(1, totalNodes + files.length),
+                parser: 'jszip',
+                ast: { type: 'archive', files, totalNodes }
+            };
+        },
+
+        async parsePDF(file) {
+            // Read as array buffer for pdf.js
+            const arrayBuffer = await file.arrayBuffer();
+
+            // For now, extract basic info. Full pdf.js integration would need the library loaded
+            // We'll do a best-effort text extraction using the raw bytes
+            const uint8 = new Uint8Array(arrayBuffer);
+            let text = '';
+            let inText = false;
+            let textBuffer = '';
+
+            // Simple PDF text extraction: look for text between stream/endstream
+            for (let i = 0; i < uint8.length - 10; i++) {
+                const chunk = String.fromCharCode.apply(null, uint8.slice(i, i + 10));
+                if (chunk.includes('stream')) { inText = true; i += 6; continue; }
+                if (chunk.includes('endstream')) { inText = false; continue; }
+                if (inText && uint8[i] >= 32 && uint8[i] < 127) {
+                    textBuffer += String.fromCharCode(uint8[i]);
+                }
+            }
+
+            // Also try to find text objects (Tj, TJ operators)
+            const fullText = String.fromCharCode.apply(null, uint8);
+            const textMatches = fullText.match(/\(([^)]+)\)/g);
+            if (textMatches) {
+                text = textMatches.map(m => m.slice(1, -1)).join(' ');
+            }
+
+            const cleanText = text.replace(/\\/g, '').substring(0, 5000);
+            const nodes = Math.max(1, Math.floor(cleanText.length / 100));
+
+            return {
+                content: cleanText || '[PDF_BINARY]',
+                nodes,
+                parser: 'pdf-extract',
+                ast: { type: 'pdf', pages: (fullText.match(/\/Type\s*\/Page/g) || []).length }
+            };
+        },
+
+        async parseDOCX(file) {
+            const arrayBuffer = await file.arrayBuffer();
+
+            try {
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                const text = result.value;
+                const nodes = Math.max(1, text.split('\n').filter(l => l.trim()).length);
+
+                return {
+                    content: text.substring(0, 5000),
+                    nodes,
+                    parser: 'mammoth',
+                    ast: { type: 'docx', paragraphs: text.split('\n\n').length, messages: result.messages }
+                };
+            } catch(e) {
+                return { content: '[DOCX_PARSE_ERROR]', nodes: 1, parser: 'mammoth-fail', ast: { error: e.message } };
+            }
+        },
+
+        async parseXLSX(file) {
+            const arrayBuffer = await file.arrayBuffer();
+
+            try {
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                let totalRows = 0;
+                let allText = '';
+                const sheets = [];
+
+                workbook.SheetNames.forEach(sheetName => {
+                    const worksheet = workbook.Sheets[sheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    totalRows += json.length;
+                    sheets.push({ name: sheetName, rows: json.length });
+                    allText += `\n=== Sheet: ${sheetName} ===\n`;
+                    json.slice(0, 10).forEach(row => {
+                        allText += row.join(', ') + '\n';
+                    });
+                });
+
+                return {
+                    content: allText.substring(0, 5000),
+                    nodes: Math.max(1, totalRows),
+                    parser: 'sheetjs',
+                    ast: { type: 'xlsx', sheets, totalRows }
+                };
+            } catch(e) {
+                return { content: '[XLSX_PARSE_ERROR]', nodes: 1, parser: 'sheetjs-fail', ast: { error: e.message } };
+            }
+        },
+
+        async parseJSON(file) {
+            const text = await file.text();
+            try {
+                const parsed = JSON.parse(text);
+                const nodes = this.countJsonNodes(parsed);
+                return {
+                    content: text.substring(0, 5000),
+                    nodes,
+                    parser: 'json',
+                    ast: { type: 'json', rootType: Array.isArray(parsed) ? 'array' : 'object', keys: Object.keys(parsed).length }
+                };
+            } catch(e) {
+                return { content: text.substring(0, 5000), nodes: Math.floor(text.length / 100), parser: 'json-fail', ast: { error: e.message } };
+            }
+        },
+
+        async parseCSV(file) {
+            const text = await file.text();
+            const lines = text.split('\n').filter(l => l.trim());
+            const rows = lines.length;
+            const cols = lines[0] ? lines[0].split(',').length : 0;
+
+            return {
+                content: text.substring(0, 5000),
+                nodes: Math.max(1, rows),
+                parser: 'csv',
+                ast: { type: 'csv', rows, cols }
+            };
+        },
+
+        async parseText(file) {
+            const text = await file.text();
+            const nodes = this.estimateCodeNodes(text, file.name);
+
+            return {
+                content: text.substring(0, 5000),
+                nodes,
+                parser: 'text',
+                ast: { type: 'text', lines: text.split('\n').length, chars: text.length }
+            };
+        },
+
+        estimateCodeNodes(content, name) {
+            if (!content) return 1;
+            let nodes = 0;
+
+            if (name.match(/\.(js|ts|jsx|tsx)$/)) {
+                nodes += (content.match(/\b(class|function|const|let|var|import|export)\b/g) || []).length;
+                nodes += (content.match(/\b(async|await|return|if|for|while|switch|case)\b/g) || []).length;
+                nodes += (content.match(/\b(new|this|super|extends|implements)\b/g) || []).length;
+            } else if (name.match(/\.(html|htm)$/)) {
+                nodes += (content.match(/<[^>]+>/g) || []).length;
+            } else if (name.endsWith('.css')) {
+                nodes += (content.match(/[.#][^{]+\{/g) || []).length;
+            } else {
+                nodes += Math.floor(content.length / 100);
+            }
+
+            return Math.max(1, nodes);
+        },
+
+        countJsonNodes(obj) {
+            if (typeof obj !== 'object' || obj === null) return 1;
+            let count = 1;
+            for (const key in obj) {
+                count += 1 + this.countJsonNodes(obj[key]);
+            }
+            return count;
+        },
+
+        inferMime(name) {
+            const ext = name.split('.').pop()?.toLowerCase();
+            const map = {
+                js:'application/javascript', ts:'application/typescript', jsx:'text/jsx', tsx:'text/tsx',
+                csv:'text/csv', pdf:'application/pdf', md:'text/markdown', txt:'text/plain',
+                json:'application/json', html:'text/html', css:'text/css',
+                docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                xls:'application/vnd.ms-excel',
+                zip:'application/zip'
+            };
+            return map[ext] || 'application/octet-stream';
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // APP MOUNTING
+        // ═══════════════════════════════════════════════════════════════
+        tryMountApp(fileData) {
+            const name = fileData.name.toLowerCase();
+
+            // Mount JS files as executable apps
+            if (name.endsWith('.js') && fileData.content && fileData.content !== '[BINARY]') {
+                const app = {
+                    id: fileData.id,
+                    name: fileData.name,
+                    type: 'javascript',
+                    content: fileData.content,
+                    nodes: fileData.nodes,
+                    icon: 'fa-brands fa-js',
+                    color: '#f7df1e'
+                };
+                this.mountedApps.push(app);
+                this.renderApps();
+                this.log('MOUNT', `JS app mounted: ${fileData.name}`);
+            }
+
+            // Mount HTML files as viewable apps
+            if (name.endsWith('.html') && fileData.content) {
+                const app = {
+                    id: fileData.id,
+                    name: fileData.name,
+                    type: 'html',
+                    content: fileData.content,
+                    nodes: fileData.nodes,
+                    icon: 'fa-brands fa-html5',
+                    color: '#e34c26'
+                };
+                this.mountedApps.push(app);
+                this.renderApps();
+                this.log('MOUNT', `HTML app mounted: ${fileData.name}`);
+            }
+
+            // Mount JSON as data app
+            if (name.endsWith('.json') && fileData.ast?.type === 'json') {
+                const app = {
+                    id: fileData.id,
+                    name: fileData.name,
+                    type: 'json',
+                    content: fileData.content,
+                    nodes: fileData.nodes,
+                    icon: 'fa-solid fa-database',
+                    color: '#00d4aa'
+                };
+                this.mountedApps.push(app);
+                this.renderApps();
+                this.log('MOUNT', `JSON data app mounted: ${fileData.name}`);
+            }
+        },
+
+        renderApps() {
+            const grid = document.getElementById('app-grid');
+            const count = document.getElementById('app-count');
+            const empty = document.getElementById('empty-apps');
+
+            if (!this.mountedApps.length) {
+                grid.innerHTML = '';
+                count.textContent = '0 apps';
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+            count.textContent = `${this.mountedApps.length} app${this.mountedApps.length !== 1 ? 's' : ''}`;
+
+            grid.innerHTML = this.mountedApps.map(app => `
+                <div class="app-card" onclick="MorphOS.openApp('${app.id}')">
+                    <i class="${app.icon}" style="color:${app.color};"></i>
+                    <h4>${app.name}</h4>
+                    <p>${app.nodes} nodes * ${app.type}</p>
+                </div>
+            `).join('');
+        },
+
+        openApp(appId) {
+            const app = this.mountedApps.find(a => a.id === appId);
+            if (!app) return;
+
+            this.currentModalApp = app;
+            document.getElementById('modal-title').textContent = app.name;
+            const output = document.getElementById('modal-output');
+
+            if (app.type === 'javascript') {
+                output.textContent = `// ${app.name}\n// ${app.nodes} nodes\n\n${app.content.substring(0, 2000)}\n\n[Click Execute to run]`;
+            } else if (app.type === 'html') {
+                output.innerHTML = `<iframe srcdoc="${app.content.replace(/"/g, '&quot;')}" style="width:100%;height:300px;border:none;border-radius:8px;"></iframe>`;
+            } else if (app.type === 'json') {
+                output.textContent = JSON.stringify(JSON.parse(app.content), null, 2);
+            } else {
+                output.textContent = app.content || '[No preview available]';
+            }
+
+            document.getElementById('app-modal').classList.add('active');
+        },
+
+        closeModal() {
+            document.getElementById('app-modal').classList.remove('active');
+            this.currentModalApp = null;
+        },
+
+        runMountedApp() {
+            if (!this.currentModalApp) return;
+            const app = this.currentModalApp;
+            const output = document.getElementById('modal-output');
+
+            if (app.type === 'javascript') {
+                try {
+                    // Create a safe-ish execution context
+                    const fn = new Function('console', 'document', 'window', `
+                        try {
+                            ${app.content}
+                            return "Executed successfully";
+                        } catch(e) {
+                            return "Error: " + e.message;
+                        }
+                    `);
+                    const result = fn(
+                        { log: (...args) => output.textContent += '\n> ' + args.join(' ') },
+                        null, null
+                    );
+                    output.textContent += '\n\n[RESULT]: ' + result;
+                    this.log('EXEC', `${app.name} executed successfully`);
+                } catch(e) {
+                    output.textContent += '\n\n[ERROR]: ' + e.message;
+                    this.log('ERROR', `Execution failed: ${e.message}`);
+                }
+            }
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // SERVER UPLOAD
+        // ═══════════════════════════════════════════════════════════════
+        async uploadToServer(file, fileData) {
+            const url = document.getElementById('server-url').value || this.serverUrl;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('meta', JSON.stringify({
+                    id: fileData.id,
+                    nodes: fileData.nodes,
+                    parser: fileData.parser,
+                    ast: fileData.ast
+                }));
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    this.log('SERVER', `${file.name} synced to pipeline. Resonance: ${result.resonance || 'N/A'}`);
+                    fileData.serverSync = true;
+                } else {
+                    this.log('SERVER', `${file.name} server upload failed: ${response.status}`);
+                }
+            } catch(e) {
+                this.log('SERVER', `Offline mode: ${file.name} stored locally only.`);
+            }
+        },
+
+        async testServer() {
+            const url = document.getElementById('server-url').value || this.serverUrl;
+            const status = document.getElementById('server-status');
+            status.textContent = 'Testing connection...';
+
+            try {
+                const response = await fetch(url.replace('/ingest', '/health'), { method: 'GET', mode: 'cors' });
+                if (response.ok) {
+                    status.textContent = 'SERVER: ONLINE * Ready for ingestion';
+                    status.style.color = '#00d4aa';
+                    this.showToast('success', 'Server', 'Pipeline connection active');
+                } else {
+                    status.textContent = `SERVER: ERROR ${response.status}`;
+                    status.style.color = '#ef4444';
+                }
+            } catch(e) {
+                status.textContent = 'SERVER: OFFLINE * Running in local mode';
+                status.style.color = '#ff916e';
+                this.showToast('info', 'Server', 'Running in offline mode');
+            }
+        },
+
+        async syncToServer() {
+            const unsynced = this.files.filter(f => !f.serverSync && f.status === 'ingested');
+            if (!unsynced.length) {
+                this.showToast('info', 'Sync', 'All files already synced');
+                return;
+            }
+
+            this.log('SERVER', `Syncing ${unsynced.length} files to pipeline...`);
+
+            for (const fileData of unsynced) {
+                // Reconstruct a File-like object from stored content
+                const blob = new Blob([fileData.content || ''], { type: fileData.type });
+                const file = new File([blob], fileData.name, { type: fileData.type });
+                await this.uploadToServer(file, fileData);
+            }
+
+            this.saveMemory();
+            this.showToast('success', 'Sync', `${unsynced.length} files synced`);
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // FIELD PROCESSING
+        // ═══════════════════════════════════════════════════════════════
+        processThroughField(fileData) {
+            const hash = fileData.name.split('').reduce((a,b)=>a+b.charCodeAt(0),0);
+            const contentHash = fileData.content && fileData.content !== '[BINARY]' 
+                ? fileData.content.length 
+                : fileData.size;
+
+            const activeGates = new Set();
+
+            for (let i = 1; i <= 64; i++) {
+                const gate = this.gates[i];
+                const harmonic = Math.abs(Math.sin(i + hash / 1000 + contentHash / 10000));
+
+                if (harmonic > this.threshold) {
+                    gate.activation = Math.min(1, gate.activation + harmonic * 0.3);
+                    gate.resonance = Math.min(1, gate.resonance + harmonic * 0.25);
+                    activeGates.add(i);
+                }
+            }
+
+            this.propagateField();
+            this.updateGateVisuals();
+
+            const d1 = Math.min(1, this.files.length * 0.15);
+            const d2 = Math.min(1, activeGates.size / 32);
+            const d3 = Math.max(0.1, this.vitality * 0.8);
+            const d4 = Math.min(1, (d1 + d2) / 2);
+            const d5 = (d3 * d4).toFixed(4);
+
+            document.getElementById('m-d1').textContent = d1.toFixed(2);
+            document.getElementById('m-d2').textContent = d2.toFixed(2);
+            document.getElementById('m-d3').textContent = d3.toFixed(2);
+            document.getElementById('m-d4').textContent = d4.toFixed(2);
+            document.getElementById('m-d5').textContent = d5;
+            document.getElementById('m-active').textContent = activeGates.size;
+
+            const dominant = Object.values(this.gates).sort((a,b) => b.resonance - a.resonance)[0];
+            document.getElementById('stat-gate').textContent = `G${dominant.id}`;
+            document.getElementById('stat-coherence').textContent = `${Math.round(d5 * 100)}%`;
+        },
+
+        propagateField() {
+            const steps = this.cycles;
+
+            for (let s = 0; s < steps; s++) {
+                const messages = {};
+
+                this.channels.forEach(([a, b]) => {
+                    const gateA = this.gates[a];
+                    const gateB = this.gates[b];
+                    if (!messages[b]) messages[b] = [];
+                    if (!messages[a]) messages[a] = [];
+                    messages[b].push({ from: a, resonance: gateA.resonance, weight: 1.0 });
+                    messages[a].push({ from: b, resonance: gateB.resonance, weight: 1.0 });
+                });
+
+                for (let i = 1; i <= 64; i++) {
+                    const next = i === 64 ? 1 : i + 1;
+                    const prev = i === 1 ? 64 : i - 1;
+                    if (!messages[i]) messages[i] = [];
+                    messages[i].push({ from: next, resonance: this.gates[next].resonance, weight: 0.35 });
+                    messages[i].push({ from: prev, resonance: this.gates[prev].resonance, weight: 0.35 });
+                }
+
+                for (let i = 1; i <= 64; i++) {
+                    const msgs = messages[i] || [];
+                    if (!msgs.length) continue;
+
+                    let totalWeight = 0;
+                    let weightedRes = 0;
+                    msgs.forEach(m => {
+                        totalWeight += m.weight;
+                        weightedRes += m.resonance * m.weight;
+                    });
+
+                    const newRes = totalWeight > 0 ? weightedRes / totalWeight : 0;
+                    this.gates[i].resonance = this.gates[i].resonance * 0.6 + newRes * 0.4;
+                    this.gates[i].activation = this.gates[i].activation * 0.65 + newRes * 0.35;
+                }
+            }
+        },
+
+        updateGateVisuals() {
+            let activeCount = 0;
+            for (let i = 1; i <= 64; i++) {
+                const gate = this.gates[i];
+                const cell = document.querySelector(`[data-gate="${i}"]`);
+                if (cell) {
+                    const opacity = Math.min(1, gate.activation * 2);
+                    cell.style.setProperty('--gate-active', opacity);
+                    if (gate.activation > 0.5) {
+                        cell.classList.add('active');
+                        activeCount++;
+                    } else {
+                        cell.classList.remove('active');
+                    }
+                }
+            }
+            document.getElementById('m-active').textContent = activeCount;
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // TEXT ANALYSIS
+        // ═══════════════════════════════════════════════════════════════
+        analyzeText() {
+            const input = document.getElementById('lab-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            this.log('LAB', `Analyzing: "${text.substring(0, 40)}..."`);
+
+            const clean = text.toLowerCase();
+            let scores = { Happy: 0, Anger: 0, Sad: 0, Fear: 0, Tender: 0 };
+
+            if (/joy|happy|bright|creative|heaven/i.test(clean)) scores.Happy += 1.5;
+            if (/conflict|rage|anger|fire|clash/i.test(clean)) scores.Anger += 1.5;
+            if (/grief|sad|dark|abyss|fail/i.test(clean)) scores.Sad += 1.5;
+            if (/scared|fear|risk|depths|panic/i.test(clean)) scores.Fear += 1.5;
+            if (/soft|tender|warm|violet|receptive/i.test(clean)) scores.Tender += 1.5;
+
+            const dominant = Object.keys(scores).reduce((a,b) => scores[a] > scores[b] ? a : b);
+            const profile = this.emotions[scores[dominant] === 0 ? 'Tender' : dominant];
+
+            const charHash = text.split('').reduce((a,b)=>a+b.charCodeAt(0),0);
+
+            for (let i = 1; i <= 64; i++) {
+                const harmonic = Math.abs(Math.sin(i + charHash/1000 + profile.L/100));
+                const activation = Math.min(1, profile.size * harmonic + (scores[dominant] > 0 ? 0.2 : 0));
+                this.gates[i].activation = activation;
+                this.gates[i].resonance = activation * (0.75 + ((profile.arousal + 1) / 2) * 0.5);
+            }
+
+            this.propagateField();
+            this.updateGateVisuals();
+
+            const topGate = Object.values(this.gates).sort((a,b) => b.resonance - a.resonance)[0];
+
+            this.log('LAB', `Dominant: ${dominant} (L*=${profile.L})`);
+            this.log('LAB', `Gate ${topGate.id}/${topGate.name} at B3.T4.C3.G${topGate.id}.L${Math.ceil(topGate.activation*6)}`);
+            this.log('LAB', `Coherence: ${(topGate.resonance * 100).toFixed(1)}%`);
+
+            document.getElementById('m-d1').textContent = profile.size.toFixed(2);
+            document.getElementById('m-d2').textContent = ((profile.valence + 1) / 2).toFixed(2);
+            document.getElementById('m-d3').textContent = ((profile.arousal + 1) / 2).toFixed(2);
+            document.getElementById('m-d4').textContent = profile.energy.toFixed(2);
+            document.getElementById('m-d5').textContent = (profile.L / 100).toFixed(3);
+
+            input.value = '';
+            this.saveMemory();
+        },
+
+        // ═══════════════════════════════════════════════════════════════
+        // UI FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════
+        switchView(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${viewName}`).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+            this.currentView = viewName;
+            this.log('NAV', `Switched to ${viewName}`);
+        },
+
+        setTheme(themeName) {
+            const theme = this.themes[themeName];
+            if (!theme) return;
+
+            const root = document.documentElement;
+            Object.entries(theme).forEach(([key, val]) => root.style.setProperty(key, val));
+
+            document.querySelectorAll('.theme-option').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-theme="${themeName}"]`).classList.add('active');
+
+            this.theme = themeName;
+            this.log('THEME', `Substrate shifted to ${themeName}`);
+            this.showToast('info', 'Theme', `Running ${themeName} substrate`);
+            this.saveMemory();
+        },
+
+        setCycles(n) {
+            this.cycles = n;
+            this.log('CONFIG', `Propagation cycles: ${n}`);
+            this.saveMemory();
+        },
+
+        bindThreshold() {
+            const slider = document.getElementById('threshold-slider');
+            const val = document.getElementById('threshold-val');
+            slider.addEventListener('input', (e) => {
+                this.threshold = e.target.value / 100;
+                val.textContent = `${e.target.value}%`;
+                this.saveMemory();
+            });
+        },
+
+        bindNav() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('touchstart', () => item.style.transform = 'scale(0.88)');
+                item.addEventListener('touchend', () => item.style.transform = '');
+            });
+        },
+
+        renderFileList() {
+            const list = document.getElementById('file-list');
+            const panel = document.getElementById('ingested-panel');
+            const empty = document.getElementById('empty-ingest');
+            const count = document.getElementById('ingest-count');
+
+            if (!this.files.length) {
+                panel.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            panel.style.display = 'block';
+            empty.style.display = 'none';
+            count.textContent = `${this.files.length} item${this.files.length !== 1 ? 's' : ''}`;
+
+            list.innerHTML = this.files.map(f => {
+                const icon = this.getFileIcon(f.name);
+                const statusClass = f.status === 'ingested' ? 'status-ingested' : f.status === 'processing' ? 'status-processing' : 'status-error';
+                const statusText = f.status === 'ingested' ? 'INGESTED' : f.status === 'processing' ? 'PROCESSING' : 'ERROR';
+                const serverIcon = f.serverSync ? '<i class="fa-solid fa-cloud" style="color:#00d4aa;margin-left:4px;"></i>' : '';
+
+                return `
+                    <div class="file-item" onclick="MorphOS.pulseGate(${(parseInt(f.id) % 64) + 1})">
+                        <div class="file-icon">${icon}</div>
+                        <div class="file-info">
+                            <div class="file-name">${f.name}${serverIcon}</div>
+                            <div class="file-meta">${this.formatBytes(f.size)} * ${f.nodes} nodes * ${f.parser || 'unknown'}</div>
+                        </div>
+                        <div class="file-status ${statusClass}">${statusText}</div>
+                    </div>
+                `;
+            }).join('');
+        },
+
+        getFileIcon(name) {
+            if (name.match(/\.(js|ts|jsx|tsx)$/)) return '<i class="fa-brands fa-js"></i>';
+            if (name.endsWith('.css')) return '<i class="fa-brands fa-css3"></i>';
+            if (name.endsWith('.html')) return '<i class="fa-brands fa-html5"></i>';
+            if (name.match(/\.(md|txt)$/)) return '<i class="fa-solid fa-file-lines"></i>';
+            if (name.endsWith('.csv')) return '<i class="fa-solid fa-table"></i>';
+            if (name.endsWith('.json')) return '<i class="fa-solid fa-code"></i>';
+            if (name.endsWith('.pdf')) return '<i class="fa-solid fa-file-pdf"></i>';
+            if (name.match(/\.(docx|doc)$/)) return '<i class="fa-solid fa-file-word"></i>';
+            if (name.match(/\.(xlsx|xls)$/)) return '<i class="fa-solid fa-file-excel"></i>';
+            if (name.endsWith('.zip')) return '<i class="fa-solid fa-file-zipper"></i>';
+            if (name.match(/\.(jpg|jpeg|png|gif|webp)$/)) return '<i class="fa-solid fa-image"></i>';
+            if (name.match(/\.(mp4|mov|avi)$/)) return '<i class="fa-solid fa-film"></i>';
+            return '<i class="fa-solid fa-file"></i>';
+        },
+
+        formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        },
+
+        updateStats() {
+            document.getElementById('stat-files').textContent = this.files.length;
+            const totalNodes = this.files.reduce((a,f) => a + (f.nodes || 0), 0);
+            document.getElementById('stat-nodes').textContent = totalNodes;
+        },
+
+        showToast(type, title, message) {
+            const container = document.getElementById('toasts');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icons = { success: 'fa-check', info: 'fa-info', error: 'fa-triangle-exclamation' };
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fa-solid ${icons[type]}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('toast-out'); setTimeout(() => toast.remove(), 300); }, 3000);
+        },
+
+        log(src, message) {
+            const term = document.getElementById('terminal');
+            const now = new Date();
+            const time = now.toTimeString().split(' ')[0].substring(0, 5);
+
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.innerHTML = `<span class="term-time">${time}</span><span class="term-src">[${src}]</span><span>${message}</span>`;
+            term.appendChild(line);
+            term.scrollTop = term.scrollHeight;
+
+            const labTerm = document.getElementById('lab-terminal');
+            if (labTerm && src !== 'SYSTEM') {
+                const labLine = document.createElement('div');
+                labLine.className = 'terminal-line';
+                labLine.innerHTML = `<span class="term-time">${time}</span><span class="term-src">[${src}]</span><span>${message}</span>`;
+                labTerm.appendChild(labLine);
+                labTerm.scrollTop = labTerm.scrollHeight;
+            }
+        },
+
+        bindClock() {
+            const update = () => {
+                const now = new Date();
+                document.getElementById('clock').textContent = now.toTimeString().split(' ')[0].substring(0, 5);
+            };
+            setInterval(update, 1000);
+            update();
+        },
+
+        startHeartbeat() {
+            setInterval(() => {
+                this.tick++;
+                this.vitality = Math.max(0.2, Math.min(1.0, this.vitality - 0.001));
+                document.getElementById('vitality').textContent = `FIELD: ${Math.round(this.vitality * 100)}%`;
+            }, 4000);
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => MorphOS.init());
+    </script>
+</body>
+</html>

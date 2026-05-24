@@ -1,0 +1,223 @@
+{
+  "built_at": "2026-05-24",
+  "canonical_center": "Synthia_Morph_Substrate_FULL_PureJS.html",
+  "rule": "Synthia substrate remains sovereign; all other shells mount as embodiments/bridges/tools. Originals preserved.",
+  "files": [
+    {
+      "source": "Synthia_Morph_Substrate_FULL_PureJS.html",
+      "dest": "public/apps/synthia-substrate.html",
+      "bytes": 51336,
+      "sha256_16": "eab66023aeb6f3e7"
+    },
+    {
+      "source": "morphos-v110-mrnn-kernel.html",
+      "dest": "public/apps/mrnn-kernel.html",
+      "bytes": 51777,
+      "sha256_16": "ca96f666f8434e11"
+    },
+    {
+      "source": "morph-os-v13.html",
+      "dest": "public/apps/morph-os-v13.html",
+      "bytes": 36833,
+      "sha256_16": "c3483d012e13acb2"
+    },
+    {
+      "source": "morph-orchestrator-demo (1).html",
+      "dest": "public/apps/orchestrator-demo.html",
+      "bytes": 30390,
+      "sha256_16": "68bc6d5fb1ffae42"
+    },
+    {
+      "source": "MorphSubstrate_Assembled_PureJS.html",
+      "dest": "public/apps/morph-substrate-assembled.html",
+      "bytes": 479390,
+      "sha256_16": "44f32c261733a57d"
+    },
+    {
+      "source": "joe-resonance-unified-substrate.html",
+      "dest": "public/apps/joe-resonance-unified.html",
+      "bytes": 442699,
+      "sha256_16": "3f6368636b8c6976"
+    },
+    {
+      "source": "resonance-phonyos-final.html",
+      "dest": "public/apps/resonance-phonyos-final.html",
+      "bytes": 532471,
+      "sha256_16": "55d14dfc2620dc4e"
+    },
+    {
+      "source": "resonance-os-construct-grapesjs-webstudio.html",
+      "dest": "public/apps/resonance-construct.html",
+      "bytes": 400114,
+      "sha256_16": "3c267e325ae1b52f"
+    },
+    {
+      "source": "resonance-os-menu-fixed.html",
+      "dest": "public/apps/resonance-menu-fixed.html",
+      "bytes": 314917,
+      "sha256_16": "2b2ad9aed04ea9bf"
+    },
+    {
+      "source": "resonance-os-bottom-menu-repaired.html",
+      "dest": "public/apps/resonance-bottom-menu-repaired.html",
+      "bytes": 314501,
+      "sha256_16": "0b335583c1903355"
+    },
+    {
+      "source": "resonance-os-merged.html",
+      "dest": "public/apps/resonance-os-merged.html",
+      "bytes": 311314,
+      "sha256_16": "31712bf99fbfa74e"
+    },
+    {
+      "source": "resonance-os-v4.html",
+      "dest": "public/apps/resonance-os-v4.html",
+      "bytes": 181451,
+      "sha256_16": "50a16550323a9bda"
+    },
+    {
+      "source": "morph-os-substrate (1).html",
+      "dest": "public/apps/morph-os-substrate.html",
+      "bytes": 59782,
+      "sha256_16": "88ffb9071937834e"
+    },
+    {
+      "source": "morph-os-v2 (1).html",
+      "dest": "public/apps/morph-os-v2.html",
+      "bytes": 84855,
+      "sha256_16": "6165260ac9e891a2"
+    },
+    {
+      "source": "resonance-shape.svg",
+      "dest": "public/assets/resonance-shape.svg",
+      "bytes": 135,
+      "sha256_16": "9168c104e715128e"
+    },
+    {
+      "source": "morph-orchestrator-core.ts",
+      "dest": "src/core/morph-orchestrator-core.ts",
+      "bytes": 15703,
+      "sha256_16": "5af5891b5383f906"
+    },
+    {
+      "source": "morph-orchestrator-core (1).ts",
+      "dest": "src/core/morph-orchestrator-core.copy.ts",
+      "bytes": 15703,
+      "sha256_16": "5af5891b5383f906"
+    },
+    {
+      "source": "mcp-bridge.ts",
+      "dest": "src/bridges/mcp-bridge.ts",
+      "bytes": 9285,
+      "sha256_16": "542ea452db76165e"
+    },
+    {
+      "source": "morph-bootstrap (1).ts",
+      "dest": "src/core/morph-bootstrap.ts",
+      "bytes": 7282,
+      "sha256_16": "7edbb70fcd082e39"
+    },
+    {
+      "source": "materializeApp.ts",
+      "dest": "src/materialize/materializeApp.ts",
+      "bytes": 2521,
+      "sha256_16": "d037302e74795384"
+    },
+    {
+      "source": "apiClient.ts",
+      "dest": "src/bridges/apiClient.ts",
+      "bytes": 3144,
+      "sha256_16": "c2e331f88427c6be"
+    },
+    {
+      "source": "server-routes.ts",
+      "dest": "src/bridges/server-routes.ts",
+      "bytes": 7911,
+      "sha256_16": "eccc59bbd48e7583"
+    },
+    {
+      "source": "supabase-schema.sql",
+      "dest": "database/supabase-schema.sql",
+      "bytes": 2411,
+      "sha256_16": "f57308b97ad56e72"
+    },
+    {
+      "source": "MorphKeyboard_Source.txt",
+      "dest": "src/bridges/MorphKeyboard_Source.txt",
+      "bytes": 28400,
+      "sha256_16": "487c50876cfdb39c"
+    },
+    {
+      "source": "SYNTHIA_HUB_START_HERE.md",
+      "dest": "docs/SYNTHIA_HUB_START_HERE.md",
+      "bytes": 2608,
+      "sha256_16": "18978ca978ebb2c7"
+    },
+    {
+      "source": "WEST_FIRST_AUDIT.md",
+      "dest": "docs/WEST_FIRST_AUDIT.md",
+      "bytes": 6089,
+      "sha256_16": "778be9d8cd95d232"
+    },
+    {
+      "source": "UNIQUE_PATTERN_EXTRACTION_AUDIT.md",
+      "dest": "docs/UNIQUE_PATTERN_EXTRACTION_AUDIT.md",
+      "bytes": 11502,
+      "sha256_16": "9ab80707cf39ca26"
+    },
+    {
+      "source": "WEST_FIRST_UNIQUE_INVENTORY.json",
+      "dest": "docs/WEST_FIRST_UNIQUE_INVENTORY.json",
+      "bytes": 295219,
+      "sha256_16": "09e04ae38b732910"
+    },
+    {
+      "source": "UNIQUE_PATTERN_EXTRACTION_AUDIT.json",
+      "dest": "docs/UNIQUE_PATTERN_EXTRACTION_AUDIT.json",
+      "bytes": 53811,
+      "sha256_16": "296b9762382e5234"
+    },
+    {
+      "source": "README (4).md",
+      "dest": "docs/README.original.md",
+      "bytes": 6416,
+      "sha256_16": "4d2c2eba237eef41"
+    },
+    {
+      "source": "synthia-single-hub-wired-v4.3.zip",
+      "dest": "archives/synthia-single-hub-wired-v4.3.zip",
+      "bytes": 607319,
+      "sha256_16": "ee3d40c73f3493fc"
+    },
+    {
+      "source": "Kimi_Agent_\u2705Web Linux .zip",
+      "dest": "archives/Kimi_Agent_Web_Linux.zip",
+      "bytes": 462500,
+      "sha256_16": "71e333c4962f1cc9"
+    },
+    {
+      "source": "Kimi_Agent_Morph OS Overlay Bug.zip",
+      "dest": "archives/Kimi_Agent_Morph_OS_Overlay_Bug.zip",
+      "bytes": 80219,
+      "sha256_16": "88eb4fb497d08937"
+    },
+    {
+      "source": "west_first_source_preserving_package.zip",
+      "dest": "archives/west_first_source_preserving_package.zip",
+      "bytes": 891699,
+      "sha256_16": "681e7a89d3128943"
+    },
+    {
+      "source": "orchestrator_assembly_patch.zip",
+      "dest": "archives/orchestrator_assembly_patch.zip",
+      "bytes": 11931,
+      "sha256_16": "27e5c788de9afb3c"
+    },
+    {
+      "source": "resonance_unique_organs_extraction_pack.zip",
+      "dest": "archives/resonance_unique_organs_extraction_pack.zip",
+      "bytes": 123273,
+      "sha256_16": "44e05816835dbea3"
+    }
+  ]
+}

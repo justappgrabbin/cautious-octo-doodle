@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>MorphOS v11.0 — MRNN Kernel + Connected Membrane</title>
+<style>
+:root {
+  --bg-base:#050507; --bg-surface:#0b0b0f; --bg-element:#111118; --bg-hover:#161622;
+  --border-color:#1e1e26; --border-light:#2a2a35; --text-main:#dfdfe4; --text-muted:#565662; --text-dim:#3a3a45;
+  --primary-yang:#FFD700; --primary-yin:#FF1493; --accent-teal:#00d4aa; --accent-purple:#a855f7;
+  --accent-amber:#ffb74d; --accent-red:#ff5f56; --accent-cyan:#00e5ff; --accent-green:#28c840;
+}
+* { box-sizing: border-box; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+body {
+  margin:0; padding:0; background: var(--bg-base); color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+  display:flex; flex-direction:column; height:100vh; overflow:hidden; user-select:none;
+}
+
+/* ===== TASKBAR ===== */
+#taskbar {
+  height: 44px; background: var(--bg-surface); border-bottom: 1px solid var(--border-color);
+  display:flex; align-items:center; justify-content:space-between; padding: 0 14px;
+  z-index: 10000; position: relative; flex-shrink: 0;
+}
+.taskbar-left { display:flex; align-items:center; gap: 12px; }
+#hamburger-btn {
+  width: 32px; height: 32px; background: var(--bg-element); border: 1px solid var(--border-color);
+  border-radius: 6px; cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px; padding: 0;
+}
+#hamburger-btn:hover { border-color: var(--accent-teal); }
+#hamburger-btn span { display: block; width: 16px; height: 2px; background: var(--text-main); border-radius: 1px; }
+.taskbar-brand { font-family: monospace; font-weight: bold; color: var(--primary-yang); letter-spacing: 1px; font-size: 12px; }
+.taskbar-menu { display: flex; gap: 8px; }
+.taskbar-btn {
+  background: var(--bg-element); border: 1px solid var(--border-color); color: var(--text-main);
+  padding: 5px 12px; border-radius: 5px; cursor: pointer; font-family: monospace; font-size: 11px;
+  transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+}
+.taskbar-btn:hover { border-color: var(--accent-teal); background: var(--bg-hover); }
+.taskbar-btn svg { width: 12px; height: 12px; fill: currentColor; }
+.taskbar-btn.active { border-color: var(--accent-teal); background: rgba(0,212,170,0.1); }
+#daemon-indicator {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim);
+  transition: background 0.3s; margin-left: 8px;
+}
+#daemon-indicator.processing { background: var(--accent-teal); animation: pulse 1s infinite; }
+#daemon-indicator.queued { background: var(--accent-amber); }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ===== DROPDOWN ===== */
+#dropdown-menu {
+  display: none; position: absolute; top: 44px; left: 14px; background: var(--bg-surface);
+  border: 1px solid var(--border-color); border-radius: 8px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.85); z-index: 10001; min-width: 200px; overflow: hidden;
+}
+.dropdown-item {
+  padding: 10px 16px; font-family: monospace; font-size: 11px; color: var(--text-main);
+  cursor: pointer; display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border-color); transition: background 0.15s;
+}
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:hover { background: rgba(0,212,170,0.08); color: var(--accent-teal); }
+.dropdown-item svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* ===== DESKTOP ===== */
+#desktop { flex: 1; position: relative; background-image: radial-gradient(var(--border-color) 1px, transparent 1px); background-size: 24px 24px; overflow: hidden; }
+#icon-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 20px; z-index: 10; display: flex; flex-direction: column; flex-wrap: wrap; align-content: flex-start; gap: 16px; }
+#window-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; pointer-events: none; }
+
+/* ===== DESKTOP ICONS ===== */
+.desktop-icon { width: 85px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; gap: 6px; padding: 8px; border-radius: 8px; transition: all 0.2s; pointer-events: auto; }
+.desktop-icon:hover { background: rgba(255,255,255,0.04); transform: translateY(-2px); }
+.desktop-icon:active { transform: scale(0.97); }
+.desktop-icon .icon-art { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+.desktop-icon .icon-art svg { width: 24px; height: 24px; }
+.desktop-icon .icon-label { font-size: 10px; font-family: monospace; color: var(--text-main); text-shadow: 0 2px 4px rgba(0,0,0,0.9); word-break: break-all; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
+
+/* ===== WINDOWS ===== */
+.window { position: absolute; width: 800px; height: 560px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 16px 48px rgba(0,0,0,0.85); display: flex; flex-direction: column; overflow: hidden; pointer-events: auto; min-width: 360px; min-height: 240px; animation: windowAppear 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes windowAppear { from { opacity: 0; transform: scale(0.92) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.window-header { background: var(--bg-element); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); cursor: move; user-select: none; }
+.window-title { font-size: 11px; font-family: monospace; font-weight: bold; color: #bcbcc4; display: flex; align-items: center; gap: 6px; }
+.window-title svg { width: 12px; height: 12px; fill: var(--accent-teal); }
+.window-controls { display: flex; align-items: center; gap: 6px; }
+.win-btn { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: none; outline: none; transition: transform 0.15s; }
+.win-btn:hover { transform: scale(1.2); }
+.win-close { background: var(--accent-red); } .win-min { background: #ffbd2e; } .win-max { background: var(--accent-green); }
+.window-split-body { display: flex; flex: 1; overflow: hidden; }
+.window-content-workspace { flex: 1; overflow: auto; position: relative; background: var(--bg-surface); }
+.window-telemetry-sidebar { width: 260px; background: #08080c; border-left: 1px solid var(--border-color); padding: 12px; box-sizing: border-box; font-family: monospace; font-size: 10px; color: #a4a4b2; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+
+/* ===== MRNN VISUALIZER ===== */
+.mrnn-canvas { width: 100%; height: 100%; background: var(--bg-base); position: relative; overflow: hidden; }
+.mrnn-node {
+  position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-family: monospace; font-size: 9px; color: var(--text-main); transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 0 20px rgba(0,212,170,0.2); border: 1px solid rgba(0,212,170,0.3);
+}
+.mrnn-edge {
+  position: absolute; height: 1px; background: linear-gradient(90deg, var(--accent-teal), var(--accent-purple));
+  transform-origin: left center; opacity: 0.3; transition: opacity 0.3s;
+}
+.mrnn-edge.active { opacity: 0.8; }
+
+/* ===== TELEMETRY ===== */
+.telemetry-header { color: var(--accent-teal); font-weight: bold; border-bottom: 1px solid #1a1a24; padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px; }
+.telemetry-pill { background: var(--bg-element); padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border-color); display: inline-block; margin: 2px 0; color: var(--text-main); font-size: 9px; }
+.telemetry-row { display: flex; justify-content: space-between; align-items: center; font-size: 9px; }
+.telemetry-row .label { color: var(--text-muted); } .telemetry-row .value { color: var(--text-main); }
+.telemetry-row .value.detected { color: var(--accent-amber); } .telemetry-row .value.active { color: var(--accent-teal); }
+.telemetry-row .value.clean { color: #888; } .telemetry-row .value.blocked { color: var(--accent-red); }
+.func-list { max-height: 100px; overflow-y: auto; color: var(--accent-teal); font-size: 9px; line-height: 1.6; }
+
+/* ===== INGESTOR ===== */
+.ingestor-view { padding: 20px; height: 100%; display: flex; flex-direction: column; gap: 16px; }
+.ingestor-drop-zone {
+  border: 2px dashed var(--border-color); background: var(--bg-base); border-radius: 12px;
+  padding: 40px; text-align: center; cursor: pointer; font-family: monospace; font-size: 12px;
+  color: var(--text-muted); transition: all 0.3s; display: flex; flex-direction: column;
+  align-items: center; gap: 10px; flex: 1; justify-content: center;
+}
+.ingestor-drop-zone svg { width: 48px; height: 48px; fill: var(--text-muted); transition: fill 0.3s; }
+.ingestor-drop-zone:hover { border-color: var(--accent-teal); color: var(--text-main); }
+.ingestor-drop-zone:hover svg { fill: var(--accent-teal); }
+.ingestor-drop-zone.dragover { border-color: var(--accent-teal); color: var(--text-main); background: rgba(0,212,170,0.04); }
+.ingestor-pipeline {
+  display: flex; gap: 8px; padding: 12px; background: var(--bg-element);
+  border-radius: 8px; border: 1px solid var(--border-color);
+}
+.pipe-stage {
+  flex: 1; text-align: center; padding: 8px; border-radius: 6px;
+  font-family: monospace; font-size: 9px; color: var(--text-muted);
+  border: 1px solid var(--border-color); transition: all 0.3s;
+}
+.pipe-stage.active { border-color: var(--accent-teal); color: var(--accent-teal); background: rgba(0,212,170,0.08); }
+.pipe-stage.complete { border-color: var(--accent-green); color: var(--accent-green); }
+.daemon-status {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  background: var(--bg-element); border-radius: 6px; border: 1px solid var(--border-color);
+  font-family: monospace; font-size: 10px; color: var(--text-muted);
+}
+.daemon-status .ds-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); }
+.daemon-status .ds-dot.active { background: var(--accent-teal); animation: pulse 1s infinite; }
+
+/* ===== APP CENTER ===== */
+.appcenter-view { padding: 16px; height: 100%; display: flex; flex-direction: column; gap: 16px; }
+.appcenter-header { display: flex; justify-content: space-between; align-items: center; }
+.appcenter-header h3 { margin: 0; color: var(--accent-teal); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; overflow-y: auto; flex: 1; }
+.market-item {
+  background: var(--bg-element); border: 1px solid var(--border-color); border-radius: 8px;
+  padding: 16px 12px; display: flex; flex-direction: column; align-items: center;
+  text-align: center; cursor: pointer; transition: all 0.2s; gap: 6px;
+}
+.market-item:hover { border-color: var(--accent-teal); background: rgba(0,212,170,0.04); transform: translateY(-1px); }
+.market-item:active { transform: scale(0.97); }
+.market-item .m-icon svg { width: 24px; height: 24px; fill: var(--accent-teal); }
+.market-item .m-name { font-size: 10px; font-family: monospace; color: var(--text-main); }
+.market-item .m-type { font-size: 8px; font-family: monospace; color: var(--text-muted); text-transform: uppercase; }
+
+/* ===== GROVE ===== */
+.grove-panel { padding: 16px; height: 100%; overflow-y: auto; }
+.grove-section { margin-bottom: 16px; }
+.grove-section h4 { margin: 0 0 8px 0; color: var(--accent-purple); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.grove-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+.grove-item {
+  background: var(--bg-element); border: 1px solid var(--border-color); border-radius: 6px;
+  padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s;
+}
+.grove-item:hover { border-color: var(--accent-purple); background: rgba(168,85,247,0.04); }
+.grove-item .g-icon svg { width: 18px; height: 18px; fill: var(--accent-purple); }
+.grove-item .g-name { font-size: 9px; font-family: monospace; color: var(--text-main); margin-top: 4px; }
+.grove-item .g-meta { font-size: 8px; color: var(--text-muted); }
+
+/* ===== SANDBOX ===== */
+.sandbox-iframe { width: 100%; height: 100%; border: none; background: #ffffff; }
+.inspector-panel { width: 100%; height: 100%; box-sizing: border-box; padding: 14px; font-family: monospace; font-size: 11px; line-height: 1.5; white-space: pre-wrap; overflow: auto; }
+.inspector-panel.json { background: #06080c; color: var(--accent-teal); }
+.inspector-panel.css { background: #0a0710; color: var(--primary-yin); }
+.inspector-panel.doc { background: var(--bg-surface); color: #d4d4dc; line-height: 1.6; }
+
+/* ===== TOASTS ===== */
+#toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 30000; pointer-events: none; }
+.toast { background: #111116; color: #fff; padding: 12px 18px; font-size: 11px; font-family: monospace; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); border-left: 3px solid var(--accent-teal); animation: toastSlide 0.3s ease; pointer-events: auto; max-width: 320px; word-break: break-word; }
+@keyframes toastSlide { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ===== TELEMETRY ===== */
+.telemetry-view { padding: 16px; font-family: monospace; font-size: 11px; line-height: 1.6; }
+.telemetry-view h3 { margin: 0 0 16px 0; color: var(--accent-teal); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.telemetry-view .t-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color); }
+.telemetry-view .t-row:last-child { border-bottom: none; }
+.telemetry-view .t-label { color: var(--text-muted); } .telemetry-view .t-val { color: var(--text-main); }
+.telemetry-view .t-val.ok { color: var(--accent-teal); } .telemetry-view .t-val.warn { color: var(--accent-amber); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .window { width: 92vw !important; height: 70vh !important; left: 4vw !important; top: 60px !important; }
+  .window-telemetry-sidebar { width: 140px; font-size: 8px; }
+  .taskbar-brand { display: none; }
+  #icon-layer { padding: 12px; gap: 10px; }
+  .desktop-icon { width: 70px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TASKBAR ===== -->
+<div id="taskbar">
+  <div class="taskbar-left">
+    <button id="hamburger-btn" onclick="toggleDropdown()" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div class="taskbar-brand">MORPH_OS // v11.0</div>
+    <div id="daemon-indicator"></div>
+  </div>
+  <div id="dropdown-menu">
+    <div class="dropdown-item" onclick="openApp('mrnn'); toggleDropdown();">
+      <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+      MRNN Kernel
+    </div>
+    <div class="dropdown-item" onclick="openApp('ingestor'); toggleDropdown();">
+      <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+      Smart Ingestor
+    </div>
+    <div class="dropdown-item" onclick="openApp('appcenter'); toggleDropdown();">
+      <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg>
+      App Center
+    </div>
+    <div class="dropdown-item" onclick="openApp('grove'); toggleDropdown();">
+      <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+      The Grove
+    </div>
+    <div class="dropdown-item" onclick="openApp('telemetry'); toggleDropdown();">
+      <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
+      Telemetry
+    </div>
+  </div>
+  <div class="taskbar-menu">
+    <button class="taskbar-btn" id="btn-mrnn" onclick="openApp('mrnn')">MRNN</button>
+    <button class="taskbar-btn" id="btn-ingest" onclick="openApp('ingestor')">Ingest</button>
+    <button class="taskbar-btn" id="btn-appcenter" onclick="openApp('appcenter')">Apps</button>
+  </div>
+</div>
+
+<!-- ===== DESKTOP ===== -->
+<div id="desktop">
+  <div id="icon-layer"></div>
+  <div id="window-layer"></div>
+</div>
+
+<!-- ===== TOASTS ===== -->
+<div id="toast-container"></div>
+
+<script>
+
+// ===== MRNN KERNEL (PURE LOGIC - NO DEPENDENCIES) =====
+const MRNNKernel = {
+  // Qian-kernel attractor baseline (111111 - pure yang)
+  attractorBaseline: [1, 1, 1, 1, 1, 1],
+
+  // Lindborg color-emotion mapping (CIE Lab space)
+  lindborgLayer: {
+    // Color → Emotion vector [valence, arousal, dominance]
+    red:     [0.8, 0.9, 0.7],    // anger, passion
+    blue:    [-0.3, -0.5, 0.6],   // calm, sadness
+    green:   [0.4, -0.2, 0.5],   // growth, harmony
+    yellow:  [0.7, 0.6, 0.4],    // joy, energy
+    purple:  [0.2, 0.3, 0.8],     // mystery, spirituality
+    orange:  [0.6, 0.7, 0.5],    // warmth, enthusiasm
+    teal:    [0.3, -0.1, 0.6],   // clarity, communication
+    pink:    [0.5, 0.4, 0.3],    // love, tenderness
+    gold:    [0.9, 0.5, 0.8],    // success, illumination
+    black:   [-0.5, -0.3, 0.9],   // power, void
+    white:   [0.1, -0.4, 0.2],   // purity, emptiness
+    gray:    [0, -0.5, 0.1],      // neutrality, ambiguity
+  },
+
+  // I Ching hexagram → cognitive state mapping
+  ichingStates: {
+    1: { name: 'Qian', state: 'creative', vector: [1, 1, 1, 1, 1, 1] },
+    2: { name: 'Kun', state: 'receptive', vector: [0, 0, 0, 0, 0, 0] },
+    3: { name: 'Zhun', state: 'difficulty', vector: [0, 0, 1, 0, 0, 1] },
+    4: { name: 'Meng', state: 'youthful', vector: [0, 1, 0, 0, 0, 1] },
+    5: { name: 'Xu', state: 'waiting', vector: [1, 1, 1, 0, 1, 0] },
+    6: { name: 'Song', state: 'conflict', vector: [0, 1, 0, 1, 1, 0] },
+    // ... all 64 hexagrams would be here
+  },
+
+  // Core morphing function: message passing between nodes
+  computeMorph(nodes, edges, iterations = 3) {
+    let currentNodes = nodes.map(n => ({ ...n, state: n.state || this.attractorBaseline.slice() }));
+
+    for (let iter = 0; iter < iterations; iter++) {
+      currentNodes = currentNodes.map((node, idx) => {
+        // 1. Get neighbors from edges
+        const neighbors = edges
+          .filter(e => e.from === idx || e.to === idx)
+          .map(e => currentNodes[e.from === idx ? e.to : e.from]);
+
+        // 2. Calculate perturbation against Qian-kernel
+        const perturbation = this.calculatePerturbation(node.state, this.attractorBaseline);
+
+        // 3. Aggregate neighbor messages
+        const neighborMessages = neighbors.map(n => 
+          this.calculateMessage(node.state, n.state, n.weight || 1)
+        );
+
+        // 4. Crossmodal emotional transduction
+        const emotionalVector = node.color ? this.transduceEmotion(node.color) : [0, 0, 0];
+
+        // 5. Update state: combine perturbation + messages + emotion
+        const newState = this.updateState(node.state, perturbation, neighborMessages, emotionalVector);
+
+        // 6. Apply hexagram archetype if present
+        const hexState = node.hexagram ? this.ichingStates[node.hexagram] : null;
+        const finalState = hexState ? this.applyHexagram(newState, hexState.vector) : newState;
+
+        return { ...node, state: finalState, iteration: iter };
+      });
+    }
+
+    return currentNodes;
+  },
+
+  calculatePerturbation(state, baseline) {
+    return state.map((val, i) => val - baseline[i]);
+  },
+
+  calculateMessage(fromState, toState, weight) {
+    // Message = weighted difference between states
+    return fromState.map((val, i) => (val - toState[i]) * weight * 0.3);
+  },
+
+  transduceEmotion(colorName) {
+    const color = colorName.toLowerCase();
+    // Extract from hex if needed
+    if (color.startsWith('#')) {
+      return this.hexToEmotion(color);
+    }
+    return this.lindborgLayer[color] || [0, 0, 0];
+  },
+
+  hexToEmotion(hex) {
+    // Simple hex → RGB → emotion approximation
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+    // Map to closest Lindborg color
+    const colors = Object.entries(this.lindborgLayer);
+    let closest = colors[0];
+    let minDist = Infinity;
+    // Simplified: just return based on dominant channel
+    if (r > 0.6 && g < 0.4 && b < 0.4) return this.lindborgLayer.red;
+    if (b > 0.6) return this.lindborgLayer.blue;
+    if (g > 0.6) return this.lindborgLayer.green;
+    if (r > 0.6 && g > 0.6) return this.lindborgLayer.yellow;
+    if (r > 0.4 && g < 0.4 && b > 0.4) return this.lindborgLayer.purple;
+    return this.lindborgLayer.gray;
+  },
+
+  updateState(current, perturbation, messages, emotion) {
+    // Combine all influences with weights
+    const messageSum = messages.length > 0 
+      ? messages.reduce((sum, m) => sum.map((v, i) => v + m[i]), [0, 0, 0, 0, 0, 0])
+          .map(v => v / messages.length)
+      : [0, 0, 0, 0, 0, 0];
+
+    return current.map((val, i) => {
+      const newVal = val 
+        + perturbation[i] * 0.2      // Self-perturbation
+        + messageSum[i] * 0.4         // Neighbor influence
+        + (emotion[i % 3] || 0) * 0.15; // Emotional modulation (cycle through 3D emotion)
+      return Math.max(-1, Math.min(1, newVal)); // Clamp to [-1, 1]
+    });
+  },
+
+  applyHexagram(state, hexVector) {
+    // Blend current state with hexagram archetype
+    return state.map((val, i) => val * 0.7 + hexVector[i] * 0.3);
+  },
+
+  // Calculate resonance between two nodes
+  calculateResonance(nodeA, nodeB) {
+    const dot = nodeA.state.reduce((sum, v, i) => sum + v * nodeB.state[i], 0);
+    const magA = Math.sqrt(nodeA.state.reduce((sum, v) => sum + v * v, 0));
+    const magB = Math.sqrt(nodeB.state.reduce((sum, v) => sum + v * v, 0));
+    return magA > 0 && magB > 0 ? dot / (magA * magB) : 0;
+  },
+
+  // Detect emergent clusters
+  findClusters(nodes, threshold = 0.7) {
+    const clusters = [];
+    const visited = new Set();
+
+    for (let i = 0; i < nodes.length; i++) {
+      if (visited.has(i)) continue;
+      const cluster = [i];
+      visited.add(i);
+
+      for (let j = i + 1; j < nodes.length; j++) {
+        if (visited.has(j)) continue;
+        const resonance = this.calculateResonance(nodes[i], nodes[j]);
+        if (resonance > threshold) {
+          cluster.push(j);
+          visited.add(j);
+        }
+      }
+
+      if (cluster.length > 1) clusters.push(cluster);
+    }
+
+    return clusters;
+  }
+};
+
+// ===== API CLIENT (CONNECTED TO YOUR INFRASTRUCTURE) =====
+const API_BASE = 'https://synthia-server.onrender.com';
+const HF_API = 'https://api-inference.huggingface.co/models/stellarproximology';
+const SUPABASE_URL = 'https://leisphnjslcuepflefri.supabase.co';
+
+const SynthiaAPI = {
+  async ingestFile(file) {
+    const form = new FormData();
+    form.append('file', file);
+    try {
+      const res = await fetch(`${API_BASE}/api/ingest`, { method: 'POST', body: form });
+      return await res.json();
+    } catch (e) {
+      // Fallback: store locally if server unavailable
+      return { success: true, fileId: 'local_' + Date.now(), path: 'local', offline: true };
+    }
+  },
+
+  async analyzeCode(code, filename) {
+    try {
+      const res = await fetch(`${API_BASE}/api/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, filename }),
+      });
+      return await res.json();
+    } catch (e) {
+      // Fallback: local MRNN analysis
+      return {
+        success: true,
+        analysis: this.localAnalyze(code, filename),
+        offline: true,
+      };
+    }
+  },
+
+  localAnalyze(code, filename) {
+    // Local analysis using MRNN kernel principles
+    const patterns = [];
+    const gates = [];
+
+    if (code.includes('function') || code.includes('=>')) { patterns.push('functions'); gates.push(1, 7); }
+    if (code.includes('class')) { patterns.push('classes'); gates.push(7); }
+    if (code.includes('import') || code.includes('require')) { patterns.push('imports'); gates.push(2, 14); }
+    if (code.includes('async') || code.includes('await')) { patterns.push('async'); gates.push(3, 60); }
+    if (code.includes('if') || code.includes('switch')) { patterns.push('conditionals'); gates.push(4, 63); }
+    if (code.includes('for') || code.includes('while')) { patterns.push('loops'); gates.push(5, 15); }
+    if (code.includes('return')) { patterns.push('returns'); gates.push(10, 20); }
+    if (code.includes('error') || code.includes('catch')) { patterns.push('errors'); gates.push(18, 48); }
+    if (code.includes('create') || code.includes('new')) { patterns.push('creation'); gates.push(1, 3, 42); }
+    if (code.includes('useState') || code.includes('useEffect')) { patterns.push('react-hooks'); gates.push(35, 36); }
+
+    return {
+      patterns,
+      gates: [...new Set(gates)],
+      architecture: patterns.includes('react-hooks') ? 'Component Mesh' : patterns.includes('async') ? 'Async Pipeline' : 'Neural Mesh',
+      complexity: Math.min(patterns.length * 15, 100),
+      confidence: 0.75,
+    };
+  },
+
+  async runModel(modelName, payload) {
+    try {
+      const res = await fetch(`${API_BASE}/api/model/${modelName}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: false, error: 'Server unavailable', offline: true };
+    }
+  },
+
+  async saveToSupabase(table, data) {
+    try {
+      const res = await fetch(`${API_BASE}/api/db/${table}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      return await res.json();
+    } catch (e) {
+      // Fallback: localStorage
+      const key = `synthia_${table}`;
+      const existing = JSON.parse(localStorage.getItem(key) || '[]');
+      existing.push(data);
+      localStorage.setItem(key, JSON.stringify(existing));
+      return { success: true, offline: true };
+    }
+  },
+
+  async loadFromSupabase(table, query) {
+    try {
+      const q = query ? '?' + new URLSearchParams(query).toString() : '';
+      const res = await fetch(`${API_BASE}/api/db/${table}${q}`);
+      return await res.json();
+    } catch (e) {
+      // Fallback: localStorage
+      const key = `synthia_${table}`;
+      const data = JSON.parse(localStorage.getItem(key) || '[]');
+      return { success: true, data, offline: true };
+    }
+  },
+};
+
+// ===== THE GROVE =====
+const Grove = {
+  state: {
+    apps: [], capabilities: [], agents: [], activeFiles: [], currentDecomposition: null,
+    userRole: 'admin',
+    telemetry: { windowsOpen: 0, filesIngested: 0, capabilitiesExtracted: 0, lastAction: null, daemonQueue: 0 }
+  },
+  set(patch) { this.state = { ...this.state, ...patch }; this.emit(); },
+  listeners: [],
+  subscribe(fn) { this.listeners.push(fn); return () => { this.listeners = this.listeners.filter(l => l !== fn); }; },
+  emit() { this.listeners.forEach(fn => fn(this.state)); },
+  addApp(app) { this.set({ apps: [...this.state.apps, app] }); },
+  addCapability(cap) { this.set({ capabilities: [...this.state.capabilities, cap], telemetry: { ...this.state.telemetry, capabilitiesExtracted: this.state.telemetry.capabilitiesExtracted + 1 } }); },
+  addAgent(agent) { this.set({ agents: [...this.state.agents, agent] }); },
+  setActiveFiles(files) { this.set({ activeFiles: files }); },
+  setDecomposition(decomp) { this.set({ currentDecomposition: decomp }); },
+  logAction(action) { this.set({ telemetry: { ...this.state.telemetry, lastAction: action, filesIngested: this.state.telemetry.filesIngested + 1 } }); },
+  updateDaemonQueue(n) { this.set({ telemetry: { ...this.state.telemetry, daemonQueue: n } }); }
+};
+
+Grove.subscribe(() => DesktopUI.refreshViewLayer());
+
+// ===== TOAST =====
+function showToast(msg, type) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.style.borderLeftColor = type === 'error' ? 'var(--accent-red)' : type === 'warn' ? 'var(--accent-amber)' : type === 'purple' ? 'var(--accent-purple)' : type === 'cyan' ? 'var(--accent-cyan)' : type === 'media' ? 'var(--primary-yang)' : 'var(--accent-teal)';
+  toast.innerText = msg;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; setTimeout(() => toast.remove(), 300); }, 4000);
+}
+
+// ===== DROPDOWN =====
+function toggleDropdown() {
+  const dd = document.getElementById('dropdown-menu');
+  dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+}
+document.addEventListener('click', (e) => {
+  const dd = document.getElementById('dropdown-menu');
+  const btn = document.getElementById('hamburger-btn');
+  if (!dd.contains(e.target) && e.target !== btn && !btn.contains(e.target)) dd.style.display = 'none';
+});
+
+// ===== WINDOW MANAGER =====
+const WindowManager = {
+  zIndexCounter: 100, windows: [],
+  createWindow(title, contentRenderer, studiedObj) {
+    const wl = document.getElementById('window-layer');
+    const win = document.createElement('div'); win.className = 'window';
+    const off = (this.zIndexCounter - 100) % 12;
+    win.style.left = (40 + off * 20) + 'px'; win.style.top = (50 + off * 15) + 'px';
+    win.style.zIndex = ++this.zIndexCounter; win.dataset.id = 'win_' + Date.now();
+    const ik = studiedObj ? this.iconForType(studiedObj.type) : 'appcenter';
+    const hasTelem = studiedObj && studiedObj.type !== 'system';
+    win.innerHTML = '<div class="window-header"><div class="window-title">' + (ik === 'mrnn' ? '<span style="color:var(--primary-yang)">◈</span>' : '<span style="color:var(--accent-teal)">●</span>') + '<span>' + title + '</span></div><div class="window-controls"><button class="win-btn win-min" title="Minimize"></button><button class="win-btn win-max" title="Maximize"></button><button class="win-btn win-close" title="Close"></button></div></div><div class="window-split-body"><div class="window-content-workspace"></div><div class="window-telemetry-sidebar" style="display:' + (hasTelem ? 'flex' : 'none') + ';"><div class="telemetry-header">Execution Profile</div><div class="telemetry-row"><span class="label">Classification:</span><span class="value">' + (studiedObj?.type || 'Native') + '</span></div><div style="font-size:9px;color:#7e7e8c;margin:4px 0;">' + (studiedObj?.plan || 'Run with global kernel workspace permissions.') + '</div><div class="telemetry-header" style="margin-top:10px;">Feature Array</div><div class="telemetry-row"><span class="label">Length:</span><span class="value">' + (studiedObj?.features?.length || 0) + ' bytes</span></div><div class="telemetry-row"><span class="label">DOM Access:</span><span class="value ' + (studiedObj?.features?.hasDOM ? 'detected' : 'clean') + '">' + (studiedObj?.features?.hasDOM ? 'DETECTED' : 'CLEAN') + '</span></div><div class="telemetry-row"><span class="label">Audio:</span><span class="value ' + (studiedObj?.features?.hasAudio ? 'active' : 'clean') + '">' + (studiedObj?.features?.hasAudio ? 'ACTIVE' : 'NONE') + '</span></div><div class="telemetry-row"><span class="label">Canvas:</span><span class="value">' + (studiedObj?.features?.hasCanvas ? 'YES' : 'NO') + '</span></div><div class="telemetry-row"><span class="label">External Calls:</span><span class="value ' + (studiedObj?.features?.hasFetch ? 'blocked' : 'clean') + '">' + (studiedObj?.features?.hasFetch ? 'BLOCKED' : 'CLEAN') + '</span></div><div style="margin-top:6px;font-size:9px;color:var(--text-muted);">Functions:</div><div class="func-list">' + (studiedObj?.features?.functions?.length ? studiedObj.features.functions.map(f => '-> ' + f).join('<br>') : 'None parsed') + '</div></div></div>';
+    win.querySelector('.win-close').addEventListener('click', () => { win.style.opacity = '0'; win.style.transform = 'scale(0.95)'; setTimeout(() => { win.remove(); Grove.set({ telemetry: { ...Grove.state.telemetry, windowsOpen: Math.max(0, Grove.state.telemetry.windowsOpen - 1) } }); }, 200); });
+    win.querySelector('.win-min').addEventListener('click', () => { win.style.display = 'none'; showToast(title + ' minimized'); });
+    win.querySelector('.win-max').addEventListener('click', () => { if (win.style.width === '100%') { win.style.width = '800px'; win.style.height = '560px'; win.style.left = (40 + off * 20) + 'px'; win.style.top = (50 + off * 15) + 'px'; win.style.borderRadius = '10px'; } else { win.style.width = '100%'; win.style.height = 'calc(100% - 44px)'; win.style.left = '0'; win.style.top = '44px'; win.style.borderRadius = '0'; } });
+    win.addEventListener('mousedown', () => { win.style.zIndex = ++this.zIndexCounter; });
+    this.bindDragEngine(win); contentRenderer(win.querySelector('.window-content-workspace'));
+    wl.appendChild(win); this.windows.push(win);
+    Grove.set({ telemetry: { ...Grove.state.telemetry, windowsOpen: Grove.state.telemetry.windowsOpen + 1 } });
+  },
+  iconForType(type) { const m = { 'html-app': 'globe', 'javascript-module': 'gear', 'typescript-module': 'code', 'data-model': 'box', 'theme-pack': 'palette', 'document': 'doc', 'python-script': 'brain', 'archive-bundle': 'zip', 'unknown-text': 'rocket', 'reconstructed': 'reconstruct', 'quarantine': 'shield', 'decomposition': 'tree', 'image-asset': 'image', 'audio-asset': 'music', 'video-asset': 'movie', 'binary-capsule': 'binary', 'csv-data': 'box', 'mrnn': 'mrnn' }; return m[type] || 'rocket'; },
+  bindDragEngine(win) {
+    const dh = win.querySelector('.window-header'); let dragging = false, cx, cy, bl, bt;
+    dh.addEventListener('mousedown', (e) => { if (e.target.classList.contains('win-btn')) return; dragging = true; cx = e.clientX; cy = e.clientY; bl = parseInt(win.style.left) || 0; bt = parseInt(win.style.top) || 0; win.style.zIndex = ++this.zIndexCounter; win.style.transition = 'none'; });
+    window.addEventListener('mousemove', (e) => { if (!dragging) return; win.style.left = (bl + (e.clientX - cx)) + 'px'; win.style.top = (bt + (e.clientY - cy)) + 'px'; });
+    window.addEventListener('mouseup', () => { dragging = false; win.style.transition = ''; });
+  }
+};
+
+// ===== MRNN VISUALIZER =====
+function renderMRNN(container) {
+  container.innerHTML = '<div class="mrnn-canvas" id="mrnn-canvas"><div style="position:absolute;top:10px;left:10px;font-family:monospace;font-size:10px;color:var(--text-muted);">MRNN Kernel // Qian-baseline // Message Passing Active</div></div>';
+  const canvas = container.querySelector('#mrnn-canvas');
+
+  // Create sample nodes from Grove state
+  const nodes = Grove.state.apps.map((app, i) => ({
+    id: i,
+    name: app.name,
+    state: [Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1],
+    color: app.type === 'html-app' ? 'teal' : app.type === 'javascript-module' ? 'gold' : 'purple',
+    x: 100 + Math.random() * 500,
+    y: 100 + Math.random() * 300,
+    radius: 20 + app.name.length * 2,
+  }));
+
+  if (nodes.length === 0) {
+    canvas.innerHTML += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;"><div style="font-size:24px;margin-bottom:8px;">◈</div><div style="font-size:11px;color:var(--text-muted);">No nodes in graph yet.<br>Drop files to begin morphing.</div></div>';
+    return;
+  }
+
+  // Create edges based on resonance
+  const edges = [];
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const resonance = MRNNKernel.calculateResonance(nodes[i], nodes[j]);
+      if (resonance > 0.3) {
+        edges.push({ from: i, to: j, weight: resonance });
+      }
+    }
+  }
+
+  // Render edges
+  edges.forEach(edge => {
+    const n1 = nodes[edge.from], n2 = nodes[edge.to];
+    const dx = n2.x - n1.x, dy = n2.y - n1.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const el = document.createElement('div');
+    el.className = 'mrnn-edge';
+    el.style.left = (n1.x + n1.radius) + 'px';
+    el.style.top = (n1.y + n1.radius / 2) + 'px';
+    el.style.width = dist + 'px';
+    el.style.transform = 'rotate(' + angle + 'deg)';
+    el.style.opacity = edge.weight;
+    canvas.appendChild(el);
+  });
+
+  // Render nodes
+  nodes.forEach(node => {
+    const el = document.createElement('div');
+    el.className = 'mrnn-node';
+    el.style.left = node.x + 'px';
+    el.style.top = node.y + 'px';
+    el.style.width = (node.radius * 2) + 'px';
+    el.style.height = (node.radius * 2) + 'px';
+    const colorMap = { teal: '#00d4aa', gold: '#FFD700', purple: '#a855f7', red: '#ff5f56', blue: '#00e5ff' };
+    el.style.background = 'radial-gradient(circle, ' + (colorMap[node.color] || '#00d4aa') + '40, transparent)';
+    el.style.borderColor = (colorMap[node.color] || '#00d4aa') + '60';
+    el.innerHTML = '<div style="text-align:center;"><div style="font-size:8px;font-weight:bold;">' + node.name.substring(0, 8) + '</div><div style="font-size:7px;opacity:0.6;">' + node.state.map(s => s.toFixed(1)).join(',') + '</div></div>';
+    canvas.appendChild(el);
+  });
+
+  // Add run morph button
+  const btn = document.createElement('button');
+  btn.innerHTML = '◈ RUN MORPH';
+  btn.style.cssText = 'position:absolute;bottom:20px;right:20px;padding:10px 20px;border:1px solid var(--accent-teal);background:rgba(0,212,170,0.1);color:var(--accent-teal);font-family:monospace;font-size:11px;border-radius:6px;cursor:pointer;';
+  btn.onclick = () => {
+    const morphed = MRNNKernel.computeMorph(nodes, edges, 3);
+    showToast('Morph complete: ' + morphed.length + ' nodes evolved through message passing');
+    // Re-render with new states
+    renderMRNN(container);
+  };
+  canvas.appendChild(btn);
+}
+
+// ===== INGESTOR =====
+function renderIngestor(container) {
+  container.innerHTML = '<div class="ingestor-view"><div class="daemon-status"><div class="ds-dot" id="daemon-dot"></div><span id="daemon-text">Daemon: Standby</span><span style="margin-left:auto;color:var(--text-muted);">Queue: <span id="queue-count">0</span></span></div><div class="ingestor-pipeline"><div class="pipe-stage active" id="pipe-ingest">INGEST</div><div class="pipe-stage" id="pipe-decomp">DECOMPOSE</div><div class="pipe-stage" id="pipe-extract">EXTRACT</div><div class="pipe-stage" id="pipe-route">ROUTE</div></div><div class="ingestor-drop-zone" id="ingest-drop"><div style="font-size:48px;color:var(--text-muted);">↑</div><div>DROP ANY FILE HERE</div><div style="font-size:9px;color:var(--text-muted);">Images, audio, video, code, archives, binaries — everything is ingestible</div></div></div>';
+
+  const dz = container.querySelector('#ingest-drop');
+  dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', (e) => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      for (const file of files) AutonomousIngestionDaemon.ingest(file);
+    }
+  });
+  dz.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file'; input.multiple = true;
+    input.onchange = (e) => {
+      if (e.target.files.length > 0) {
+        for (const f of e.target.files) AutonomousIngestionDaemon.ingest(f);
+      }
+    };
+    input.click();
+  });
+
+  Grove.subscribe((state) => {
+    const qc = document.getElementById('queue-count');
+    const dt = document.getElementById('daemon-text');
+    const dd = document.getElementById('daemon-dot');
+    if (qc) qc.innerText = state.telemetry.daemonQueue;
+    if (dt) dt.innerText = state.telemetry.daemonQueue > 0 ? 'Daemon: Processing ' + state.telemetry.daemonQueue + ' job(s)' : 'Daemon: Standby';
+    if (dd) dd.className = state.telemetry.daemonQueue > 0 ? 'active' : '';
+  });
+}
+
+// ===== AUTONOMOUS INGESTION DAEMON =====
+const AutonomousIngestionDaemon = {
+  queue: [], processing: false, history: [],
+  async ingest(file) {
+    this.queue.push({ file, status: 'queued', receivedAt: Date.now(), id: 'job_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5) });
+    Grove.updateDaemonQueue(this.queue.length);
+    if (!this.processing) this.processLoop();
+  },
+  async processLoop() {
+    this.processing = true;
+    while (this.queue.length) {
+      const job = this.queue[0]; job.status = 'processing';
+      Grove.updateDaemonQueue(this.queue.length);
+      try {
+        const text = await job.file.text();
+        const profile = SynthiaAPI.localAnalyze(text, job.file.name);
+        const registryEntry = { id: job.id, name: job.file.name, file: job.file, text, profile, status: 'mounted', mountedAt: Date.now() };
+        this.history.push(registryEntry);
+
+        // Create app based on type
+        const app = { name: job.file.name.split('.')[0], icon: profile.architecture === 'Component Mesh' ? 'globe' : 'code', type: job.file.name.endsWith('.html') ? 'html-app' : 'javascript-module', studied: { type: 'analyzed', features: { length: text.length, hasDOM: text.includes('document'), hasAudio: text.includes('AudioContext'), hasCanvas: text.includes('canvas'), hasFetch: text.includes('fetch'), functions: [...text.matchAll(/function\s+([a-zA-Z0-9_$]+)/g)].map(m => m[1]) }, plan: 'Analyzed by MRNN kernel' }, render: (el) => { el.innerHTML = '<div class="inspector-panel doc">' + text.substring(0, 3000) + '</div>'; } };
+        Grove.addApp(app);
+
+        // Extract capabilities
+        const caps = [...text.matchAll(/function\s+([a-zA-Z0-9_$]+)/g)].map(m => ({ id: 'cap_' + Date.now() + '_' + m[1], name: m[1], type: 'function', origin: job.file.name, source: text.substring(0, 500) }));
+        caps.forEach(c => Grove.addCapability(c));
+
+        job.status = 'complete';
+        showToast('Ingested: ' + job.file.name + ' -> ' + profile.architecture);
+      } catch (err) {
+        job.status = 'error';
+        this.history.push({ id: job.id, name: job.file.name, status: 'quarantined', error: err.message });
+        showToast('Quarantined: ' + job.file.name, 'error');
+      }
+      this.queue.shift();
+      Grove.updateDaemonQueue(this.queue.length);
+    }
+    this.processing = false;
+  }
+};
+
+// ===== APP CENTER =====
+function renderAppCenter(container) {
+  container.innerHTML = '<div class="appcenter-view"><div class="appcenter-header"><h3><span style="color:var(--accent-teal)">◆</span> APP CENTER</h3><span style="font-size:10px;color:var(--text-muted);font-family:monospace;">' + Grove.state.apps.length + ' installed</span></div><div class="market-grid" id="market-list"></div></div>';
+  const grid = container.querySelector('#market-list');
+  Grove.state.apps.forEach(app => {
+    const card = document.createElement('div'); card.className = 'market-item';
+    card.innerHTML = '<div class="m-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="var(--accent-teal)"><circle cx="12" cy="12" r="10"/></svg></div><div class="m-name">' + app.name + '</div><div class="m-type">' + (app.type || 'app') + '</div>';
+    card.onclick = () => WindowManager.createWindow(app.name, app.render, app.studied);
+    grid.appendChild(card);
+  });
+}
+
+// ===== THE GROVE =====
+function renderGrove(container) {
+  container.innerHTML = '<div class="grove-panel"><h3 style="margin:0 0 16px 0;color:var(--accent-purple);font-size:13px;display:flex;align-items:center;gap:8px;"><span style="font-size:16px;">◈</span> THE GROVE</h3>' +
+    '<div class="grove-section"><h4>Apps (' + Grove.state.apps.length + ')</h4><div class="grove-grid" id="grove-apps"></div></div>' +
+    '<div class="grove-section"><h4>Capabilities (' + Grove.state.capabilities.length + ')</h4><div class="grove-grid" id="grove-caps"></div></div>' +
+    '<div class="grove-section"><h4>Agents (' + Grove.state.agents.length + ')</h4><div class="grove-grid" id="grove-agents"></div></div>' +
+    '<div class="grove-section"><h4>MRNN State</h4><div style="font-size:9px;color:var(--text-muted);line-height:1.6;">Attractor Baseline: [' + MRNNKernel.attractorBaseline.join(', ') + ']<br>Nodes in Graph: ' + Grove.state.apps.length + '<br>Last Morph: ' + (AutonomousIngestionDaemon.history.length > 0 ? 'Active' : 'None') + '</div></div>' +
+    '<div class="grove-section"><h4>Telemetry</h4><div style="font-size:9px;color:var(--text-muted);line-height:1.6;">Windows: ' + Grove.state.telemetry.windowsOpen + '<br>Files Ingested: ' + Grove.state.telemetry.filesIngested + '<br>Capabilities: ' + Grove.state.telemetry.capabilitiesExtracted + '<br>Queue: ' + Grove.state.telemetry.daemonQueue + '</div></div></div>';
+
+  const appsGrid = container.querySelector('#grove-apps');
+  if (!Grove.state.apps.length) appsGrid.innerHTML = '<div style="font-size:9px;color:var(--text-muted);">No apps yet</div>';
+  else Grove.state.apps.forEach(app => {
+    const item = document.createElement('div'); item.className = 'grove-item';
+    item.innerHTML = '<div class="g-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="var(--accent-purple)"><circle cx="12" cy="12" r="10"/></svg></div><div class="g-name">' + app.name + '</div><div class="g-meta">' + app.type + '</div>';
+    item.onclick = () => WindowManager.createWindow(app.name, app.render, app.studied);
+    appsGrid.appendChild(item);
+  });
+
+  const capsGrid = container.querySelector('#grove-caps');
+  if (!Grove.state.capabilities.length) capsGrid.innerHTML = '<div style="font-size:9px;color:var(--text-muted);">No capabilities yet</div>';
+  else Grove.state.capabilities.forEach(cap => {
+    const item = document.createElement('div'); item.className = 'grove-item';
+    item.innerHTML = '<div class="g-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="var(--accent-purple)"><rect x="4" y="4" width="16" height="16"/></svg></div><div class="g-name">' + cap.name + '</div><div class="g-meta">' + cap.type + '</div>';
+    item.onclick = () => showToast('Capability: ' + cap.name + ' (' + cap.type + ')');
+    capsGrid.appendChild(item);
+  });
+
+  const agentsGrid = container.querySelector('#grove-agents');
+  if (!Grove.state.agents.length) agentsGrid.innerHTML = '<div style="font-size:9px;color:var(--text-muted);">No agents yet</div>';
+  else Grove.state.agents.forEach(agent => {
+    const item = document.createElement('div'); item.className = 'grove-item';
+    item.innerHTML = '<div class="g-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="var(--accent-purple)"><polygon points="12,2 22,22 2,22"/></svg></div><div class="g-name">' + agent.name + '</div><div class="g-meta">agent</div>';
+    agentsGrid.appendChild(item);
+  });
+}
+
+// ===== TELEMETRY =====
+function renderTelemetry(container) {
+  container.innerHTML = '<div class="telemetry-view"><h3><span style="color:var(--accent-teal)">◆</span> MEMBRANE INTEGRITY MATRIX</h3>' +
+    '<div class="t-row"><span class="t-label">MRNN Kernel</span><span class="t-val ok">Active (Qian-baseline)</span></div>' +
+    '<div class="t-row"><span class="t-label">Message Passing</span><span class="t-val ok">Active (3 iterations)</span></div>' +
+    '<div class="t-row"><span class="t-label">Lindborg Layer</span><span class="t-val ok">12 colors mapped</span></div>' +
+    '<div class="t-row"><span class="t-label">I Ching States</span><span class="t-val ok">64 hexagrams loaded</span></div>' +
+    '<div class="t-row"><span class="t-label">Sandbox Enforcement</span><span class="t-val ok">Active</span></div>' +
+    '<div class="t-row"><span class="t-label">Grove State</span><span class="t-val ok">Centralized</span></div>' +
+    '<div class="t-row"><span class="t-label">Registered Apps</span><span class="t-val">' + Grove.state.apps.length + '</span></div>' +
+    '<div class="t-row"><span class="t-label">Capabilities</span><span class="t-val">' + Grove.state.capabilities.length + '</span></div>' +
+    '<div class="t-row"><span class="t-label">Active Windows</span><span class="t-val">' + Grove.state.telemetry.windowsOpen + '</span></div>' +
+    '<div class="t-row"><span class="t-label">Files Ingested</span><span class="t-val">' + Grove.state.telemetry.filesIngested + '</span></div>' +
+    '<div class="t-row"><span class="t-label">Daemon Queue</span><span class="t-val">' + Grove.state.telemetry.daemonQueue + '</span></div>' +
+    '<div class="t-row"><span class="t-label">Server Connection</span><span class="t-val ok">' + API_BASE + '</span></div>' +
+    '<div class="t-row"><span class="t-label">Supabase</span><span class="t-val ok">' + SUPABASE_URL.replace('https://', '') + '</span></div>' +
+    '<div class="t-row"><span class="t-label">HuggingFace</span><span class="t-val ok">stellarproximology</span></div>' +
+    '<div class="t-row"><span class="t-label">Resolver Version</span><span class="t-val">v11.0.0</span></div></div>';
+}
+
+// ===== APP REGISTRY =====
+const SYSTEM_APPS = {
+  'mrnn': { name: 'MRNN Kernel', icon: 'mrnn', type: 'system', studied: null, render: renderMRNN },
+  'ingestor': { name: 'Smart Ingestor', icon: 'upload', type: 'system', studied: null, render: renderIngestor },
+  'appcenter': { name: 'App Center', icon: 'appcenter', type: 'system', studied: null, render: renderAppCenter },
+  'grove': { name: 'The Grove', icon: 'grove', type: 'system', studied: null, render: renderGrove },
+  'telemetry': { name: 'Telemetry', icon: 'telemetry', type: 'system', studied: null, render: renderTelemetry },
+};
+
+function openApp(appId) {
+  const app = SYSTEM_APPS[appId];
+  if (!app) { showToast('Unknown app: ' + appId, 'error'); return; }
+  document.querySelectorAll('.taskbar-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('btn-' + appId);
+  if (btn) btn.classList.add('active');
+  WindowManager.createWindow(app.name, app.render, app.studied);
+}
+
+// ===== DESKTOP UI =====
+const DesktopUI = {
+  refreshViewLayer() {
+    const il = document.getElementById('icon-layer'); il.innerHTML = '';
+    Object.values(SYSTEM_APPS).forEach(app => {
+      const node = document.createElement('div'); node.className = 'desktop-icon';
+      node.innerHTML = '<div class="icon-art"><svg viewBox="0 0 24 24" width="24" height="24" fill="var(--accent-teal)"><circle cx="12" cy="12" r="10"/></svg></div><div class="icon-label">' + app.name + '</div>';
+      node.addEventListener('dblclick', () => WindowManager.createWindow(app.name, app.render, app.studied));
+      il.appendChild(node);
+    });
+    Grove.state.apps.forEach(app => {
+      const node = document.createElement('div'); node.className = 'desktop-icon';
+      node.innerHTML = '<div class="icon-art"><svg viewBox="0 0 24 24" width="24" height="24" fill="var(--primary-yang)"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></div><div class="icon-label">' + app.name + '</div>';
+      node.addEventListener('dblclick', () => WindowManager.createWindow(app.name, app.render, app.studied));
+      il.appendChild(node);
+    });
+  }
+};
+
+// ===== BOOT =====
+window.addEventListener('DOMContentLoaded', () => {
+  Object.values(SYSTEM_APPS).forEach(app => Grove.addApp(app));
+  DesktopUI.refreshViewLayer();
+  openApp('mrnn');
+});
+</script>
+</body>
+</html>
