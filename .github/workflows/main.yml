@@ -1,35 +1,16 @@
-name: Unzip and scaffold Resonance repo
+name: Unzip package
 
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'index.html'
-      - 'apps/**'
-      - 'assets/**'
-      - 'public/**'
-      - 'src/**'
-      - 'docs/**'
-      - 'archives/**'
-      - 'sources/**'
-      - 'database/**'
-      - 'package.json'
-      - 'tsconfig.json'
-      - 'BUILD_MANIFEST.json'
-      - 'SECRET_SCAN.json'
   workflow_dispatch:
 
 permissions:
   contents: write
 
-concurrency:
-  group: unzip-scaffold-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   unzip:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -39,42 +20,39 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Unzip package into repository root
+      - name: Unzip ZIP into repo
         shell: bash
         run: |
           set -euo pipefail
 
-          echo "Repo before:"
-          find . -maxdepth 4 -type f | sort
-
-          rm -rf extracted
-
-          ZIP_FILE=$(find . -maxdepth 4 -type f -name '*.zip' | head -n 1 || true)
+          echo "Looking for ZIP..."
+          ZIP_FILE=$(find . -maxdepth 4 -type f -name '*.zip' | sort | head -n 1 || true)
 
           if [ -z "$ZIP_FILE" ]; then
             echo "ERROR: No ZIP file found."
             exit 1
           fi
 
-          echo "Unzipping: $ZIP_FILE"
+          echo "Found ZIP: $ZIP_FILE"
+          rm -rf extracted
           mkdir -p extracted
           unzip -o "$ZIP_FILE" -d extracted
 
-          PACKAGE_ROOT=$(find extracted -mindepth 1 -maxdepth 2 -type f -name 'package.json' -printf '%h\n' | head -n 1 || true)
+          echo "Finding extracted package root..."
+          PACKAGE_ROOT=$(find extracted -mindepth 1 -maxdepth 2 -type f -name 'package.json' -printf '%h\n' | sort | head -n 1 || true)
 
           if [ -z "$PACKAGE_ROOT" ]; then
-            PACKAGE_ROOT=$(find extracted -mindepth 1 -maxdepth 1 -type d | head -n 1 || true)
+            PACKAGE_ROOT=$(find extracted -mindepth 1 -maxdepth 1 -type d | sort | head -n 1 || true)
           fi
 
           if [ -z "$PACKAGE_ROOT" ]; then
             echo "ERROR: Could not identify extracted package root."
+            find extracted -maxdepth 4 -type f | sort
             exit 1
           fi
 
-          echo "Package root: $PACKAGE_ROOT"
-          echo "HTML files found after unzip:"
-          find "$PACKAGE_ROOT" -type f \( -iname '*.html' -o -iname '*.htm' \) | sort
-
+          echo "Using package root: $PACKAGE_ROOT"
+          echo "Copying extracted contents into repository root..."
           rsync -av \
             --exclude '.git/' \
             --exclude '.github/' \
@@ -83,27 +61,25 @@ jobs:
             "$PACKAGE_ROOT"/ ./
 
           if [ -f public/index.html ]; then
+            echo "Copying public/index.html to root index.html"
             cp public/index.html index.html
-            if [ -d public/apps ]; then
-              rm -rf apps
-              cp -R public/apps ./apps
-            fi
-            if [ -d public/assets ]; then
-              rm -rf assets
-              cp -R public/assets ./assets
-            fi
-          elif [ ! -f index.html ]; then
-            HTML_FILE=$(find . -type f \( -iname '*.html' -o -iname '*.htm' \) | grep -v '^./extracted/' | head -n 1 || true)
-            if [ -z "$HTML_FILE" ]; then
-              echo "ERROR: No HTML file found after unzip."
-              exit 1
-            fi
-            cp "$HTML_FILE" index.html
+          fi
+
+          if [ -d public/apps ]; then
+            echo "Copying public/apps to root apps"
+            rm -rf apps
+            cp -R public/apps ./apps
+          fi
+
+          if [ -d public/assets ]; then
+            echo "Copying public/assets to root assets"
+            rm -rf assets
+            cp -R public/assets ./assets
           fi
 
           rm -rf extracted
 
-          echo "Repo after scaffold:"
+          echo "Final deployable files:"
           find . -maxdepth 4 -type f | sort
 
           git config user.name "github-actions[bot]"
@@ -111,8 +87,8 @@ jobs:
           git add .
 
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "No changes to commit. ZIP contents already unpacked."
           else
-            git commit -m "Unpack SYNTHIA package into deployable Stellar Proximology site [skip ci]"
+            git commit -m "Unzip package into deployable site"
             git push
           fi
