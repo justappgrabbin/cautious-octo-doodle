@@ -1,0 +1,52 @@
+name: Unzip and scaffold Resonance repo
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Unzip package and choose morphing substrate index
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Repo before:"
+          find . -maxdepth 4 -type f | sort
+
+          rm -f index.html
+          rm -rf extracted
+
+          ZIP_FILE=$(find . -maxdepth 4 -type f -name '*.zip' | head -n 1 || true)
+
+          if [ -z "$ZIP_FILE" ]; then
+            echo "ERROR: No ZIP file found."
+            exit 1
+          fi
+
+          echo "Unzipping: $ZIP_FILE"
+          mkdir -p extracted
+          unzip -o "$ZIP_FILE" -d extracted
+
+          echo "HTML files found after unzip:"
+          find extracted -type f -iname '*.html' -o -iname '*.htm' | sort
+
+          HTML_FILE=$(find extracted -type f -iname 'resonance-beef-morphos.html' | head -n 1 || true)
+
+          if [ -z "$HTML_FILE" ]; then
+            HTML_FILE=$(find extracted -type f -iname '*beef*morphos*.html' | head -n 1 || true)
+          fi
+
+          then
