@@ -4,14 +4,35 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'index.html'
+      - 'apps/**'
+      - 'assets/**'
+      - 'public/**'
+      - 'src/**'
+      - 'docs/**'
+      - 'archives/**'
+      - 'sources/**'
+      - 'database/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - 'BUILD_MANIFEST.json'
+      - 'SECRET_SCAN.json'
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: unzip-scaffold-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   unzip:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,6 +113,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "Unpack SYNTHIA package into deployable Stellar Proximology site"
+            git commit -m "Unpack SYNTHIA package into deployable Stellar Proximology site [skip ci]"
             git push
           fi
