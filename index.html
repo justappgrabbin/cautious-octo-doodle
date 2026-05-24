@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>Synthia Canonical Build</title>
+<style>
+:root{--bg:#050508;--panel:#0d0d16;--edge:#25253a;--text:#f0e6ff;--muted:#9b8dbd;--pink:#ff6b9d;--purple:#8b5cf6;--teal:#14b8a6;--yellow:#ffb300}
+*{box-sizing:border-box} body{margin:0;height:100vh;background:radial-gradient(circle at 20% 20%,rgba(139,92,246,.18),transparent 32%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;display:grid;grid-template-columns:330px 1fr;overflow:hidden}
+aside{background:rgba(13,13,22,.94);border-right:1px solid var(--edge);padding:14px;overflow:auto} main{display:flex;flex-direction:column;min-width:0} h1{font-size:20px;margin:0 0 6px;color:var(--teal)} .sub{font-size:12px;line-height:1.45;color:var(--muted);margin-bottom:12px}
+.mode-pill{display:inline-block;border:1px solid var(--edge);border-radius:999px;padding:3px 8px;margin:2px;font-size:11px;color:var(--muted)}
+.app-card{width:100%;text-align:left;background:#151526;color:var(--text);border:1px solid var(--edge);border-radius:12px;padding:10px;margin:5px 0;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.app-card:hover,.app-card.active{border-color:var(--teal);box-shadow:0 0 14px rgba(20,184,166,.18)} .app-card small{color:var(--muted)}
+.toolbar{height:42px;display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--edge);background:rgba(5,5,8,.8)} .toolbar b{color:var(--yellow)}
+iframe{border:0;flex:1;background:#000;width:100%} .btn{background:#151526;border:1px solid var(--edge);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer}
+@media(max-width:800px){body{grid-template-columns:1fr} aside{height:42vh;border-right:0;border-bottom:1px solid var(--edge)}}
+</style>
+</head>
+<body>
+<aside>
+<h1>Synthia Canonical Build</h1>
+<div class="sub">Synthia substrate is the sovereign runtime. Everything else mounts as an embodiment, workspace, bridge, or interface. Originals are preserved in <code>sources/originals</code>.</div>
+<div><span class="mode-pill">substrate-first</span><span class="mode-pill">MCP bridge mounted</span><span class="mode-pill">Supabase schema included</span><span class="mode-pill">donor lineage preserved</span></div>
+<hr style="border:0;border-top:1px solid var(--edge);margin:12px 0">
+<button class="app-card" data-src="apps/synthia-substrate.html" onclick="loadApp(this)"><span>synthia-substrate</span><small>50 KB</small></button>
+<button class="app-card" data-src="apps/mrnn-kernel.html" onclick="loadApp(this)"><span>mrnn-kernel</span><small>50 KB</small></button>
+<button class="app-card" data-src="apps/morph-os-v13.html" onclick="loadApp(this)"><span>morph-os-v13</span><small>35 KB</small></button>
+<button class="app-card" data-src="apps/orchestrator-demo.html" onclick="loadApp(this)"><span>orchestrator-demo</span><small>29 KB</small></button>
+<button class="app-card" data-src="apps/morph-substrate-assembled.html" onclick="loadApp(this)"><span>morph-substrate-assembled</span><small>468 KB</small></button>
+<button class="app-card" data-src="apps/joe-resonance-unified.html" onclick="loadApp(this)"><span>joe-resonance-unified</span><small>432 KB</small></button>
+<button class="app-card" data-src="apps/resonance-phonyos-final.html" onclick="loadApp(this)"><span>resonance-phonyos-final</span><small>519 KB</small></button>
+<button class="app-card" data-src="apps/resonance-construct.html" onclick="loadApp(this)"><span>resonance-construct</span><small>390 KB</small></button>
+<button class="app-card" data-src="apps/resonance-menu-fixed.html" onclick="loadApp(this)"><span>resonance-menu-fixed</span><small>307 KB</small></button>
+<button class="app-card" data-src="apps/resonance-bottom-menu-repaired.html" onclick="loadApp(this)"><span>resonance-bottom-menu-repaired</span><small>307 KB</small></button>
+<button class="app-card" data-src="apps/resonance-os-merged.html" onclick="loadApp(this)"><span>resonance-os-merged</span><small>304 KB</small></button>
+<button class="app-card" data-src="apps/resonance-os-v4.html" onclick="loadApp(this)"><span>resonance-os-v4</span><small>177 KB</small></button>
+<button class="app-card" data-src="apps/morph-os-substrate.html" onclick="loadApp(this)"><span>morph-os-substrate</span><small>58 KB</small></button>
+<button class="app-card" data-src="apps/morph-os-v2.html" onclick="loadApp(this)"><span>morph-os-v2</span><small>82 KB</small></button>
+</aside>
+<main>
+<div class="toolbar"><b id="activeName">Synthia substrate</b><button class="btn" onclick="openCurrent()">open raw</button></div>
+<iframe id="frame" sandbox="allow-scripts allow-forms allow-same-origin allow-modals allow-popups allow-downloads" src="apps/synthia-substrate.html"></iframe>
+</main>
+<script>
+let current='apps/synthia-substrate.html';
+function loadApp(btn){document.querySelectorAll('.app-card').forEach(b=>b.classList.remove('active'));btn.classList.add('active');current=btn.dataset.src;document.getElementById('frame').src=current;document.getElementById('activeName').textContent=btn.querySelector('span').textContent;}
+function openCurrent(){window.open(current,'_blank')}
+</script>
+</body></html>
